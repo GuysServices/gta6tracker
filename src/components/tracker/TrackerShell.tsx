@@ -68,7 +68,8 @@ export default function TrackerShell({
   for (const g of globalStats) globalMap[g.mission_id] = g.completed_count
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#080910] text-white">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,105,139,.11),transparent_55%),radial-gradient(ellipse_at_100%_25%,rgba(104,91,214,.08),transparent_38%)]" />
       <TopBar
         user={user}
         completedCount={completedCount}
@@ -83,7 +84,7 @@ export default function TrackerShell({
         completedCount={completedCount}
       />
 
-      <div className="max-w-4xl mx-auto w-full px-4 py-8 flex flex-col gap-4">
+      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-7 sm:px-6 sm:py-9">
         {chapters.map(chapter => (
           <ChapterCard
             key={chapter.id}
@@ -100,8 +101,8 @@ export default function TrackerShell({
         ))}
       </div>
 
-      <footer className="border-t border-vc-border mt-auto py-6 text-center text-vc-muted/40 text-xs">
-        Not affiliated with Rockstar Games. Fan-made tracker.
+      <footer className="relative z-10 mt-auto border-t border-white/[0.08] bg-black/20 px-4 py-6 text-center text-[9px] uppercase tracking-[0.18em] text-white/25">
+        Leonida Tracker · Independent fan-made project · Not affiliated with Rockstar Games
       </footer>
     </div>
   )
