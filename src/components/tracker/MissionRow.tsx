@@ -3,7 +3,10 @@
 import { useState } from 'react'
 import { Mission } from '@/lib/missions'
 import { UserProgress, MissionStatus } from '@/types'
-import { Check, X, SkipForward, RotateCcw, Users, ChevronDown, Loader2, StickyNote, Lightbulb } from 'lucide-react'
+import {
+  Check, X, SkipForward, RotateCcw, Users, ChevronDown,
+  Loader2, StickyNote, Lightbulb, BookOpen,
+} from 'lucide-react'
 import clsx from 'clsx'
 
 interface Props {
@@ -29,9 +32,10 @@ const STATUS_STYLES: Record<MissionStatus, string> = {
 }
 
 export default function MissionRow({ mission, progress, globalCount, saving, onUpdate }: Props) {
-  const [expanded, setExpanded] = useState(false)
-  const [note, setNote] = useState(progress?.note ?? '')
+  const [expanded, setExpanded]       = useState(false)
+  const [note, setNote]               = useState(progress?.note ?? '')
   const [noteEditing, setNoteEditing] = useState(false)
+  const [guideOpen, setGuideOpen]     = useState(false)
   const status = progress?.status ?? 'incomplete'
 
   const handleStatus = async (newStatus: MissionStatus) => {
@@ -52,11 +56,14 @@ export default function MissionRow({ mission, progress, globalCount, saving, onU
 
   const statusLabel =
     status === 'completed' ? 'Completed'
-    : status === 'failed' ? 'Failed'
-    : status === 'skipped' ? 'Skipped'
+    : status === 'failed'    ? 'Failed'
+    : status === 'skipped'   ? 'Skipped'
     : 'Not started'
 
-  const isMissable = mission.tip?.toUpperCase().includes('MISSABLE') || mission.tip?.toUpperCase().includes('TIME-SENSITIVE')
+  const isMissable = mission.tip?.toUpperCase().includes('MISSABLE')
+    || mission.tip?.toUpperCase().includes('TIME-SENSITIVE')
+
+  const hasGuide = mission.guide && mission.guide.length > 0
 
   return (
     <div className={clsx('group transition-colors duration-200', status !== 'incomplete' && STATUS_STYLES[status])}>
@@ -68,7 +75,7 @@ export default function MissionRow({ mission, progress, globalCount, saving, onU
             <span className={clsx(
               'text-[13px] font-medium sm:text-sm',
               status === 'completed' ? 'text-white/45 line-through'
-              : status === 'skipped' ? 'text-white/50'
+              : status === 'skipped'  ? 'text-white/50'
               : 'text-white/85',
             )}>
               {mission.name}
@@ -88,7 +95,7 @@ export default function MissionRow({ mission, progress, globalCount, saving, onU
               <span className={clsx(
                 'text-[8px] font-bold uppercase tracking-[0.13em]',
                 status === 'completed' ? 'text-[#8ce7ee]'
-                : status === 'failed' ? 'text-[#ff9bb5]'
+                : status === 'failed'  ? 'text-[#ff9bb5]'
                 : 'text-[#ffdc9b]',
               )}>
                 {statusLabel}
@@ -100,6 +107,7 @@ export default function MissionRow({ mission, progress, globalCount, saving, onU
             <div className="mt-2.5 space-y-2.5">
               <p className="text-xs leading-5 text-white/45">{mission.description}</p>
 
+              {/* Quick tip */}
               {mission.tip && (
                 <div className="flex items-start gap-2 rounded-lg border border-[#ffd27a]/15 bg-[#ffd27a]/[0.06] px-3 py-2">
                   <Lightbulb size={12} className="mt-0.5 shrink-0 text-[#ffdc9b]" />
@@ -107,6 +115,41 @@ export default function MissionRow({ mission, progress, globalCount, saving, onU
                 </div>
               )}
 
+              {/* Detailed walkthrough guide */}
+              {hasGuide && (
+                <div className="rounded-lg border border-[#9b83ff]/20 bg-[#9b83ff]/[0.05] overflow-hidden">
+                  <button
+                    onClick={() => setGuideOpen(g => !g)}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left transition hover:bg-[#9b83ff]/10"
+                  >
+                    <BookOpen size={12} className="shrink-0 text-[#c3b4ff]" />
+                    <span className="flex-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#c3b4ff]">
+                      Walkthrough tips
+                    </span>
+                    <span className="text-[9px] text-[#c3b4ff]/50">
+                      {mission.guide!.length} {mission.guide!.length === 1 ? 'note' : 'notes'}
+                    </span>
+                    <ChevronDown
+                      size={12}
+                      className={clsx('shrink-0 text-[#c3b4ff]/50 transition-transform', guideOpen && 'rotate-180')}
+                    />
+                  </button>
+                  {guideOpen && (
+                    <ol className="border-t border-[#9b83ff]/10 divide-y divide-[#9b83ff]/10">
+                      {mission.guide!.map((step, i) => (
+                        <li key={i} className="flex gap-3 px-3 py-2.5">
+                          <span className="mt-0.5 shrink-0 font-display text-[10px] font-bold tabular-nums text-[#9b83ff]/50 w-4 text-right">
+                            {i + 1}
+                          </span>
+                          <p className="text-[11px] leading-[1.6] text-white/55">{step}</p>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                </div>
+              )}
+
+              {/* Personal note */}
               <div className="flex items-start gap-2">
                 <StickyNote size={13} className="mt-0.5 shrink-0 text-white/30" />
                 <div className="min-w-0 flex-1">

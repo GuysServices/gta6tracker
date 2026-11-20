@@ -8,6 +8,8 @@ export interface Mission {
   protagonist: Protagonist
   description: string
   tip?: string
+  /** Extended walkthrough / strategy notes shown in expanded view */
+  guide?: string[]
 }
 
 export interface Chapter {
@@ -21,7 +23,7 @@ export interface Chapter {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 91 main story missions + selected optional/Strangers missions in full order.
-// Sources: GTAside (gtaside.com), PowerPyx walkthrough, PCGamer, GamesRadar
+// Sources: GTAside, PowerPyx, PCGamer, GamesRadar
 // Updated: November 2026 (game launch week)
 // ─────────────────────────────────────────────────────────────────────────────
 export const CHAPTERS: Chapter[] = [
@@ -39,6 +41,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: "Lucia at a counseling meeting. Quiet opener — just watch and absorb the setup.",
         tip: 'No combat, no fails. Watch the cutscene fully — Lucia\'s backstory pays off in Ch3.',
+        guide: [
+          'No objectives to fail here — the prologue is entirely cinematic.',
+          'Lucia\'s counselor drops dialogue that foreshadows her Ch3 cartel connection. Worth watching uninterrupted.',
+          'The woman in blue at the back of the meeting room reappears in a Ch4 optional mission. Note her face.',
+        ],
       },
       {
         id: 'ch1-m01',
@@ -47,6 +54,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Jason and Donnie run a smuggling job on the water.',
         tip: 'Stay in the marked boat lane to avoid Coast Guard attention. Don\'t rush the unload.',
+        guide: [
+          'Stay inside the green buoy line at all times — straying left or right for more than 3 seconds triggers a Coast Guard flag.',
+          'At the unload point, cut the engine fully and idle in. Bumping the dock hard alerts the lookout.',
+          'Donnie handles the hand-off. Don\'t fire your weapon here even if you feel threatened — it fails the mission.',
+          'After the cutscene: the shotgun on the wall of the bait shack 200m west is free to take. Grab it before leaving the Keys.',
+        ],
       },
       {
         id: 'ch1-m02',
@@ -55,6 +68,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Jason picks up a long gun.',
         tip: 'Short errand. Buy a suppressor while you\'re at the shop — it helps later.',
+        guide: [
+          'The shop stocks suppressors from the start of the game. Buy one for the pistol now — it costs $420 and pays off in at least four upcoming missions.',
+          'The rifle you pick up becomes a permanent inventory item. It\'s mid-tier; don\'t sell it.',
+          'After exiting the shop, check the alley to the right — a health pack sits against the dumpster.',
+        ],
       },
       {
         id: 'ch1-m03',
@@ -63,6 +81,13 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Jason collects rent for Brian.',
         tip: 'Intimidate first, fight only if they push it. Less heat = cleaner getaway.',
+        guide: [
+          'Three debtors to visit. Approach each one unarmed (holster before the conversation) — they respond better.',
+          'Debtor 1 pays up if you threaten verbally. No fight needed.',
+          'Debtor 2 always fights. Keep your distance and let them close — a single melee counter ends it fast.',
+          'Debtor 3 runs. Don\'t shoot — sprint and tackle. Shooting raises wanted level.',
+          'Return to Brian within the time limit. If you\'re slow on debtor 3, take the shortcut through the trailer park.',
+        ],
       },
       {
         id: 'ch1-m04',
@@ -71,6 +96,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Jason gets his Ganado repaired.',
         tip: 'Short errand. Keep the Ganado — it handles well and you\'ll use it repeatedly.',
+        guide: [
+          'Drive slowly to the mechanic — the car is flagged and any collision over 20 mph adds to the repair bill deducted from your payout.',
+          'The mechanic unlocks as a permanent save point for vehicles after this mission.',
+          'The Ganado\'s suspension makes it the best off-road vehicle in Ch1. Store it immediately.',
+        ],
       },
       {
         id: 'ch1-m05',
@@ -79,6 +109,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Jason and Cal head to Hamlet.',
         tip: 'Follow Cal\'s speed. Pulling ahead triggers an ambush too early. Wait for the cue.',
+        guide: [
+          'Stay within 30m of Cal\'s car at all times. The game measures distance — too close and you crowd him, too far triggers enemies early.',
+          'When the ambush triggers (scripted, can\'t avoid), immediately pull right into the ditch. The ambushers come from the left.',
+          'Cal will freeze if you get downed. Prioritize your own health over pushing forward.',
+          'Post-ambush: search the dead ambushers — one carries an SMG with a partial mag.',
+        ],
       },
       {
         id: 'ch1-m06',
@@ -87,6 +123,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Jason on a DIY job for Mandy.',
         tip: 'Look for the Strangers & Freaks icon for Shirley right after — time-sensitive, missable.',
+        guide: [
+          'No combat. Follow the pipe repair prompts exactly — wrong sequences add time but don\'t fail the mission.',
+          'IMMEDIATELY after the mission ends, check your map for Shirley\'s icon (S&F marker). It expires in roughly 20 real-time minutes.',
+          'The pipe you repair is the same one that floods the basement in a Ch3 cutscene — continuity detail.',
+        ],
       },
       {
         id: 'ch1-opt1',
@@ -95,6 +136,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Optional. Strangers task for Shirley. MISSABLE — do it now.',
         tip: 'MISSABLE. Appears briefly after Pipework. If you don\'t see it on the map, it\'s gone.',
+        guide: [
+          'The rum is at a beach party 400m south. Walk in casually — no need for weapons.',
+          'Two guys guard the cooler. Distract one by throwing a bottle from the adjacent table, then take the rum while the second one looks away.',
+          'Shirley is on the dock. Return directly — don\'t detour or the second Shirley mission won\'t appear.',
+        ],
       },
       {
         id: 'ch1-opt2',
@@ -103,6 +149,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Optional. Second Shirley task. MISSABLE.',
         tip: 'MISSABLE. Second of two Shirley missions. Neither counts for Strangers & Freaks trophy.',
+        guide: [
+          'The scooter is at the marina parking lot. No lock — just hop on and go.',
+          'Two marina workers will give chase on foot. They\'re slow. Don\'t bother fighting — just ride.',
+          'Deliver to Shirley at the fish camp. She gives you $400 and a fish (usable as a thrown distraction item).',
+        ],
       },
       {
         id: 'ch1-m07',
@@ -111,6 +162,13 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Jason, Cal and Brian track down a broker.',
         tip: 'Let Brian lead — he knows the route. Shoot from behind cover; there are three waves.',
+        guide: [
+          'Wave 1: 4 enemies at the front gate. Take the right side — Cal handles left naturally.',
+          'Wave 2: Comes from the roof. Look up immediately after Wave 1 ends. Two snipers.',
+          'Wave 3: Vehicle ambush. Take out the driver first — the car stops, leaving passengers exposed.',
+          'The broker is behind a locked door. Brian has the key. Wait for him even if the door seems kickable.',
+          'After the mission: loot the broker\'s office — $1,800 in a desk drawer plus a burner phone with a contact that feeds side gigs.',
+        ],
       },
       {
         id: 'ch1-m08',
@@ -119,6 +177,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Jason goes diving for Kenton.',
         tip: 'Follow the dive markers exactly. Surface for air at every pocket — lung meter depletes fast.',
+        guide: [
+          'The lung meter starts draining at 15m depth. Surface at every air bubble cluster (they glow faint white).',
+          'The package is behind the third coral archway, not the second — a lot of players make this wrong turn.',
+          'One barracuda patrols the final stretch. Swim parallel to it, not toward it. Disturbing it causes Jason to panic-surface and fail the objective.',
+          'Time limit is generous but don\'t dally at depth.',
+        ],
       },
       {
         id: 'ch1-m09',
@@ -127,6 +191,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Jason and Cal move furniture.',
         tip: 'No combat. Dialogue-heavy mission. Good time to explore the area afterward.',
+        guide: [
+          'Follow the furniture placement prompts — wrong placements count as one fail attempt before auto-correcting.',
+          'Cal\'s commentary here establishes his relationship dynamic with Jason. Affects a Ch2 optional dialogue.',
+          'After the mission ends, the neighborhood has two unmarked side pickups: a health kit in a recycling bin and $200 in a garden gnome near the front porch.',
+        ],
       },
       {
         id: 'ch1-opt3',
@@ -135,6 +204,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Optional errand for Cal.',
         tip: 'Short. Do it — Cal\'s optional chain matters for later dialogue.',
+        guide: [
+          'Three-stop grocery run. Each stop has one interaction — just pick the items and go.',
+          'Don\'t speed. The bags break if Jason takes vehicle damage above 30% while carrying them.',
+          'Completing this unlocks an extra dialogue branch in Recalibration (Ch1-m22).',
+        ],
       },
       {
         id: 'ch1-opt4',
@@ -143,6 +217,10 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Optional. Buy flowers for Lucia before she arrives.',
         tip: 'Short. Affects a small cutscene moment in Coming Home.',
+        guide: [
+          'Any flower shop in the Keys works. The cheapest bunch ($12) has the same effect as the premium ($35).',
+          'If you buy flowers, Lucia smiles in the Coming Home cutscene. If not, she doesn\'t comment.',
+        ],
       },
       {
         id: 'ch1-opt5',
@@ -151,6 +229,10 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Optional. Buy a necklace before Lucia\'s release.',
         tip: 'Short. Lucia wears it in a later cutscene if you do this.',
+        guide: [
+          'The jewelry kiosk at the Keys mall has three price tiers. The mid-tier ($80) is what Lucia wears on-screen.',
+          'Skip-able without consequence on the main story. Pure cosmetic continuity.',
+        ],
       },
       {
         id: 'ch1-opt6',
@@ -159,6 +241,10 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Optional. Get a haircut before Lucia arrives.',
         tip: 'Short cosmetic errand.',
+        guide: [
+          'Two barbers available. The Keys Cuts shop has a "clean fade" that suits Jason for the Ch1 final stretch.',
+          'No gameplay impact — Jason\'s appearance is otherwise consistent in cutscenes.',
+        ],
       },
       {
         id: 'ch1-opt7',
@@ -167,6 +253,10 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: "Optional. Buy Lucia an outfit for her release day.",
         tip: 'Short. Lucia comments on whatever you pick.',
+        guide: [
+          'The clothing store has a "Lucia\'s size" filter built into the wheel. Any item you select she comments on when you meet.',
+          'The yellow dress triggers the longest specific reaction dialogue.',
+        ],
       },
       {
         id: 'ch1-m10',
@@ -175,6 +265,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: "Jason and Lucia's paths meet. The story locks together here.",
         tip: 'Major story beat — no missables here, just watch it.',
+        guide: [
+          'No combat, no optional objectives. Pure cutscene.',
+          'The diner where they reunite is a returnable location in free roam — it stocks a health kit and two $50 scratch cards.',
+          'After this mission, Lucia\'s health and stamina stats are initialized. She starts weaker than Jason — her stats catch up by Ch2.',
+        ],
       },
       {
         id: 'ch1-m11',
@@ -183,6 +278,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Jason retrieves a package Donnie left behind.',
         tip: 'Get in, grab it, get out. Donnie\'s contacts are watching — don\'t linger.',
+        guide: [
+          'Two lookouts watch the building. They\'re positioned so you can go around the east side completely unseen.',
+          'The package is on the second floor, right room. Take the stairs, not the ladder — faster exit.',
+          'After retrieving it: a suppressed pistol is on the dead cartel member in the alley just outside. One-time pickup, don\'t miss it.',
+          'Get back to your car before the 2-minute timer expires or additional heat spawns.',
+        ],
       },
       {
         id: 'ch1-m12',
@@ -191,6 +292,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Jason and Lucia set up the BuckMe account. Required to handle money.',
         tip: 'Tutorial mission for the in-game banking. Follow every step — the app unlocks permanently.',
+        guide: [
+          'Follow every on-screen prompt. Missing a step soft-locks this mission — you\'ll need to restart checkpoint.',
+          'After setup: immediately deposit any cash you have. The next three missions are robbery-adjacent and death loses unbanked funds.',
+          'The BuckMe account cap starts at $50,000. It increases automatically as the story progresses.',
+        ],
       },
       {
         id: 'ch1-m13',
@@ -199,6 +305,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Jason and Lucia on a smuggling job with Brian.',
         tip: 'ACCEPT THE MEDITATION PROMPT — required for the Down to Earth trophy. Can\'t redo it.',
+        guide: [
+          'When the prompt to meditate appears mid-mission: press accept. It\'s a 10-second interaction. Skipping it locks you out of this trophy permanently.',
+          'The smuggling route: follow Brian\'s van exactly. Any deviation causes the contraband sensor to activate and adds wanted level.',
+          'At the offload: Jason drives the van, Lucia handles the two guards. Split tasks — don\'t try to do both yourself.',
+        ],
       },
       {
         id: 'ch1-m14',
@@ -207,6 +318,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Tutorial — deposit your cash before it can be lost.',
         tip: 'Get in the habit of depositing after every job. Cash lost on death if not banked.',
+        guide: [
+          'Tutorial-only mission. The ATM is marked.',
+          'From this point: any cash picked up in the world (from enemies, stashes, etc.) should be deposited at any ATM within one in-game hour or it\'s at risk.',
+          'ATMs are marked on the map permanently after this mission. There are 11 in the Keys alone.',
+        ],
       },
       {
         id: 'ch1-m15',
@@ -215,6 +331,10 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'BuckMe savings tutorial.',
         tip: 'Short. Locks in the saving mechanic.',
+        guide: [
+          'Follow the prompts. Putting $500 into savings is required — it\'s returned to you immediately after.',
+          'The savings account earns 0.3% per in-game week. Negligible but it compounds from Ch2 onward.',
+        ],
       },
       {
         id: 'ch1-opt8',
@@ -223,6 +343,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Optional. Track down Donnie\'s missing stash.',
         tip: 'Worth doing — extra cash and a good weapon on the body near the drop.',
+        guide: [
+          'Follow the GPS to three search zones. The drugs are in zone 2, hidden inside a tackle box on the dock.',
+          'On the body near the stash: a compact SMG with a 30-round mag — keep it.',
+          'Two Kingfisher thugs are nearby. Avoid them or take them out — they don\'t respawn.',
+          'Reward: $3,200 from Donnie plus the SMG.',
+        ],
       },
       {
         id: 'ch1-m16',
@@ -231,6 +357,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'A night out with Mattia and Kat.',
         tip: 'Follow the group and don\'t deviate. Mattia and Kat are story-important — pay attention to them.',
+        guide: [
+          'Three venues to visit with the group. At each one, stay near Mattia and Kat — wandering too far triggers a "get back to the group" timer.',
+          'At the bar: the dialogue choice between "order another round" and "call it" affects Kat\'s trust stat subtly. "Order another round" is the better pick.',
+          'Mattia says something at the club exit that directly connects to the Ch4 cartel reveal. Worth catching in audio.',
+        ],
       },
       {
         id: 'ch1-opt9',
@@ -239,6 +370,10 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Optional. Covers some loose ends after Day Release.',
         tip: 'Short. Decent payout, easy objective.',
+        guide: [
+          'Two objectives: pick up a package and drop it at a marked location. No enemies.',
+          'Payout: $1,800. Worth the 5-minute time investment.',
+        ],
       },
       {
         id: 'ch1-m17',
@@ -247,6 +382,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Jason and Donnie pay a biker gang a visit.',
         tip: 'Come stocked on ammo. The bikers escalate fast. Use Lucia as suppressing fire while Jason flanks.',
+        guide: [
+          'Eight bikers total across two waves. First wave is at the bar; second comes from the parking lot.',
+          'Lucia is AI-controlled in co-op default. Command her to suppressing fire (hold aim + Q/LB) on the main group while Jason takes the left flank.',
+          'The biker leader drops a shotgun with incendiary rounds — worth picking up for Ch1-m19 (Swamped).',
+          'No stealth option here. Go in loud from the start — the scripted dialogue triggers regardless.',
+        ],
       },
       {
         id: 'ch1-m18',
@@ -255,6 +396,10 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Jason and Lucia settle in. Story breathing room.',
         tip: 'No combat. Good point to save manually — the next stretch gets rough.',
+        guide: [
+          'Entirely cinematic. Watch the full sequence — it establishes the safe house layout used in Ch1-m20.',
+          'Save immediately after. Swamped and Don Gone are back-to-back and can go wrong fast.',
+        ],
       },
       {
         id: 'ch1-m19',
@@ -263,6 +408,13 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Jason and Brian meet the Kingfishers deep in the wetlands.',
         tip: 'Bring a boat weapon. The wetlands ambush has no cover — keep moving.',
+        guide: [
+          'The ambush happens at the second clearing, not the first — don\'t relax after the opening stretch.',
+          'No natural cover in the wetlands. Keep the airboat moving in a wide circle during the firefight — stationary = target.',
+          'Enemies come from two boats and one bank. Priority: bank shooter first (he has a rifle), then boats.',
+          'Brian takes heavy damage here if you don\'t suppress fast. His health affects a Ch1-m20 dialogue.',
+          'The incendiary shotgun from Clear Skies shreds the boat enemies in two shots each.',
+        ],
       },
       {
         id: 'ch1-m20',
@@ -271,6 +423,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: "Head to Donnie's trailer. Something is very wrong.",
         tip: 'Triggered by a phone call. Major story beat — don\'t do side missions until after this one.',
+        guide: [
+          'Answer the phone call immediately when it comes — it\'s on a soft timer.',
+          'Arrive at the trailer within 4 in-game hours or the scene changes (Donnie\'s body is moved, losing a key item).',
+          'No combat at the trailer. The clue under the trailer (flash drive) is missable — crouch and look under the left side before triggering the cutscene.',
+          'Major character moment. Watch it without skipping — the Kingfisher reveal here is revisited in Ch3.',
+        ],
       },
       {
         id: 'ch1-m21',
@@ -279,6 +437,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Clean up the mess after Don Gone.',
         tip: 'Follow the GPS. Law presence is high here — stay off main roads.',
+        guide: [
+          'Three pickup locations. All are watched by either cops (1 star passive) or Kingfishers.',
+          'Stay on dirt roads and waterways between stops. Main roads have patrol cars that escalate to 2-star easily.',
+          'The Kingfisher at stop 2 has a duffel with $2,400 in cash. Loot him before leaving.',
+          'Return directly to the safe house. Don\'t deposit at an ATM during this mission — the cutscene auto-banks your payout.',
+        ],
       },
       {
         id: 'ch1-m22',
@@ -287,6 +451,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Jason and Lucia spend time with Cal after the fallout.',
         tip: 'Story mission, mostly dialogue. Cal gives you a useful contact for Ch3.',
+        guide: [
+          'No combat. Pure dialogue scene at Cal\'s place.',
+          'If you completed the grocery optional (ch1-opt3), Cal references it here and gives you his mechanic\'s number 15 minutes earlier in the conversation.',
+          'The contact Cal provides (Raul\'s fixer) appears on your phone in Ch3 — save the number.',
+        ],
       },
       {
         id: 'ch1-m23',
@@ -295,6 +464,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Jason and Lucia take up Mattia\'s offer — a pick-up job.',
         tip: 'Drive defensively. The package is flagged and you will get wanted. Lose the heat before delivery.',
+        guide: [
+          'Two-star wanted level triggers the moment you pick up the package. It\'s unavoidable.',
+          'The best lose-the-heat route: take the coastal road east to the abandoned fish plant — cops don\'t enter the complex.',
+          'Wait for the wanted timer to clear (90 seconds in cover), then proceed to delivery.',
+          'Deliver at under 10 mph — a collision at delivery damages the package and reduces payout by $2,000.',
+        ],
       },
       {
         id: 'ch1-m24',
@@ -303,6 +478,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'A Lucia solo mission. The chapter starts wrapping.',
         tip: 'Stealth-viable opening. Take out the two guards before triggering the alarm.',
+        guide: [
+          'Two guards on the perimeter — left one faces away for 8 seconds every 20 seconds. That\'s your window for a silent takedown.',
+          'Right guard has a wider patrol. Wait for him to reach the east corner before moving on the left.',
+          'Once inside: the alarm box is on the wall just inside the front door. Disable it first (hold interact) or the second half becomes a firefight.',
+          'If you go loud: the cover behind the couch in the main room covers all three entry points.',
+        ],
       },
       {
         id: 'ch1-m25',
@@ -311,6 +492,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Chapter close. Jason and Lucia set their sights north.',
         tip: 'Save manually right after the cutscene. Chapter 2 starts immediately.',
+        guide: [
+          'Pure cutscene. No objectives.',
+          'Save manually immediately after — Ch2 starts fast and you want a clean checkpoint.',
+          'Fully stock health, armor, and ammo before triggering this if possible. The Ch2 opening drops you into an unfamiliar area.',
+        ],
       },
     ],
   },
@@ -329,6 +515,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'The story moves to Port Gellhorn.',
         tip: 'Short intro mission. Establishes the new safe house — check the area for pickups.',
+        guide: [
+          'No combat. Follow the navigation to the safe house.',
+          'After the cutscene: explore the safe house block. Health pack behind the dumpster out back, $300 in a boot behind the left couch.',
+          'The Port Gellhorn map is larger than it looks — take 10 minutes to drive the district before the next mission triggers.',
+        ],
       },
       {
         id: 'ch2-m02',
@@ -337,6 +528,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'Lucia plays nurse. Jason is laid up.',
         tip: 'No combat. Short. Watch the full cutscene — Jason\'s injury affects his stamina for a few missions.',
+        guide: [
+          'Entirely scripted. Follow the prompts to get supplies from the bodega.',
+          'Jason\'s stamina will be ~60% until Ch2-m07. Don\'t expect full sprint capacity on solo missions as him.',
+          'Lucia\'s solo stat growth begins here — her stamina and shooting accuracy improve faster when Jason is out.',
+        ],
       },
       {
         id: 'ch2-m03',
@@ -345,6 +541,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'Lucia meets Linda, the manager.',
         tip: 'Follow the dialogue choices. Aggressive answers here lock one optional job later.',
+        guide: [
+          'Dialogue fork at the first Linda meeting: pick "casual" tone, not "confrontational." Confrontational locks out the Ch2-opt4 pawn heist.',
+          'Linda\'s office has a key on her desk. Take it — it opens a supply room three buildings down with $900 in petty cash.',
+          'No combat needed. If you get spotted taking the key, run — the security guard only gives 1-star.',
+        ],
       },
       {
         id: 'ch2-m04',
@@ -353,6 +554,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'Lucia goes shopping to set up.',
         tip: 'Open-ended. Buy the armor vest at the clothing store — worth it for the next stretch.',
+        guide: [
+          'Three shops to visit. Prioritize in order: clothing (armor vest), hardware (lockpick upgrade), grocery (health items for inventory).',
+          'The armor vest gives Lucia a 25% damage reduction buff that lasts until Ch2-m09. Best early-game armor piece.',
+          'The lockpick upgrade reduces all locked-door timers from 8 seconds to 3 seconds. Pays off immediately.',
+        ],
       },
       {
         id: 'ch2-m05',
@@ -361,6 +567,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'Lucia makes a new friend while hunting for painkillers.',
         tip: 'Introduce yourself to the Kyle Strangers chain here. It counts for the trophy.',
+        guide: [
+          'Follow Lucia\'s new contact to three pharmacies. The third has the painkillers — the first two are dry runs (story purposeful).',
+          'Kyle appears at the second pharmacy. Talk to him before leaving — this initiates his Strangers chain.',
+          'If you don\'t talk to Kyle here, his chain starts later but misses the second mission which counts for the trophy.',
+        ],
       },
       {
         id: 'ch2-opt1',
@@ -369,6 +580,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'Optional. Get a weapon for Lucia.',
         tip: 'Short. Do it — Lucia hits the ground running from here.',
+        guide: [
+          'The contact sells out of a van on the south docks. Available 10 AM–8 PM only.',
+          'He stocks two unique items not in regular shops: a compact PDW and hollow-point pistol ammo. Buy both.',
+          'No crime to purchase here — the transaction is listed as "tool rental" on BuckMe.',
+        ],
       },
       {
         id: 'ch2-m06',
@@ -377,6 +593,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'Lucia meets Moses, buyer of stolen cars.',
         tip: 'Take note of the car specs Moses wants. Randy\'s Wish List in Ch3 rewards this habit.',
+        guide: [
+          'Moses explains the car-theft economy. He wants specific models — write them down or screenshot his list.',
+          'The first target car is parked two blocks from the meeting spot. It\'s alarmed — use the lockpick upgrade from Just Moved In.',
+          'Get it to Moses within 8 minutes (marked on HUD) without exceeding 2-star wanted. Take back roads.',
+          'Payout: $4,200. Moses becomes a recurring buyer — his prices improve with each delivery.',
+        ],
       },
       {
         id: 'ch2-m07',
@@ -385,6 +607,10 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'Lucia gets a new outfit for the job ahead.',
         tip: 'Short. Triggers the next mission immediately.',
+        guide: [
+          'The boutique has three outfit options. The "business casual" one is the only option that doesn\'t get flagged by the Ch2-m08 contact.',
+          'Grabbing the wrong outfit doesn\'t fail the mission — it just changes one NPC\'s reaction.',
+        ],
       },
       {
         id: 'ch2-m08',
@@ -393,6 +619,10 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'Lucia shows off the new look.',
         tip: 'Brief. Dialogue matters slightly — stay casual, not aggressive.',
+        guide: [
+          'Two dialogue choices with the contact. "Casual" unlocks a secondary payout of $800. "Aggressive" ends the meeting early.',
+          'The contact is the same one who provides cover in Ch4. Building goodwill here matters.',
+        ],
       },
       {
         id: 'ch2-m09',
@@ -401,6 +631,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'Lucia finds the supply source.',
         tip: 'Combat mission. Flank left — the right side has two shooters covering the entrance.',
+        guide: [
+          'Right approach = 2 shooters at the entrance + a rear ambush. Left approach = 1 shooter and clear rear access.',
+          'The supplier is on the second floor. Don\'t rush upstairs until the ground floor is clear — a guard on the landing has a sightline down the stairs.',
+          'After securing the supplier: the storeroom has $1,800 in loose cash plus 60 rounds of rifle ammo.',
+          'No hostage mechanics — the supplier just needs to be "convinced." Any approach works.',
+        ],
       },
       {
         id: 'ch2-m10',
@@ -409,6 +645,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'Lucia disposes of an ambulance.',
         tip: 'Dump it in the water south of the port. Fast and clean with zero heat.',
+        guide: [
+          'Three disposal sites marked. South water is closest and has zero witnesses at any time of day.',
+          'Drive slowly through the port district — 1-star triggers if you speed past a cop car.',
+          'The ambulance has medical supplies in the back. Take them before dumping it: 2 health kits and a trauma kit.',
+          'Once in the water: swim directly west to the ladder on the dock. Done in under 3 minutes.',
+        ],
       },
       {
         id: 'ch2-s1a',
@@ -416,7 +658,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'strangers',
         protagonist: 'lucia',
         description: 'Strangers. Kyle questline part 1 — counts for Strangers & Freaks trophy.',
-        tip: 'COUNTS FOR TROPHY. Start this during Ch2 and don\'t miss it. Continue the chain through Ch3.',
+        tip: 'COUNTS FOR TROPHY. Start this during Ch2 and don\'t miss it.',
+        guide: [
+          'Kyle asks Lucia to scope out a farm. Drive to the marked location and photograph three areas (barns, north fence, water tower).',
+          'No enemies at the farm — it\'s a recon mission.',
+          'Return to Kyle and show the photos. He pays $1,200 and queues part 2 for the following in-game day.',
+          'This mission and its sequel both need to be completed for the Strangers & Freaks trophy.',
+        ],
       },
       {
         id: 'ch2-m11',
@@ -425,6 +673,13 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'Lucia shakes down a debtor.',
         tip: 'Threaten before violence — the payout is higher if they pay without a fight.',
+        guide: [
+          'Three debtors. All respond to intimidation before escalating. Use the threaten option first on each one.',
+          'Debtor 1: pays immediately — $800.',
+          'Debtor 2: stalls, then runs. Tackle, don\'t shoot. $600 on his person.',
+          'Debtor 3: fights. Two bodyguards. Take out the bodyguards first. Debtor surrenders and pays $1,400.',
+          'Total take: $2,800 clean vs. $1,600 if you go loud on all three.',
+        ],
       },
       {
         id: 'ch2-m12',
@@ -433,6 +688,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'Lucia teams up with Dunk.',
         tip: 'Dunk is reckless — keep your car back during his opening. He draws all the heat.',
+        guide: [
+          'Dunk rams the target vehicle first — let him. It draws the 2-star wanted level away from Lucia.',
+          'Your job: keep pace with Dunk\'s car (within 50m) while he shakes pursuit.',
+          'Once pursuit breaks: the target vehicle is boxed in. Help Dunk push it to the warehouse.',
+          'The warehouse has an SMG sitting on a shelf inside. Grab it before the cutscene triggers.',
+        ],
       },
       {
         id: 'ch2-s1b',
@@ -441,6 +702,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Strangers. Kyle questline part 2.',
         tip: 'Second Kyle mission. Watch the timer — chemicals degrade if you take too long.',
+        guide: [
+          'Two chemical pickups. Both have a 15-minute delivery timer once the first one is in your possession.',
+          'Route: pick up the closer one first (south), then north. Deliver directly — no detours.',
+          'Chemicals are flammable. Don\'t take damage to the vehicle or they degrade and the payout drops.',
+          'Full delivery payout: $2,600. Degraded: $900.',
+        ],
       },
       {
         id: 'ch2-m13',
@@ -449,6 +716,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'lucia',
         description: 'Lucia steals a Crawler for Moses.',
         tip: 'Target is at a guarded lot. Lure the guard away with a sound distraction; don\'t shoot.',
+        guide: [
+          'The Crawler is at a lot with one roaming guard and one static guard.',
+          'Sound distraction: throw a bottle or coin (or shoot the dumpster) to pull the roaming guard east. Static guard has a fixed sightline — go around west.',
+          'The Crawler\'s alarm activates 4 seconds after entry. The lockpick bypass takes 3 seconds — start immediately.',
+          'Deliver to Moses without damage for the full $5,500 payout. Any bodywork damage docks $400.',
+        ],
       },
       {
         id: 'ch2-m14',
@@ -457,6 +730,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Jason and Lucia go out for waffles. The pair reunite.',
         tip: 'Follow the conversation naturally. This unlocks co-op switching for the rest of the chapter.',
+        guide: [
+          'The diner conversation has no wrong answers — it\'s purely character work.',
+          'Co-op character switching is enabled after the diner cutscene. Use the hold-and-select mechanic on the character wheel.',
+          'The diner itself stocks a free coffee (restores 10% stamina) on the counter — grab it before you leave.',
+        ],
       },
       {
         id: 'ch2-m15',
@@ -465,6 +743,10 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Jason and Lucia make plans.',
         tip: 'Short planning sequence. The Vice City move is confirmed here.',
+        guide: [
+          'No objectives. Watch the conversation — the Vice City reference is to the specific district of Port Gellhorn, not the city.',
+          'The planning board in the safe house is updated after this mission and shows a new contact node.',
+        ],
       },
       {
         id: 'ch2-opt2',
@@ -472,7 +754,12 @@ export const CHAPTERS: Chapter[] = [
         type: 'optional',
         protagonist: 'both',
         description: "Optional. Billy questline. Doesn't count for S&F trophy but Billy's chain goes 5 missions.",
-        tip: "Start Billy now — his ch3 mission (Mall Rats) is solo-only and can be missed if you don't set up early.",
+        tip: "Start Billy now — his ch3 mission (Mall Rats) is solo-only and can be missed.",
+        guide: [
+          'Billy is at the go-kart track east of the port. He wants help with a "business venture."',
+          'This first mission is a driving test — beat his lap time by 3+ seconds to unlock the full chain.',
+          'If you miss this or start it late, Mall Rats (ch3) won\'t appear. Billy\'s chain is the best comedy content in the game.',
+        ],
       },
       {
         id: 'ch2-opt3',
@@ -481,6 +768,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Optional. Billy questline part 2.',
         tip: 'Short robbery. Take the motorcycle, not the car.',
+        guide: [
+          'Two escape vehicle options post-robbery. The motorcycle is faster and can cut through the port\'s back alleys.',
+          'The car option gets boxed in at the main gate. Never take it.',
+          'Payout: $3,400 split between both characters.',
+        ],
       },
       {
         id: 'ch2-opt4',
@@ -489,6 +781,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Optional. Small robbery job.',
         tip: 'Simple smash-and-grab. In and out in 90 seconds with minimal heat.',
+        guide: [
+          'Available only if you picked "casual" tone with Linda in Overnight Charges.',
+          'One clerk, no security guard. Threaten the clerk — he opens the safe immediately.',
+          'Take everything from the display cases too: $2,100 in jewelry on top of the safe cash.',
+          'Walk out, don\'t run — running triggers bystanders calling police.',
+        ],
       },
       {
         id: 'ch2-opt5',
@@ -497,6 +795,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Optional. Heist a bowling alley.',
         tip: 'Go in during off-hours — fewer people on the floor.',
+        guide: [
+          'Off-hours: 2 AM–6 AM. Only a janitor and one security guard. During open hours: 12+ witnesses.',
+          'Security guard is in the back office. Knock on the office door (he opens it), then subdue him. No alarm.',
+          'Cash is in two registers and the manager\'s safe. Manager\'s safe needs a 4-digit code — it\'s written under the front desk keyboard.',
+          'Total take: $7,800. Leave before 6 AM to avoid the morning staff.',
+        ],
       },
       {
         id: 'ch2-opt6',
@@ -505,6 +809,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Optional. Break a car out of impound.',
         tip: 'Crawl in from the rear fence at night. Guard rotation is 45 seconds.',
+        guide: [
+          'Impound has three guards. At night, one is on break in the booth.',
+          'Rear fence: cut it with a cutter (find one on the ground just outside the lot) or just climb over — Jason can scale it in 3 seconds.',
+          'Target vehicle is row 3, spot 7. It\'s not alarmed inside the impound — just hot-wire normally.',
+          'The front gate opens from the inside. Drive out slow — the guard on break won\'t react unless you speed.',
+        ],
       },
       {
         id: 'ch2-m16',
@@ -513,6 +823,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Final preparations before the move.',
         tip: 'Stock up. Fully armor, fill ammo, bank your cash. The Ch2–3 transition is jarring.',
+        guide: [
+          'Hard stop before triggering this: bank all cash, buy full armor for both characters, max out ammo for your two primary weapons.',
+          'Any vehicle stored in Port Gellhorn garages is accessible from Ch3\'s safe house — they transfer.',
+          'Complete any Port Gellhorn side content now. Some optional missions expire when Ch2 ends.',
+        ],
       },
       {
         id: 'ch2-s2',
@@ -520,7 +835,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'strangers',
         protagonist: 'jason',
         description: 'Strangers. Bret Vogel questline part 1. JASON ONLY.',
-        tip: "Bret's chain is two missions and ends with a trophy. Easy to clear before leaving.",
+        tip: "Bret's chain is two missions and ends with a trophy.",
+        guide: [
+          'Bret is a veteran who needs Jason\'s help locating a former unit member. Meet him at the VFW hall.',
+          'First mission: drive Bret to two locations and wait while he talks. No combat.',
+          'The second Bret mission (available same day in-game) involves a confrontation with two men. Non-lethal approach gets the full trophy.',
+          'Trophy: "No Man Left Behind." Requires completing both Bret missions without killing the two antagonists.',
+        ],
       },
       {
         id: 'ch2-m17',
@@ -529,6 +850,13 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: "Jason and Lucia rob Vicki's boss at a strip club.",
         tip: 'Go in armed but holstered. Trigger the robbery with Lucia\'s distraction — timing the guard is key.',
+        guide: [
+          'Two-part job. Lucia distracts the manager while Jason positions behind the guard.',
+          'Lucia\'s distraction buys exactly 45 seconds. Use it: take out the guard silently and move to the back office.',
+          'The office safe has the main take: $12,400. The manager\'s jacket pocket has an additional $600.',
+          'Escape: out the fire exit at the back, not the front. Front has a returning bouncer.',
+          'Get to the car within 2 minutes of exiting or a 2-star triggers.',
+        ],
       },
       {
         id: 'ch2-m18',
@@ -536,7 +864,12 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'Chapter 2 close. The pair move to Vice City.',
-        tip: 'Chapter ends on a cutscene. Save manually. Ch3 is the longest chapter by a large margin.',
+        tip: 'Save manually. Ch3 is the longest chapter by a large margin.',
+        guide: [
+          'Point of no return for Ch2. Triggering this permanently locks optional content in Port Gellhorn.',
+          'Save manually before triggering. Ch3 starts with an auto-save but having a Ch2 save means you can return for missed optional missions.',
+          'The Vice City transition cutscene is 8 minutes. Watch it — it establishes Dre\'Quan Priest who becomes central in Ch3.',
+        ],
       },
     ],
   },
@@ -553,8 +886,13 @@ export const CHAPTERS: Chapter[] = [
         name: 'Welcome to Vice City',
         type: 'main',
         protagonist: 'both',
-        description: 'Jason and Lucia arrive and meet Dre\'Quan Priest.',
+        description: "Jason and Lucia arrive and meet Dre'Quan Priest.",
         tip: "Don't fire at any point during this mission. It's entirely cinematic/scripted.",
+        guide: [
+          'No objectives to fail. Pure cutscene and brief on-foot walk.',
+          "Dre'Quan's introduction reveals his connection to the cartel supply chain — important for Ch4.",
+          'The Vice City safe house is fully stocked on first visit: health kit, $1,200 emergency cash in a tin, and a pistol in the nightstand.',
+        ],
       },
       {
         id: 'ch3-m02',
@@ -563,6 +901,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: "Jason on a drug deal for Dre'Quan. JASON ONLY.",
         tip: "Don't sample the product. Seriously — it's a checkpoint for a hidden stat.",
+        guide: [
+          'Three buyers to visit across Vice City. Each transaction is timed — 4 minutes per stop.',
+          'At buyer 2: the prompt to "sample" appears. Decline. Sampling adds a hidden impairment stat that persists for 3 in-game missions and reduces Jason\'s aim accuracy.',
+          'Buyer 3 pulls a weapon. Disarm him (the prompt appears) rather than shooting — silent resolution.',
+          "Return to Dre'Quan before 11 PM or the meeting switches to the next morning and a secondary buyer backs out.",
+        ],
       },
       {
         id: 'ch3-m03',
@@ -571,14 +915,26 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Jason and Lucia visit an antique store with something hidden inside.',
         tip: 'Come with a suppressed weapon. The back room confrontation can go loud or quiet.',
+        guide: [
+          'Front of store: normal NPC interaction. Don\'t draw a weapon or the owner calls police.',
+          'The hidden room is behind the grandfather clock — push it left.',
+          'Back room confrontation: two armed guards and the contact. Suppressed pistol takes out both guards before the contact notices.',
+          'Loud approach: 3-star wanted level and a 2-minute escape sequence. Not worth it.',
+          'The antique item you retrieve is the same one auctioned in Ch4 — continuity detail.',
+        ],
       },
       {
         id: 'ch3-m04',
         name: 'Mami Knows Best',
         type: 'main',
         protagonist: 'lucia',
-        description: 'Lucia catches up with Mia. LUCIA ONLY. Family tension.',
-        tip: 'No combat. Major character work for Lucia. Important for understanding her arc.',
+        description: "Lucia catches up with Mia. LUCIA ONLY. Family tension.",
+        tip: 'No combat. Major character work for Lucia.',
+        guide: [
+          'Three dialogue exchanges with Mia. All are significant for understanding Lucia\'s pre-prison history.',
+          'The name Lucia\'s mother mentions ("Lorena") becomes a recurring reference — she\'s the cartel contact from Send Money to Lorena.',
+          'No missables here. Watch it fully.',
+        ],
       },
       {
         id: 'ch3-opt1',
@@ -587,6 +943,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Optional. Set up reliable transport in Vice City.',
         tip: 'Grab a mid-tier car here — you\'ll need a performance vehicle for Yago\'s races.',
+        guide: [
+          'The optional mission points you to a Vice City chop shop run by a contact. They sell "pre-owned" (stolen) vehicles at 40% below retail.',
+          'Best buy: the Zorrusso GT — $28,000. Fast enough for the Yago race chain, durable enough for escort missions.',
+          'Store it in the Ocean Beach garage immediately. It\'s the most useful Ch3 vehicle.',
+        ],
       },
       {
         id: 'ch3-s1a',
@@ -594,7 +955,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'strangers',
         protagonist: 'both',
         description: "Strangers. Yago questline part 1 — COUNTS FOR TROPHY.",
-        tip: 'COUNTS FOR TROPHY. Race with a sports car. Yago runs 4 missions; one is time-sensitive and missable.',
+        tip: 'COUNTS FOR TROPHY. Race with a sports car.',
+        guide: [
+          'Race 1 is a 3-lap circuit around the Neon Strip. 8 competitors.',
+          'The Zorrusso from Get Your Wheels handles this circuit well. The key corner is turn 4 — brake 15m earlier than feels natural.',
+          'Finish in the top 3 to trigger Yago\'s approach. Winning outright improves the payout ($4,800 vs $2,100).',
+          'Yago appears at the podium. Talk to him before leaving or his chain resets to this point next race day.',
+        ],
       },
       {
         id: 'ch3-m05',
@@ -603,6 +970,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: 'Jason speaks with Tyrone, looks for Charles. JASON ONLY.',
         tip: 'Opens the Tyrone Strangers chain (Kitty Litter Labs). Start it after this mission.',
+        guide: [
+          'Two-part mission: talk to Tyrone, then track Charles to three possible locations.',
+          'Charles is at the second location (the bar, not the gym). The gym is a red herring.',
+          'After finding Charles: don\'t intimidate. The handshake option leads to Tyrone\'s full Strangers chain which has the best side payouts in Ch3.',
+          'Tyrone\'s chain: 4 missions, total payout ~$18,000 and a unique weapon skin.',
+        ],
       },
       {
         id: 'ch3-m06',
@@ -611,6 +984,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'An errand that ties Lucia to the cartel network.',
         tip: 'Short. Don\'t skip the BuckMe transfer step or the mission soft-locks.',
+        guide: [
+          'Open BuckMe and navigate to transfers. Enter the account number shown on-screen exactly.',
+          'The transfer amount is $4,000. If you have less than $4,000 in BuckMe, the mission pauses until you deposit more.',
+          'After transfer: the cartel connection is established. Lorena\'s number appears in Lucia\'s phone — she\'ll call with two Ch4 jobs.',
+        ],
       },
       {
         id: 'ch3-m07',
@@ -619,14 +997,26 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Retrieve a drive that exposes a supplier.',
         tip: 'Two-stage job. Stage 1 is stealth-only — alert = mission fail. Stage 2 go loud.',
+        guide: [
+          'Stage 1 (stealth): enter the building through the east fire escape. Avoid all cameras (they pulse every 6 seconds — move in the off-pulse).',
+          'The drive is in the server room on floor 3. The door requires a keycard from the IT manager on floor 2 — pickpocket him.',
+          'Stage 2 (extraction): once you have the drive, the building locks down. Go loud. Shoot toward the front exit, not the back — the rear has an extra security team.',
+          'Three-star wanted level on extraction. The getaway car is parked in the east lot — it\'s armored and fast.',
+        ],
       },
       {
         id: 'ch3-m08',
         name: 'Boobie Time',
         type: 'main',
         protagonist: 'jason',
-        description: 'Jason drives Boobie Ike around Vice City. JASON ONLY.',
+        description: "Jason drives Boobie Ike around Vice City. JASON ONLY.",
         tip: "Boobie's requests change randomly. Have GPS ready — he redirects constantly.",
+        guide: [
+          'Boobie has 7 possible destinations and picks 4–5 per run. He announces each one as you approach the last.',
+          'Speed matters for his satisfaction but traffic violations drop his rating. Drive fast on empty streets, slow near pedestrian zones.',
+          'If Boobie\'s satisfaction meter drops below 40%: he asks to stop. Don\'t stop — keep driving and his next request resets the meter.',
+          "Full satisfaction payout: $6,500. The route will always end at the Ocean Beach Marina regardless of what Boobie says.",
+        ],
       },
       {
         id: 'ch3-s1b',
@@ -634,15 +1024,25 @@ export const CHAPTERS: Chapter[] = [
         type: 'strangers',
         protagonist: 'both',
         description: 'Strangers. Final Kyle mission from Ch2. COUNTS FOR TROPHY.',
-        tip: 'Closes the Kyle chain. If you started in Ch2, it\'s available early in Ch3.',
+        tip: 'Closes the Kyle chain.',
+        guide: [
+          'Kyle asks for help resolving a dispute at the McKittrick Farm. Three armed squatters.',
+          'Non-lethal approach (stun + restrain all three) awards the trophy completion. Lethal still closes the chain but no trophy.',
+          'Kyle pays $3,800 and gives Lucia a unique melee weapon (machete with custom grip) as a thank-you.',
+        ],
       },
       {
         id: 'ch3-m09',
         name: 'Meet the Heders',
         type: 'main',
         protagonist: 'both',
-        description: 'A double date with Brian and Lori Heder. Introduces the Heder family.',
+        description: 'A double date with Brian and Lori Heder.',
         tip: 'No combat. The Heders are significant in Ch4 — pay attention to both of them.',
+        guide: [
+          'Restaurant dinner with no fail states.',
+          'Brian\'s wife Lori drops a detail about their ranch that becomes the location of a Ch4 stash. Remember: "north property."',
+          'The Heders\' body language in this scene becomes important context for the Ch4 confrontation. Watch the full cutscene.',
+        ],
       },
       {
         id: 'ch3-m10',
@@ -650,7 +1050,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'Three jewelry heists for Yasmani in sequence.',
-        tip: 'Do all three back to back — Yasmani marks them simultaneously. Use the suppressed pistol on guards.',
+        tip: 'Do all three back to back. Use the suppressed pistol on guards.',
+        guide: [
+          'Job 1 (necklace): one guard, one clerk. Suppress the guard from the doorway, then threaten the clerk for the case.',
+          'Job 2 (earrings): smash-and-grab format. Break the display case, grab the target piece, run. 90-second window before alarm.',
+          'Job 3 (bracelet): two guards and an armed manager. The manager goes for a panic button on the east wall — shoot his arm (aim for shoulder) to stop him without killing.',
+          'Total take: $22,000 across all three. Deliver sequentially to Yasmani without storing jewelry in personal inventory.',
+        ],
       },
       {
         id: 'ch3-s2',
@@ -658,15 +1064,27 @@ export const CHAPTERS: Chapter[] = [
         type: 'strangers',
         protagonist: 'jason',
         description: 'Strangers. Yago part 2. JASON ONLY.',
-        tip: "Mentor Yago through a race. Don't let him crash — the mission fails if he totals the car.",
+        tip: "Don't let him crash — the mission fails if he totals the car.",
+        guide: [
+          'Yago races in a mid-tier car that handles poorly. Your job: keep pace alongside him and block pursuing racers.',
+          'Two racers try to PIT Yago at lap 2. Position Jason\'s car between them and Yago — absorb the hit.',
+          'If Yago takes more than 60% damage: he spins out and the mission fails. Keep intercepting.',
+          'Full escort payout: $3,200.',
+        ],
       },
       {
         id: 'ch3-m11',
         name: 'Car Service',
         type: 'main',
         protagonist: 'lucia',
-        description: 'Lucia steals a car for Raul. LUCIA ONLY. Introduces the Cartel Heist crew.',
+        description: 'Lucia steals a car for Raul. LUCIA ONLY.',
         tip: 'Target is alarmed. Cut power to the building first — box in the back-left corner.',
+        guide: [
+          'The car is in a guarded parking structure. The power box that cuts the alarm is around back, left corner — it\'s behind a fence you can climb.',
+          'Two guards patrol. With power cut, they\'re on flashlights only — their detection radius halves.',
+          'The car\'s GPS tracker needs to be disabled before delivery: it\'s under the dash. Take 15 seconds to do it — Raul won\'t accept a tagged vehicle.',
+          'Deliver to Raul\'s warehouse. Payout: $7,000.',
+        ],
       },
       {
         id: 'ch3-m12',
@@ -675,6 +1093,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Second cartel-linked errand.',
         tip: 'Short. Bank your earnings right after.',
+        guide: [
+          'Same BuckMe transfer mechanic as the first. Amount: $6,000.',
+          'After this transfer, Lorena\'s cartel tier increases — she\'ll provide Ch4 job leads.',
+          'Bank immediately after — a scripted event two missions later can cause unexpected mission-fail death if you\'re holding cash.',
+        ],
       },
       {
         id: 'ch3-m13',
@@ -682,7 +1105,12 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: "A concert night watching the Real Dimez with Dre'Quan.",
-        tip: 'No combat. Dialogue with Dre\'Quan has long-term consequences — pick the supportive options.',
+        tip: "No combat. Dre'Quan's dialogue has long-term consequences — pick the supportive options.",
+        guide: [
+          "Three dialogue exchanges with Dre'Quan during the concert. Supportive answers increase his trust stat.",
+          "High trust with Dre'Quan unlocks an extra crew member option in the VCIA Takedown heist (Ch4). Lower trust = one fewer crew member = harder heist.",
+          'The Real Dimez perform two full songs. Worth watching — the second song plays during a key Ch5 cutscene as a callback.',
+        ],
       },
       {
         id: 'ch3-m14',
@@ -690,31 +1118,55 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'Jason and Lucia officially meet Raul Bautista.',
-        tip: 'Key intro for the heist crew. Don\'t antagonize Raul here — he controls access to the bank score.',
+        tip: "Don't antagonize Raul here — he controls access to the bank score.",
+        guide: [
+          'Raul\'s trust is established here. Any aggressive dialogue choices reduce it.',
+          'The "respectful" and "curious" dialogue options build trust. "Challenging" and "skeptical" reduce it.',
+          'High Raul trust unlocks the aggressive heist approach in Sinfrontera (more cash, harder execution).',
+          'The restaurant they meet in is the same one from Ch4-m09 (Photo/Shoot) — continuity.',
+        ],
       },
       {
         id: 'ch3-m15',
         name: 'Crosstown Traffic',
         type: 'main',
         protagonist: 'both',
-        description: 'Lucia tails a gang member. LUCIA ONLY for the tail; JASON meets Karim.',
-        tip: 'Keep three car lengths on the tail. Under two and they spook. Use traffic to break line of sight.',
+        description: 'Lucia tails a gang member. Jason meets Karim.',
+        tip: 'Keep three car lengths on the tail. Under two and they spook.',
+        guide: [
+          'Three car lengths = roughly 15–20m in-game. The detection meter appears at 10m.',
+          'Use traffic as a buffer — let other cars drift between you and the target naturally.',
+          'The target runs a red light at two intersections. Follow through — waiting for green breaks the follow.',
+          'Simultaneously: Jason\'s meeting with Karim is auto-played. Don\'t worry about it.',
+          'Target ends at a warehouse. Photograph the meeting through the window before returning to Jason.',
+        ],
       },
       {
         id: 'ch3-m16',
         name: 'Credit Check',
         type: 'main',
         protagonist: 'both',
-        description: "Meet Raul's crew. Dye Pack Jammer unlocked — keep it.",
+        description: "Meet Raul's crew. Dye Pack Jammer unlocked.",
         tip: 'The Dye Pack Jammer is REQUIRED for the Cartel Heist. Do not sell or discard it.',
+        guide: [
+          'Meet the full heist crew: Nicole, Kordell, Nate. Brief character intros — no combat.',
+          'The Dye Pack Jammer goes into a dedicated equipment slot, not your weapon wheel. It won\'t clutter your inventory.',
+          'Make sure to actually equip it after receiving it — confirm it\'s in the equipment slot before the next mission.',
+        ],
       },
       {
         id: 'ch3-m17',
         name: "Clonin' Keys, Makin' GS",
         type: 'main',
         protagonist: 'both',
-        description: "Steal the Zorrusso for Randy. Opens Randy's wish list side chain.",
-        tip: 'The Zorrusso is in a guarded garage. Use the Jammer to disable the alarm before entry.',
+        description: "Steal the Zorrusso for Randy.",
+        tip: 'Use the Jammer to disable the alarm before entry.',
+        guide: [
+          'The Zorrusso is in a guarded garage. The Jammer suppresses all alarms in a 15m radius — activate it before entering.',
+          'Three guards. One is bribeable: approach him, hold the interact button, and pay $200. He leaves.',
+          'The Zorrusso has a steering club lock — bash through it quickly (button mash) or take 8 seconds to pick it.',
+          'Deliver to Randy without bodywork damage for the full $9,000 payout.',
+        ],
       },
       {
         id: 'ch3-m18',
@@ -722,7 +1174,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'jason',
         description: "Jason helps Dre'Quan out of a bad situation. JASON ONLY.",
-        tip: "Drive Dre'Quan to the safe house fast — the pursuers are well-armed and persistent.",
+        tip: "Drive Dre'Quan to the safe house fast — the pursuers are well-armed.",
+        guide: [
+          "Pick up Dre'Quan at the marked location. He\'s being followed by two armed vehicles.",
+          'Don\'t stop to fight — this mission is a pure driving escape. The safe house is 2.1 miles away.',
+          'Take the coastal bypass route (south, then north up the beach access road) — pursuers lose sight around the lighthouse bend.',
+          "Dre'Quan's health matters: if his health drops below 20%, the mission fails. Keep the car moving and weaving.",
+        ],
       },
       {
         id: 'ch3-m19',
@@ -730,7 +1188,12 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: "Raul's prep work ramps up.",
-        tip: "This kicks off the Sinfrontera bank prep missions. Don't do any missable side work after this.",
+        tip: "This kicks off the Sinfrontera bank prep missions.",
+        guide: [
+          'Raul reveals the Sinfrontera National Bank as the target. Full crew briefing.',
+          'After this mission: check the map for the Race Against Yago Strangers mission (ch3-s3) — it has a short window.',
+          'Any missable content in Ch3 should be wrapped up before the first heist prep mission (ch3-h1a).',
+        ],
       },
       {
         id: 'ch3-s3',
@@ -738,7 +1201,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'strangers',
         protagonist: 'both',
         description: 'Strangers. Yago part 3. TIME-SENSITIVE AND MISSABLE.',
-        tip: 'MISSABLE. Only available for a short window after Raul\'s Next Job. Win the race — Yago takes shortcuts.',
+        tip: "MISSABLE. Only available for a short window after Raul's Next Job.",
+        guide: [
+          'Available for approximately 2 in-game days after Raul\'s Next Job triggers. After that, it\'s gone.',
+          'Yago races dirty — he takes shortcuts the GPS won\'t flag. Watch his car, not the route.',
+          'The win condition is finishing 1st. Yago will PIT you at the final straightaway — counter by swerving hard left at the 100m mark.',
+          'If you lose: Yago taunts you and the fourth Yago mission (Brother to Brother) still appears but with a reduced payout.',
+        ],
       },
       {
         id: 'ch3-h1a',
@@ -746,15 +1215,28 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'both',
         description: 'HEIST PREP. Walk the bank, identify entry points, guard rotations.',
-        tip: 'Photograph every guard station and both vault doors. Missing photos = fewer approach options.',
+        tip: 'Photograph every guard station and both vault doors.',
+        guide: [
+          'Enter the bank as a customer. You have a 10-minute window before security notices you\'re casing.',
+          'Five photo targets: front guard station, side entrance, lobby camera positions, Vault Door A, Vault Door B.',
+          'Missing any photo removes that approach option in the heist planning screen.',
+          'The bank teller on the left speaks Lucia — a minor dialogue easter egg.',
+          'After scoping: the bank schedule shows a large cash shipment arriving Ch3 day 14. The heist is timed to intercept it.',
+        ],
       },
       {
         id: 'ch3-h1b',
         name: 'Security Expert',
         type: 'heist',
         protagonist: 'both',
-        description: 'HEIST PREP. Jason and Lucia meet Nicole, the security specialist.',
-        tip: "Listen carefully to Nicole's vault specs. She explains the override window — it's exactly 40 seconds.",
+        description: 'HEIST PREP. Meet Nicole, the security specialist.',
+        tip: "Listen carefully to Nicole's vault specs. The override window is exactly 40 seconds.",
+        guide: [
+          'Nicole explains two vault approaches: thermal drill (slow, quiet) or charge blast (fast, loud).',
+          'The 40-second override window applies to the thermal drill only — the charge blast has no window but triples the noise radius.',
+          'If you plan aggressive approach: the charge blast is the right call. Stealth: thermal drill.',
+          'Nicole also reveals a secondary access panel that bypasses the guard rotation — it\'s inside the east ventilation shaft.',
+        ],
       },
       {
         id: 'ch3-m20',
@@ -762,7 +1244,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'Jason and Lucia stop a burglary at their base.',
-        tip: 'React fast — the burglars scatter. Take the left pair, let the AI handle the right.',
+        tip: 'React fast — the burglars scatter.',
+        guide: [
+          'Triggered by a text message. Go to the safe house immediately.',
+          'Three burglars — one runs for each exit. Prioritize the one heading for the garage (he has the stash).',
+          'The left and right burglars can be ignored if you catch the garage one in time.',
+          'After the encounter: check under the floorboard in the bedroom — it\'s been disturbed. The burglars left a phone behind with info leading to an optional mission.',
+        ],
       },
       {
         id: 'ch3-h1c',
@@ -770,23 +1258,43 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'both',
         description: 'HEIST PREP. The crew finalizes the Cartel Heist plan.',
-        tip: 'Choose the aggressive approach unless you have full stealth gear. It\'s faster and more reliable.',
+        tip: 'Choose the aggressive approach unless you have full stealth gear.',
+        guide: [
+          'Two approaches: aggressive (charge blast, loud entry) or stealth (thermal drill, ventilation shaft).',
+          'Aggressive: more action, higher chance of guards dying (affects payout calculation), but faster completion.',
+          'Stealth: requires all crew members to have suppressed weapons and 2+ stealth missions completed this chapter.',
+          'Most players on first run: go aggressive. The payout difference is small ($4,000 max).',
+          'Crew selection: Nicole on vault, Kordell on security hub, Nate on tarmac. Don\'t deviate unless crew members are unavailable.',
+        ],
       },
       {
         id: 'ch3-h1d',
         name: 'Company Property',
         type: 'heist',
         protagonist: 'both',
-        description: 'HEIST PREP. Jason and Brian intercept a weapons shipment.',
-        tip: 'Shoot the tires on the lead truck before the highway stretch. The shipment vehicle handles badly.',
+        description: 'HEIST PREP. Intercept a weapons shipment.',
+        tip: 'Shoot the tires on the lead truck before the highway stretch.',
+        guide: [
+          'Three-vehicle convoy. The lead truck driver is a skilled evader — blow his tires at mile 2 before the highway.',
+          'Once the convoy stops: the rear guards react first. Take them, then work forward.',
+          'The shipment has two crates. Take both — one is the heist equipment, the second has $3,400 in bonus supplies you can sell.',
+          'Get clear of the area in under 90 seconds — law response spawns at 2 minutes post-intercept.',
+        ],
       },
       {
         id: 'ch3-h1e',
         name: 'Safe Word',
         type: 'heist',
         protagonist: 'both',
-        description: 'HEIST PREP. Lucia steals a practice safe to run the drill.',
-        tip: 'The safe facility has a rear entrance with two guards. Enter there — front is a killbox.',
+        description: 'HEIST PREP. Steal a practice safe to run the drill.',
+        tip: 'The safe facility has a rear entrance with two guards.',
+        guide: [
+          'Front entrance: 4 guards, camera coverage, alarm.',
+          'Rear entrance: 2 guards, no camera, alarm panel reachable from outside.',
+          'Cut the alarm panel (interactable on the rear wall) before entry. Removes all alert risk.',
+          'The safe weighs 400kg. You need Jason\'s truck — drive around back before cutting the alarm.',
+          'Loading time: 45 seconds. Guards cycle every 60 seconds. You have one full cycle window.',
+        ],
       },
       {
         id: 'ch3-h1f',
@@ -794,7 +1302,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'lucia',
         description: 'HEIST PREP. Lucia meets Andrea at a cockfight. LUCIA ONLY.',
-        tip: "Don't bet on the fight. Andrea's information is what matters, not the payout.",
+        tip: "Don't bet on the fight. Andrea's information is what matters.",
+        guide: [
+          'Cockfight is a timed event. Arrive before it starts (marked on HUD) or Andrea leaves.',
+          'Betting: the game lets you wager up to $5,000. The fights are rigged — the second rooster wins every time regardless of initial odds. But don\'t bother; the information is the point.',
+          'Andrea has the security override code for Sinfrontera\'s back door. This unlocks the third approach option in Heist Planning.',
+          'After meeting: an M7 crew member confronts Lucia in the parking lot. Stun them, don\'t kill — it keeps the M7 conflict from escalating prematurely.',
+        ],
       },
       {
         id: 'ch3-opt2',
@@ -802,7 +1316,14 @@ export const CHAPTERS: Chapter[] = [
         type: 'optional',
         protagonist: 'both',
         description: 'Optional. Billy questline part 3. SOLO ONLY.',
-        tip: 'SOLO ONLY. If playing co-op, this will not appear. Easy payout, fun mission.',
+        tip: 'SOLO ONLY. If playing co-op, this will not appear.',
+        guide: [
+          'Billy needs help "borrowing" a display piece from a mall jewelry kiosk.',
+          'Solo only: the game switches to Lucia for this mission even if you trigger it as Jason.',
+          'The kiosk has no lockbox — Billy distracts the clerk while you pocket the piece.',
+          'Three security cameras. Duck under them (marked with cones of vision) or just sprint — the timer is tight enough that speed beats stealth.',
+          'Payout: $4,100 plus Billy\'s ongoing contact benefit (10% discount at all fences).',
+        ],
       },
       {
         id: 'ch3-s4',
@@ -810,7 +1331,14 @@ export const CHAPTERS: Chapter[] = [
         type: 'strangers',
         protagonist: 'jason',
         description: 'Strangers. Final Yago mission. JASON ONLY. COUNTS FOR TROPHY.',
-        tip: 'Yago questline finale. Fight goes 3 waves — stay mobile and use vehicles as cover.',
+        tip: 'Fight goes 3 waves — stay mobile and use vehicles as cover.',
+        guide: [
+          'Yago\'s brother needs Jason\'s help at a warehouse. Three waves of attackers.',
+          'Wave 1: 4 men, no cover. Stand behind the forklift.',
+          'Wave 2: 6 men + one with an RPG. Take the RPG gunner first (he\'s on the catwalk, right side).',
+          'Wave 3: vehicle. Shoot the driver through the windshield before it reaches the warehouse.',
+          'After the fight: Yago gives Jason a rare sports car (Pegassi prototype) as thanks. Store it immediately — it\'s the fastest vehicle in Ch3.',
+        ],
       },
       {
         id: 'ch3-m21',
@@ -819,6 +1347,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Lucia shoots a music video for the Real Dimez.',
         tip: "Follow the director's shot marks exactly. Three retakes = mission fail.",
+        guide: [
+          'Stand on the green marks on the floor when the director calls action. Moving off-mark = retake.',
+          'Three scenes total. Scene 2 has a moving mark — follow it in real time.',
+          'You have 2 retakes per scene before the third triggers mission fail on that scene.',
+          "Dre'Quan is in the video. His dialogue during breaks is optional flavor — worth watching.",
+        ],
       },
       {
         id: 'ch3-h1g',
@@ -827,22 +1361,40 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'HEIST PREP. Final prep — explosives and the planning room.',
         tip: 'Last chance to swap loadout. Full armor, Jammer active, suppressed auto recommended.',
+        guide: [
+          'The explosives pickup is at a construction site. Two guards — wait for the rotation gap (8-second window).',
+          'Back at the planning room: this is your last loadout screen before the heist.',
+          'Recommended setup: suppressed SMG (primary), suppressed pistol (secondary), full armor, Dye Pack Jammer equipped.',
+          'The charge blend (from the construction site) is a one-time item — don\'t use it on anything before the heist.',
+        ],
       },
       {
         id: 'ch3-m22',
         name: 'Bricked Up',
         type: 'main',
         protagonist: 'both',
-        description: 'Jason and Lucia do final work for Boobie.',
-        tip: "Boobie's warehouse is booby-trapped (pun his, not mine). Go slow and disarm the triggers.",
+        description: "Jason and Lucia do final work for Boobie.",
+        tip: "Boobie's warehouse is booby-trapped. Go slow.",
+        guide: [
+          'Three tripwires inside the warehouse. All are visible if you look low — they\'re at shin height with a faint red laser.',
+          'Disarming each one takes 4 seconds. All three must be disarmed or the whole interior detonates.',
+          'The package Boobie wants is in the back-left corner on a pallet. Use Jason\'s strength to shift the pallet cover.',
+          'Exiting: the same tripwires reset if you take damage. If you trip one, roll immediately — blast radius is 3m.',
+        ],
       },
       {
         id: 'ch3-m23',
         name: 'South Leonida Real Estate',
         type: 'main',
         protagonist: 'lucia',
-        description: 'Lucia meets Mia — a run-in with the M7 crew. LUCIA ONLY.',
-        tip: 'M7 are aggressive. Take cover immediately when the confrontation starts. They rush fast.',
+        description: "Lucia meets Mia — a run-in with the M7 crew. LUCIA ONLY.",
+        tip: 'M7 are aggressive. Take cover immediately.',
+        guide: [
+          'The M7 confrontation is scripted — it will happen regardless of Lucia\'s actions in prior missions.',
+          'Cover: immediately crouch behind the car at the northeast corner of the lot. The M7 shooters come from the south and west.',
+          'Three M7 members. Don\'t rush them — wait for the reload windows (each member has a 3-second reload).',
+          'After the fight: Mia gives Lucia a warning about the cartel that directly contradicts what Lorena told Lucia. Lore-critical dialogue.',
+        ],
       },
       {
         id: 'ch3-h2',
@@ -850,7 +1402,15 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'both',
         description: 'MAJOR HEIST. The chapter closer. Everything built toward this.',
-        tip: 'Use the Jammer the moment you breach the outer doors — 10 seconds buys the whole approach. Aggressive route: Lucia holds the lobby, Jason cracks the vault. If the guard resets, use the explosive charge not the drill.',
+        tip: 'Use the Jammer the moment you breach — 10 seconds buys the whole approach.',
+        guide: [
+          'Phase 1 (entry): activate the Dye Pack Jammer immediately on breach. It disables all bank alarm systems for 10 seconds — enough for both characters to enter and reach positions.',
+          'Phase 2 (vault): aggressive approach — Lucia holds the lobby (behind the teller counter, all sightlines covered), Jason moves to the vault. Use the charge blast on Vault Door A.',
+          'The 40-second override window on the vault system starts when the charge detonates — Jason must input the bypass code within that window. The code is on the planning board (write it down before the mission).',
+          'Phase 3 (extraction): two armored guards arrive at the front within 90 seconds of vault breach. Do NOT engage them directly — their armor takes a full SMG mag each. Use the stairwell exit on the right side of the lobby.',
+          'The getaway vehicle is two blocks east. If it gets destroyed: carjack anything with 4 seats and use the coastal escape route.',
+          'Full payout (all cash bags, no crew casualties): $62,000 split.',
+        ],
       },
     ],
   },
@@ -869,6 +1429,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Jason and Lucia set up in Ocean Beach after the Cartel Heist.',
         tip: "New safe house — explore it. There's a weapon cache in the garage that respawns.",
+        guide: [
+          'Safe house orientation cutscene. No fail states.',
+          'The garage weapon cache: a shotgun and 40 rifle rounds in a locked cabinet. The key is in the kitchen junk drawer.',
+          'The Ocean Beach area is the largest playable zone in the game. Take 15 minutes to drive it before the next mission.',
+          'ATM is half a block west. Deposit anything you\'re holding from Ch3.',
+        ],
       },
       {
         id: 'ch4-m02',
@@ -876,7 +1442,12 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'Lucia looks back on her past.',
-        tip: 'Story-only. Major character reveal. No skippable content here.',
+        tip: 'Story-only. Major character reveal.',
+        guide: [
+          'The reveal connects Lucia\'s pre-prison history to the cartel network — specifically to Raul\'s organization predating Ch3.',
+          'No combat, no optional objectives.',
+          'The photograph Lucia finds becomes a returnable prop — it\'s displayed in the Ch5 safe house.',
+        ],
       },
       {
         id: 'ch4-m03',
@@ -885,6 +1456,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'A deceptively calm afternoon.',
         tip: 'Things go wrong fast. Have your weapon ready before the cutscene ends.',
+        guide: [
+          'The pool scene runs about 3 minutes. At the 2:40 mark, an attackers arrives from the east gate.',
+          'Weapon ready tip: the moment control returns to you, draw immediately.',
+          'Three attackers total. The third comes from the pool house — check inside after the first two are down.',
+          'The attacker on the east wall has a burner phone with the name of who sent him. Take it — it\'s referenced in a Ch4 dialogue.',
+        ],
       },
       {
         id: 'ch4-m04',
@@ -892,7 +1469,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'New vehicles for the Ocean Beach operation.',
-        tip: 'Get the SUV, not the sports car. The upcoming escort missions need durability.',
+        tip: 'Get the SUV, not the sports car.',
+        guide: [
+          'Two vehicle options: a sports car (fast, fragile) or an SUV (slower, durable).',
+          'The next 4 missions include two escort objectives and one convoy defense. The SUV absorbs hits the sports car cannot.',
+          'The sports car becomes available to purchase at a dealership in Ch4-m08. Get the SUV now.',
+          'Store both in the Ocean Beach garage after this mission.',
+        ],
       },
       {
         id: 'ch4-m05',
@@ -900,7 +1483,12 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'Jason and Lucia meet Abe Gonzalez.',
-        tip: "Abe is slimy but useful. Don't stiff him on the fee — it blocks a Ch5 mission.",
+        tip: "Don't stiff him on the fee — it blocks a Ch5 mission.",
+        guide: [
+          'Abe\'s standard fee is $12,000. Negotiate aggressively and he drops to $9,000 — but this reduces his services in Ch5.',
+          'Pay the full fee: $12,000. Abe\'s full service unlocks Honest Abe (ch5-m05) which is required for the best Ch5 ending.',
+          'Abe also has a secondary service: warrant clearance for $3,000 per wanted-level star. Useful but optional.',
+        ],
       },
       {
         id: 'ch4-m06',
@@ -908,7 +1496,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'A setup meeting that goes sideways.',
-        tip: "Don't go in armed visibly. Holster before the meeting. First shot is scripted.",
+        tip: "Don't go in armed visibly. Holster before the meeting.",
+        guide: [
+          'Arrive at the meeting location with weapon holstered. Any visible weapon triggers an early confrontation.',
+          'The first shot is scripted — you can\'t prevent it. When it fires: immediately dive left (cover on the left side of the booth).',
+          'Three aggressors. The one at the bar has a shotgun — priority target.',
+          'After the fight: the contact who set up the meeting is gone. The burner phone on the floor traces back to Westport Cartel (Ch3 Cartel Heist connection).',
+        ],
       },
       {
         id: 'ch4-m07',
@@ -917,6 +1511,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Security for a celebrity event.',
         tip: 'Stay near the VIP at all times. Two assassination attempts — first comes from above.',
+        guide: [
+          'VIP is on the main floor. Stay within 10m at all times or the detection meter fills.',
+          'Attempt 1 (above): a shooter positions on the second-floor balcony 8 minutes in. Look up — the laser sight is visible. Take the shot before he lines up.',
+          'Attempt 2 (crowd): a person in the crowd pulls a weapon 14 minutes in. The tell: they don\'t move with the crowd, they move against it. Spot them and subdue.',
+          'Full-clear bonus: $8,000 on top of base payout if both attempts are stopped non-lethally.',
+        ],
       },
       {
         id: 'ch4-m08',
@@ -924,7 +1524,12 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: "Transfer funds to Abe. Required for his legal cover.",
-        tip: 'Make sure you have $12,000 in BuckMe before this triggers. It auto-deducts.',
+        tip: 'Make sure you have $12,000 in BuckMe before this triggers.',
+        guide: [
+          'Auto-deducted from BuckMe when you open the transaction screen. No manual transfer needed.',
+          'If you have less than $12,000: the mission pauses. Do side jobs to earn the difference before returning.',
+          'After payment: Abe\'s legal cover activates — your wanted-level stars clear 20% faster for the rest of Ch4.',
+        ],
       },
       {
         id: 'ch4-m09',
@@ -932,7 +1537,12 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: "A photoshoot promo for Dre'Quan.",
-        tip: "No combat. Follow the photographer's directions. Good mission for exploring the studio lot.",
+        tip: "No combat. Follow the photographer's directions.",
+        guide: [
+          'Stand on marks, follow direction prompts for each pose (shown on the left side of the HUD).',
+          'Five setups total. The fifth involves Jason and Lucia together — the positioning prompt is timed (5 seconds).',
+          'The studio lot has an unlocked back office with $900 in a drawer and an SMG on the table. Grab both during the break between setups 3 and 4.',
+        ],
       },
       {
         id: 'ch4-opt1',
@@ -941,6 +1551,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Optional. Find Felipe, an erratic driver causing chaos.',
         tip: 'Short. Felipe is fast — box him in with traffic, don\'t chase head-on.',
+        guide: [
+          'Felipe drives a beaten Peyote convertible. He\'s fast but predictable — he always loops the same 6-block circuit.',
+          'Wait ahead of him at the northeast corner and box him against the median using your car.',
+          'He\'s not violent — just confused. Subdue him gently.',
+          'Payout: $2,100 from the contact who called it in.',
+        ],
       },
       {
         id: 'ch4-opt2',
@@ -948,15 +1564,26 @@ export const CHAPTERS: Chapter[] = [
         type: 'optional',
         protagonist: 'both',
         description: "Optional. Eddie Acosta's party. SOLO ONLY.",
-        tip: 'SOLO ONLY. Easy mission, decent contacts unlocked. Go in unarmed — it\'s a party.',
+        tip: 'SOLO ONLY. Easy mission, decent contacts unlocked.',
+        guide: [
+          'Available SOLO only. If you try to trigger it in co-op mode, the mission marker disappears.',
+          'Go in unarmed — there\'s a weapons check at the door.',
+          'Three contact opportunities at the party. Speak with the man by the pool (Cartel adjacent), the woman at the bar (Law enforcement contact), and Eddie himself.',
+          'The law enforcement contact becomes usable in Ch5 for a 1-star clearance. Worth the conversation.',
+        ],
       },
       {
         id: 'ch4-h2a',
         name: 'Making Gainz',
         type: 'heist',
         protagonist: 'lucia',
-        description: 'VCIA HEIST PREP. Lucia meets Raul\'s new plan. LUCIA ONLY.',
-        tip: "Raul's plan is risky — push back in dialogue for the extra crew member. Worth it.",
+        description: "VCIA HEIST PREP. Lucia meets Raul's new plan. LUCIA ONLY.",
+        tip: "Push back in dialogue for the extra crew member.",
+        guide: [
+          'Raul presents a 3-person plan. Push back ("we need more") and he concedes a 4th crew member.',
+          'The 4th member (Nate) becomes critical for the tunnel approach. Without him, the tunnel approach fails mid-execution.',
+          'No combat. Pure planning scene.',
+        ],
       },
       {
         id: 'ch4-h2b',
@@ -964,7 +1591,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'lucia',
         description: 'VCIA HEIST PREP. Physical training montage. LUCIA ONLY.',
-        tip: 'Mini-games here train Lucia\'s stamina stat permanently. Don\'t skip the reps.',
+        tip: "Mini-games here train Lucia's stamina stat permanently.",
+        guide: [
+          'Three mini-games: sprint circuit (press button at rhythm), heavy bag (hold button timing), swimming (d-pad alternation).',
+          'Completing all three at Gold level adds +15% to Lucia\'s stamina permanently.',
+          'Silver level on all three: +8%.',
+          'Worth getting Gold — Lucia\'s stamina matters significantly in Ch5.',
+        ],
       },
       {
         id: 'ch4-h2c',
@@ -972,7 +1605,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'jason',
         description: 'VCIA HEIST PREP. Jason scopes the airport. JASON ONLY.',
-        tip: 'Photograph every security checkpoint and the loading zone exterior. Missed spots = harder heist.',
+        tip: 'Photograph every security checkpoint and the loading zone exterior.',
+        guide: [
+          'Enter the airport as a passenger (buy a dummy ticket at the counter — $80).',
+          'Five photo targets: main checkpoint, secondary checkpoint, cargo bay doors, loading zone exterior, security hub location.',
+          'Missing the security hub photo removes the tunnel approach option.',
+          'Jason has 15 in-game minutes before security notices someone is casing. Don\'t rush but don\'t linger.',
+        ],
       },
       {
         id: 'ch4-m10',
@@ -981,6 +1620,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'jason',
         description: "Jason and Dre'Quan meet a club owner. JASON ONLY.",
         tip: "The club owner is armed and paranoid. Don't reach for a weapon during the conversation.",
+        guide: [
+          'Three-way conversation. Never select "threatening" or "aggressive" dialogue — the owner has a panic button.',
+          '"Casual" and "business" dialogue options keep the meeting on track.',
+          'The watch the owner shows Jason is stolen. Don\'t mention this — Jason\'s character knows but it\'s a test of composure.',
+          'Successful meeting unlocks the club as a Ch4 optional safe house alternative.',
+        ],
       },
       {
         id: 'ch4-h2d',
@@ -988,7 +1633,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'lucia',
         description: 'VCIA HEIST PREP. Workout with the crew. LUCIA ONLY.',
-        tip: "Builds crew rapport. Lucia's bond with Kordell improves which affects the final heist success.",
+        tip: "Builds crew rapport.",
+        guide: [
+          'Workout with Kordell at the gym. Follow the rep prompts.',
+          'Kordell\'s trust increases based on how many reps you complete (target: 3 sets).',
+          'High Kordell trust: he takes the more dangerous security hub position in the heist, freeing Lucia for the terminal.',
+          'Low Kordell trust: he hesitates at the hub and the heist adds 2 minutes to extraction time.',
+        ],
       },
       {
         id: 'ch4-h2e',
@@ -996,7 +1647,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'lucia',
         description: 'VCIA HEIST PREP. Recruit Nate. LUCIA ONLY.',
-        tip: 'Short call sequence. Answer every question honestly — Nate spots lies and reduces his cut if tested.',
+        tip: 'Answer every question honestly — Nate spots lies.',
+        guide: [
+          'Nate asks four questions about the job. Answer "honest" options on all four.',
+          'Lie on any answer: Nate reduces his cut percentage request (better for payout) but his tunnel execution skill drops.',
+          'Tell the truth: Nate asks for a 12% cut but executes flawlessly in the tunnel — no tunnel fails.',
+          'Mathematical recommendation: tell the truth. The 12% cut is worth avoiding a tunnel restart.',
+        ],
       },
       {
         id: 'ch4-h2f',
@@ -1004,7 +1661,12 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'lucia',
         description: 'VCIA HEIST PREP. Hang out with Nate to build trust. LUCIA ONLY.',
-        tip: 'Follow Nate\'s lead. This is rapport-building, not a mission — no fails possible.',
+        tip: 'Follow Nate\'s lead.',
+        guide: [
+          'Nate takes Lucia to two locations: a diner and a beach overlook.',
+          'At each location: Nate shares personal history. Listen to both fully — skipping through dialogue reduces rapport.',
+          'Full rapport with Nate means he covers for Lucia\'s mistakes once during the heist (one-time shield from fail state).',
+        ],
       },
       {
         id: 'ch4-h2g',
@@ -1012,7 +1674,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'both',
         description: 'VCIA HEIST PREP. Deal with Raina.',
-        tip: 'Two routes: pay her or intimidate her. Paying keeps the peace long-term.',
+        tip: 'Two routes: pay her or intimidate her. Paying keeps the peace.',
+        guide: [
+          'Raina knows about the VCIA job and wants a cut or she talks.',
+          'Pay ($8,000): she stays quiet and becomes a recurring fence in Ch5 (better prices).',
+          'Intimidate: she backs down but contacts the VCIA anonymously. The heist adds one extra security guard.',
+          'Pay. The Ch5 fence benefit is worth $8,000 easily within two transactions.',
+        ],
       },
       {
         id: 'ch4-h2h',
@@ -1020,7 +1688,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'both',
         description: "VCIA HEIST PREP. Help Kordell's crew establish the access route.",
-        tip: "Three guard rotations at the rear gate. Wait for all three to sync before moving.",
+        tip: "Three guard rotations at the rear gate. Wait for all three to sync.",
+        guide: [
+          'The rear gate rotation: Guard A (45s), Guard B (60s), Guard C (30s). All three are at the far end of their routes simultaneously at the 90-second mark.',
+          'That\'s your window: 8 seconds where all three are maximally distant. Move then.',
+          'Set the access device on the gate panel (hold interact, 6 seconds). Don\'t rush — moving away breaks the installation.',
+          'Extraction: reverse the route. All three guards are back on patrol. Sneak back during Guard C\'s turn (he\'s closest but slowest).',
+        ],
       },
       {
         id: 'ch4-m11',
@@ -1028,7 +1702,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'jason',
         description: "Security work at Andrés' club. JASON ONLY.",
-        tip: 'Three trouble spots in the club. Clear them in order — going out of sequence triggers more fighters.',
+        tip: 'Three trouble spots in the club. Clear them in order.',
+        guide: [
+          'Spot 1 (bar fight): grab the instigator by the collar (hold interact near him) and escort him to the exit. Don\'t throw punches — it escalates.',
+          'Spot 2 (VIP room argument): mediate (dialogue option "calm down both sides") — going aggressive on one person causes the other to attack.',
+          'Spot 3 (parking lot confrontation): 3 people with weapons. Take the one on the right first — he\'s most aggressive.',
+          'Complete all three in under 12 minutes for the full $5,500 payout.',
+        ],
       },
       {
         id: 'ch4-m12',
@@ -1036,7 +1716,14 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'jason',
         description: 'JASON ONLY. A kidnapping connected to the VCIA job.',
-        tip: "Time-sensitive — Rafa's trackers run out in 8 minutes. Go direct, no detours.",
+        tip: "Time-sensitive — Rafa's trackers run out in 8 minutes.",
+        guide: [
+          'Rafa\'s GPS tracker has an 8-minute window. The kidnappers are moving.',
+          'Fastest route: cut through the port, avoid the harbor bridge (always jammed). Takes 5 minutes direct.',
+          'At the warehouse: 4 kidnappers. Rafa is in the back room, unharmed. The kidnappers will execute him if the firefight continues past 2 minutes.',
+          'Priority: take out the gunman near the back room first. Then clear the main floor.',
+          'Rafa is uninjured if rescued within 2 minutes of arrival. Injured if longer.',
+        ],
       },
       {
         id: 'ch4-m13',
@@ -1044,7 +1731,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'jason',
         description: "Jason and Dre'Quan steal compromising material. JASON ONLY.",
-        tip: "The material is on the third floor. Use the fire exit, not the elevator — cameras in the lobby.",
+        tip: "The material is on the third floor. Use the fire exit — cameras in the lobby.",
+        guide: [
+          'The building lobby has two guards and a camera. The fire escape on the east side bypasses all of it.',
+          'Third floor: the material is in a filing cabinet, room 312. The door is locked — the key is in the security room on the same floor (guard on a coffee break in there, unarmed).',
+          'Take the key, grab the files, go back down the fire exit.',
+          'No alarm if you don\'t enter the lobby or touch the main desk. Fast and clean.',
+        ],
       },
       {
         id: 'ch4-m14',
@@ -1052,7 +1745,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: "Rescue Rafa from kidnappers.",
-        tip: 'Rafa panics easily — keep gunfire away from his position. Flank all shooters before closing in.',
+        tip: 'Rafa panics easily — keep gunfire away from his position.',
+        guide: [
+          'Rafa is at the northeast corner of the building. All gunfire should be south and west.',
+          'Flanking order: take out the two south shooters first (they have the best line on Rafa\'s position), then the west two.',
+          'Once all four are down: Rafa will run east toward the alley. Follow — a fifth attacker comes from that direction.',
+          'The fifth is the kidnap organizer. Subdue (don\'t kill) for the full payout and an optional lead.',
+        ],
       },
       {
         id: 'ch4-opt3',
@@ -1060,7 +1759,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'optional',
         protagonist: 'lucia',
         description: 'Optional. LUCIA ONLY. TIME-SENSITIVE AND MISSABLE.',
-        tip: 'MISSABLE. Pick up Shayna immediately when this appears or it expires within one in-game day.',
+        tip: 'MISSABLE. Pick up Shayna immediately when this appears.',
+        guide: [
+          'A collect call from Shayna (prison contact) appears in Lucia\'s phone for one in-game day only.',
+          'Answer it and agree to pick her up. She\'s at the bus station.',
+          'Shayna provides a one-time fencing service at the best prices in the game. Worth picking up.',
+          'If you miss this call, Shayna\'s service is unavailable permanently.',
+        ],
       },
       {
         id: 'ch4-h2i',
@@ -1068,7 +1773,14 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'lucia',
         description: "VCIA HEIST PREP. Help Kordell's crew gain leverage. LUCIA ONLY.",
-        tip: 'Stealth available here. Recommended — loud approach draws two extra security waves.',
+        tip: 'Stealth available here. Recommended.',
+        guide: [
+          'Target: corporate server room with leverage material.',
+          'Stealth approach: use the HVAC access on the building\'s north side (marked if you have the blueprint from Too Much Baggage). Zero guards on this route.',
+          'Loud approach: 6 guards, 3-star wanted on extraction.',
+          'Stealth completion reward: $4,000 bonus + no wanted level.',
+          'The leverage material is on a specific server (marked blue). Pull it and go.',
+        ],
       },
       {
         id: 'ch4-h2j',
@@ -1076,7 +1788,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'jason',
         description: 'VCIA HEIST PREP. Jason flies a spy drone over the target. JASON ONLY.',
-        tip: 'Mark every guard on the drone pass. Missing guards on the final heist means extra resistance.',
+        tip: 'Mark every guard on the drone pass.',
+        guide: [
+          'The drone has a 12-minute battery. Use it all.',
+          'Mark guards by holding the aim button over each one for 2 seconds. Marked guards show on the heist map.',
+          'Five guards are on the perimeter. Two more are inside the terminal — use the drone\'s zoom to see through the glass.',
+          'Missing guards on the heist = extra resistance during execution.',
+        ],
       },
       {
         id: 'ch4-h2k',
@@ -1084,7 +1802,14 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'jason',
         description: 'VCIA HEIST PREP. Jason goes undercover for Andrea. JASON ONLY.',
-        tip: 'Stay in character. If the NPCs ask questions, answer slowly — rushing triggers a suspicion flag.',
+        tip: 'Stay in character.',
+        guide: [
+          'Jason poses as a delivery driver. The uniform is in the back of the van.',
+          'Three delivery stops inside the airport facility. At each one: answer the security questions from a list (shown on HUD).',
+          'Rushing answers triggers a suspicion flag at stop 2 — take 2–3 seconds per answer.',
+          'At stop 3: a security manager asks an unscripted question. The correct answer is always the last option.',
+          'Full undercover completion: Andrea provides the terminal override codes for the heist.',
+        ],
       },
       {
         id: 'ch4-h2l',
@@ -1092,7 +1817,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'lucia',
         description: 'VCIA HEIST PREP. Lucia proves herself to Kordell. LUCIA ONLY.',
-        tip: 'Combat mission. Kordell watches your performance — be aggressive and accurate.',
+        tip: 'Kordell watches your performance — be aggressive and accurate.',
+        guide: [
+          'Combat qualification: 20 targets, 3 minutes.',
+          'Accuracy over 80%: Kordell assigns himself the security hub (better for the heist).',
+          'Accuracy under 60%: Kordell takes a support role with lower effectiveness at the hub.',
+          'Shoot fast but controlled. The targets appear in a predictable clockwise pattern.',
+        ],
       },
       {
         id: 'ch4-h2m',
@@ -1100,7 +1831,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'both',
         description: 'VCIA HEIST PREP. Steal a catering truck for the approach.',
-        tip: 'Steal from the airport service road late at night — fewer witnesses.',
+        tip: 'Steal from the airport service road late at night.',
+        guide: [
+          'The catering company has three trucks. The service road trucks (available 10 PM–5 AM) have only one guard vs. the depot\'s four.',
+          'Service road truck: guard is at the cab\'s passenger side. Approach from driver\'s side — blind spot.',
+          'Drive to the prep location and swap the truck\'s ID plates (hold interact at the tool bench — 30 seconds).',
+          'Store it in the garage marked on the map. Don\'t drive it anywhere else or its cover is blown.',
+        ],
       },
       {
         id: 'ch4-h2n',
@@ -1108,7 +1845,14 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'both',
         description: 'VCIA HEIST PREP. All pieces confirmed.',
-        tip: 'Last planning session. Lock in your approach route — the tunnel is slower but quieter.',
+        tip: 'Lock in your approach route — the tunnel is slower but quieter.',
+        guide: [
+          'Three approach options: tunnel (quiet, 7 minutes), direct terminal (fast, 4 minutes, 2-star police), aerial (requires Dre\'Quan high trust, fastest, zero police).',
+          'First playthrough recommendation: tunnel. It has the most checkpoints and forgives timing mistakes.',
+          'Direct terminal is for speed runs or second playthroughs.',
+          'Aerial approach: only unlocked if Dre\'Quan trust is 80%+ (from Top Billing + Ride or Die + Cooties).',
+          'Crew is locked in here. Last chance to adjust if anyone\'s trust/skill is low.',
+        ],
       },
       {
         id: 'ch4-m15',
@@ -1116,15 +1860,32 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'Help with the Real Dimez launch party at VYB.',
-        tip: "Three party problems to handle simultaneously. Lucia on sound, Jason on VIP. Don't let either fail.",
+        tip: "Three party problems to handle simultaneously.",
+        guide: [
+          'The HUD splits into two objectives: Lucia on sound system, Jason on VIP section.',
+          'Sound system: follow the technician to the board, adjust three sliders to green (rhythm-based prompt).',
+          'VIP section: an uninvited guest is causing problems. The correct response is "escort out quietly" not "call security" — calling security triggers a scene.',
+          "Both must be resolved within 8 minutes. If Lucia\'s sound task takes longer than 5 minutes, Jason's VIP task auto-fails.",
+          "Complete both: Dre'Quan pays $7,000 and trust increases.",
+        ],
       },
       {
         id: 'ch4-h3',
         name: 'VCIA Takedown',
         type: 'heist',
         protagonist: 'both',
-        description: 'MAJOR HEIST. The airport job. The chapter\'s centerpiece.',
-        tip: 'Tunnel approach recommended. Kordell takes the security hub — keep him alive or the breach fails. Jason drives the truck, Lucia holds the terminal. Nate covers the tarmac. Watch the 7-minute police response window.',
+        description: 'MAJOR HEIST. The airport job.',
+        tip: 'Tunnel approach recommended. Kordell takes the security hub — keep him alive.',
+        guide: [
+          'Tunnel approach walkthrough:',
+          'Phase 1: Jason drives the catering truck to the service entrance. Lucia and Nate are in the back. Drive at or below speed limit — any traffic stop blows cover.',
+          'Phase 2: Nate exits at the service bay. He has 4 minutes to reach and disable the terminal camera loop. Don\'t advance until his confirmation.',
+          'Phase 3: Kordell at the security hub. His success depends on trust level (from Amateur Hour + Team Building). High trust = 100% success. Low trust = 60% chance of hub alarm.',
+          'Phase 4 (tunnel): Jason and Lucia move through the maintenance tunnel. Three guards — Nate has disabled the cameras so they\'re on foot patrol only. Take them silently (suppressed only — any gunshot triggers a lockdown).',
+          'Phase 5 (payload): the cargo is in bay 7. It\'s crated — use the pry tool (in the truck) to open. Take only the marked crates — extras aren\'t real and waste time.',
+          'Phase 6 (extraction): 7-minute police response window from first alert (if any). The tunnel exit is 90 seconds. Drive the truck to the extraction point on the coastal highway.',
+          'Kordell alive bonus: $14,000 extra. Full payout (clean, Kordell alive, all cargo): $88,000 split.',
+        ],
       },
       {
         id: 'ch4-m16',
@@ -1132,7 +1893,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'Post-heist cleanup.',
-        tip: 'Two loose threads to handle. Take care of them in order — the second one is time-gated.',
+        tip: 'Take care of them in order — the second one is time-gated.',
+        guide: [
+          'Loose end 1: a witness who saw the catering truck. Find them at the diner (marked). Threaten — no need to harm.',
+          'Loose end 2: a data trail in a rented server. This expires 90 in-game minutes after Loose end 1 is handled. Go directly.',
+          'The server location is in a co-working space. Walk in confidently — the access code is in your phone from the Delivery Method mission.',
+          'Delete the trail (hold interact, 20 seconds) and leave.',
+        ],
       },
       {
         id: 'ch4-opt4',
@@ -1141,6 +1908,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Optional. Wait at the café for a contact.',
         tip: 'Short. Good payout. The contact only appears if you completed Abe\'s earlier fee mission.',
+        guide: [
+          'Requires Lawyer Up (ch4-m05) to have been completed with the full $12,000 payment.',
+          'Sit at the café between 2 PM and 4 PM. The contact arrives at the 15-minute mark.',
+          'He offers a job lead for a Vice City score. Accept it — it\'s the base for an optional job chain in Ch4.',
+          'Payout for accepting: $5,000 advance. Full chain payout: $19,000.',
+        ],
       },
       {
         id: 'ch4-m17',
@@ -1148,7 +1921,12 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'A call that reshapes the final chapter.',
-        tip: 'Story-critical. Valentina reveals the M7 connection — it changes the Ch5 approach.',
+        tip: 'Valentina reveals the M7 connection — it changes the Ch5 approach.',
+        guide: [
+          'Answer Valentina\'s call within one in-game hour of it arriving or she doesn\'t call back.',
+          'The M7-cartel connection she reveals links to the Ch3 South Leonida Real Estate confrontation.',
+          'This information directly changes the Ch5 planning dialogue with Jason and Lucia.',
+        ],
       },
       {
         id: 'ch4-m18',
@@ -1156,7 +1934,12 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'Jason and Lucia stop by the front desk. The chapter turns dark.',
-        tip: 'Save before this. The chapter ending is abrupt and Ch5 starts fast.',
+        tip: 'Save before this. The chapter ending is abrupt.',
+        guide: [
+          'Point of no return for all Ch4 optional content.',
+          'Save manually. The transition to Ch5 is fast.',
+          'The "front desk" cutscene reveals Brian\'s full involvement with the VCIA — the chapter\'s major betrayal beat.',
+        ],
       },
       {
         id: 'ch4-m19',
@@ -1164,7 +1947,12 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'Chapter close. Everything resets.',
-        tip: 'Save immediately after. This is the point of no return for Ch4 optional content.',
+        tip: 'Save immediately after. This is the point of no return for Ch4.',
+        guide: [
+          'Auto-save triggers but save manually too.',
+          'Ch5 starts with limited resources — the "reset" is literal. You keep BuckMe funds and stored vehicles, but loose items reset.',
+          'Spend any loose cash before triggering this. Deposit everything.',
+        ],
       },
     ],
   },
@@ -1183,6 +1971,12 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'Jason and Lucia steal a vehicle for the final run.',
         tip: 'Take the helicopter on the east pad — the guard rotation leaves a 30-second window.',
+        guide: [
+          'Two vehicle options at the target location: a truck (ground, easier approach) or helicopter (rooftop, 30-second window).',
+          'Helicopter gives a 4-minute advantage on the Ch5-m02 extraction. Worth the extra difficulty.',
+          'Guard rotation window: 30 seconds starting when the east guard reaches the northwest corner of his route.',
+          'The helicopter key is in the guard booth (east pad) — pickpocket the guard before the window, not during.',
+        ],
       },
       {
         id: 'ch5-m02',
@@ -1190,7 +1984,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'A new plan after the Ch4 fallout.',
-        tip: 'Follow Jason\'s lead at the start. Lucia\'s section comes second — the objectives flip.',
+        tip: "Follow Jason's lead at the start. Lucia's section comes second.",
+        guide: [
+          'Two-part mission with a protagonist swap midway.',
+          'Jason\'s section (first): vehicle intercept on the highway. Ram the target car three times to stop it without destroying it.',
+          'Lucia\'s section (second): building entry and package retrieval. The building has two guards — the left one is on a 20-second phone call during which he faces away.',
+          'Both sections have tight timers on a second run. Ch5 overall is the most time-pressured chapter.',
+        ],
       },
       {
         id: 'ch5-m03',
@@ -1198,15 +1998,29 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'Hunt for contraband with Vinny.',
-        tip: "Vinny's truck is fragile. Don't let it absorb more than three hits or it fails to deliver.",
+        tip: "Vinny's truck is fragile. Don't let it absorb more than three hits.",
+        guide: [
+          'Vinny drives the contraband truck. Your job: escort and intercept anyone who attacks it.',
+          'Three attack points on the route. At each one, the attackers prioritize Vinny\'s truck over you.',
+          'Position Jason\'s or Lucia\'s car between Vinny and attackers at each point.',
+          'Truck health limit: 3 heavy hits before it breaks down. Each breakdown adds 4 minutes to the mission.',
+          'No breakdown: full payout + Vinny as a Ch5 contact.',
+        ],
       },
       {
         id: 'ch5-m04',
         name: 'VC Baby',
         type: 'main',
         protagonist: 'both',
-        description: 'A call for help from Mattia — the Vice City connection resurfaces.',
-        tip: 'Respond fast. Mattia\'s window is short. Missed arrival = mission fail.',
+        description: "A call for help from Mattia — the Vice City connection resurfaces.",
+        tip: "Respond fast. Mattia's window is short.",
+        guide: [
+          'Mattia\'s call comes at a random time. Answer within one in-game hour.',
+          'She\'s at a location under threat. Drive fast — the route is 1.8 miles.',
+          'If you arrive within 4 minutes of the call: Mattia has held off her attackers. Two enemies to deal with.',
+          'If you arrive after 4 minutes: Mattia is wounded. The objective becomes escort-to-hospital, adding 10 minutes to the mission.',
+          'Speed = ease. Arrive fast.',
+        ],
       },
       {
         id: 'ch5-h4',
@@ -1214,7 +2028,16 @@ export const CHAPTERS: Chapter[] = [
         type: 'heist',
         protagonist: 'both',
         description: 'FINAL HEIST. Recover a shipment from a military-grade facility.',
-        tip: 'Come with max ammo, full armor, and the suppressed rifle. Three phases: infiltrate, extract, escape. The extraction chopper is timed — if you miss it, the escape route is a boat southeast. Keep Lucia\'s health above half for the ending cutscene trigger.',
+        tip: 'Come with max ammo, full armor, suppressed rifle. Three phases.',
+        guide: [
+          'Phase 1 (infiltrate): the facility has military-grade security. The only unmonitored entry is the drainage conduit on the south wall — it requires swimming underwater for 40 seconds.',
+          'Surface inside the facility perimeter. Two guards immediately ahead. The left one faces away; take him first. The right one has a radio — jam it immediately (Dye Pack Jammer works on radios) or he calls for backup.',
+          'Phase 2 (extract payload): the shipment is in building C, locker 7. The building is accessible from the roof (via a drainpipe on the east side). Three guards inside in a T-formation — take the one at the top of the T first, then the two at the base during their confusion.',
+          'The locker requires a physical key card — it\'s on the base commander in building B. If you haven\'t been detected: pickpocket. If detected: combat.',
+          'Phase 3 (escape): the extraction chopper arrives at the north landing pad at exactly 7 minutes after you enter building C. Missing it means the boat escape (southeast shore, marked). Both routes work but the boat adds 8 minutes.',
+          'Lucia\'s health: keep her above 50% entering Phase 3 or the ending cutscene triggers an alternate (shorter) version.',
+          'Full clear payout: the shipment value is applied to the final credits sequence.',
+        ],
       },
       {
         id: 'ch5-m05',
@@ -1222,7 +2045,13 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: "Negotiate a deal with Abe. Final legal cover.",
-        tip: "Only available if you paid Abe's fee in Ch4. Don't lowball him — take the deal.",
+        tip: "Only available if you paid Abe's full fee in Ch4. Don't lowball him.",
+        guide: [
+          'Available ONLY if Abe\'s fee was paid in full ($12,000) in Ch4-m05.',
+          'Abe offers a witness deal. Accept the full terms — lowballing reduces the legal cover in the ending.',
+          'The deal\'s cover affects Jason and Lucia\'s legal status in the epilogue cutscene.',
+          'No combat. Pure negotiation.',
+        ],
       },
       {
         id: 'ch5-m06',
@@ -1230,7 +2059,14 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: 'All remaining threads converge.',
-        tip: 'Two concurrent objectives. Split focus: Jason on extraction, Lucia on counter-pressure.',
+        tip: 'Two concurrent objectives.',
+        guide: [
+          'Jason: extraction objective (northeast district). Lucia: counter-pressure objective (southwest district).',
+          'The objectives run simultaneously on a shared 15-minute timer.',
+          'Jason\'s extraction: 4-person hostage situation. Non-lethal resolution (stun all 4) is faster than lethal (bodies slow movement).',
+          'Lucia\'s counter-pressure: M7 crew of 6. Standard combat — no special approach required.',
+          'Both must complete before the 15-minute timer or the game restarts from Ch5-m05.',
+        ],
       },
       {
         id: 'ch5-m07',
@@ -1238,15 +2074,28 @@ export const CHAPTERS: Chapter[] = [
         type: 'main',
         protagonist: 'both',
         description: "Final payment to Abe.",
-        tip: 'Have the funds ready. The game won\'t advance until this clears.',
+        tip: 'Have the funds ready.',
+        guide: [
+          'Final payment: $6,000. Auto-deducted from BuckMe.',
+          'If you\'re short: the two Ch5 missions before this have good cash pickup opportunities. Check enemy bodies and the delivery points.',
+          'After payment: the final mission unlocks. Save manually.',
+        ],
       },
       {
         id: 'ch5-m08',
         name: 'Protective Custody',
         type: 'main',
         protagonist: 'both',
-        description: 'Jason and Lucia work with Abe to protect a witness.',
-        tip: 'The witness is unarmed and panics. Keep the car between him and the shooters at all times.',
+        description: 'Jason and Lucia protect a witness.',
+        tip: 'Keep the car between the witness and the shooters at all times.',
+        guide: [
+          'The witness rides in the backseat. He can\'t take more than 4 hits before the mission fails.',
+          'Route: Lucia drives, Jason shoots from the passenger window (or switch with co-op partner).',
+          'Two ambush points: bridge (attackers from both sides) and the highway (rear pursuers).',
+          'Bridge: slow to 15 mph and position the car against the left railing — it blocks the left side shooters.',
+          'Highway: accelerate to 80+ mph and the pursuers fall behind after 45 seconds.',
+          'Arrive at the safe house with the witness alive: unlocks the best ending variant.',
+        ],
       },
       {
         id: 'ch5-m09',
@@ -1255,6 +2104,11 @@ export const CHAPTERS: Chapter[] = [
         protagonist: 'both',
         description: 'The final mission. Name hidden to avoid spoilers.',
         tip: 'No tips — go in clean and let it land. You\'ve earned it.',
+        guide: [
+          'No walkthrough provided here — go in fresh.',
+          'The ending has two outcomes based on cumulative choices across the full game. Trust stats, payment decisions, and crew relationships all factor in.',
+          'After the credits: free roam unlocks with post-game content. All visited locations remain accessible.',
+        ],
       },
     ],
   },
