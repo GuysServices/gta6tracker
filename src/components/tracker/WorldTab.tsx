@@ -2,73 +2,30 @@
 
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import {
-  WORLD_LOCATIONS,
-  CATEGORIES,
-  CATEGORY_ICON,
-  POICategory,
-  POIStatus,
+  WORLD_LOCATIONS, CATEGORIES, CATEGORY_ICON, POICategory, POIStatus,
 } from '@/lib/world-locations'
 import {
-  MapPin,
-  ChevronDown,
-  ChevronUp,
-  ZoomIn,
-  ZoomOut,
-  Maximize2,
-  X,
-  ExternalLink,
-  Crosshair,
-  Gift,
-  ShieldCheck,
-  Users,
-  CircleHelp,
-  Info,
+  MapPin, ChevronDown, ChevronUp, ZoomIn, ZoomOut, Maximize2, X,
+  ExternalLink, Crosshair, Gift, ShieldCheck, Users, CircleHelp, Info,
 } from 'lucide-react'
 import clsx from 'clsx'
 
-// ── Map poster dimensions ────────────────────────────────────────────────────
 const MAP_W = 2805
 const MAP_H = 3840
-const MIN_ZOOM = 0.5
-const MAX_ZOOM = 4.0
+const MIN_ZOOM = 0.4
+const MAX_ZOOM = 4.5
 
-// ── Category pin colours ─────────────────────────────────────────────────────
 const CAT_COLOR: Record<POICategory, string> = {
-  money:    '#ffd27a',
-  weapons:  '#72dce8',
-  drugs:    '#ff79a8',
-  ammo:     '#9b83ff',
-  vehicles: '#5fad5f',
-  misc:     '#8888aa',
-  secrets:  '#d5a6ff',
+  money: '#ffd27a', weapons: '#72dce8', drugs: '#ff79a8',
+  ammo: '#9b83ff', vehicles: '#5fad5f', misc: '#8888aa', secrets: '#d5a6ff',
 }
 
-// ── Verification status display ───────────────────────────────────────────────
-const STATUS_META: Record<
-  POIStatus,
-  { label: string; color: string; background: string; border: string; icon: typeof ShieldCheck }
-> = {
-  verified: {
-    label: 'Verified',
-    color: '#4ade80',
-    background: 'rgba(74,222,128,0.12)',
-    border: 'rgba(74,222,128,0.4)',
-    icon: ShieldCheck,
-  },
-  community: {
-    label: 'Community',
-    color: '#38bdf8',
-    background: 'rgba(56,189,248,0.12)',
-    border: 'rgba(56,189,248,0.4)',
-    icon: Users,
-  },
-  rumored: {
-    label: 'Rumored',
-    color: '#fbbf24',
-    background: 'rgba(251,191,36,0.12)',
-    border: 'rgba(251,191,36,0.4)',
-    icon: CircleHelp,
-  },
+const STATUS_META: Record<POIStatus, {
+  label: string; color: string; background: string; border: string; icon: typeof ShieldCheck
+}> = {
+  verified:  { label: 'Verified',  color: '#4ade80', background: 'rgba(74,222,128,0.12)',  border: 'rgba(74,222,128,0.4)',  icon: ShieldCheck },
+  community: { label: 'Community', color: '#38bdf8', background: 'rgba(56,189,248,0.12)',  border: 'rgba(56,189,248,0.4)',  icon: Users },
+  rumored:   { label: 'Rumored',   color: '#fbbf24', background: 'rgba(251,191,36,0.12)',   border: 'rgba(251,191,36,0.4)',  icon: CircleHelp },
 }
 
 const ACCURACY_META = {
@@ -85,62 +42,69 @@ function StatusBadge({ status }: { status: POIStatus }) {
       className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em]"
       style={{ color: meta.color, backgroundColor: meta.background, borderColor: meta.border }}
     >
-      <Icon size={9} />
-      {meta.label}
+      <Icon size={9} />{meta.label}
     </span>
   )
 }
 
 export default function WorldTab() {
   const [activeCategory, setActiveCategory] = useState<POICategory | 'all'>('all')
-  const [activeStatus, setActiveStatus] = useState<POIStatus | 'all'>('all')
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [hoveredId, setHoveredId] = useState<string | null>(null)
-  const [zoom, setZoom] = useState(1)
-  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const [activeStatus, setActiveStatus]     = useState<POIStatus | 'all'>('all')
+
+  // ── Core selection state ─────────────────────────────────────────────────
+  // selectedId: the pin the user clicked — isolates it on the map AND expands
+  //             the detail panel in the list. Clicking again deselects.
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [hoveredId, setHoveredId]   = useState<string | null>(null)
+
+  // ── Map state ────────────────────────────────────────────────────────────
+  const [zoom, setZoom]       = useState(1)
+  const [pan, setPan]         = useState({ x: 0, y: 0 })
   const [dragging, setDragging] = useState(false)
   const [mapHeight, setMapHeight] = useState(520)
 
   const dragStart = useRef<{ mx: number; my: number; px: number; py: number } | null>(null)
-  const mapRef = useRef<HTMLDivElement>(null)
+  const mapRef    = useRef<HTMLDivElement>(null)
+  const listRef   = useRef<HTMLDivElement>(null)
 
-  // ── Responsive map height ────────────────────────────────────────────────
   useEffect(() => {
-    const update = () => {
+    const update = () =>
       setMapHeight(window.innerWidth < 640 ? 360 : window.innerWidth < 1024 ? 460 : 560)
-    }
     update()
     window.addEventListener('resize', update)
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  // ── Filtered locations ───────────────────────────────────────────────────
+  // ── Filtered list (category + status filters, independent of selectedId) ─
   const filtered = useMemo(
-    () =>
-      WORLD_LOCATIONS.filter(
-        loc =>
-          (activeCategory === 'all' || loc.category === activeCategory) &&
-          (activeStatus === 'all' || loc.status === activeStatus),
-      ),
+    () => WORLD_LOCATIONS.filter(
+      l => (activeCategory === 'all' || l.category === activeCategory) &&
+           (activeStatus   === 'all' || l.status   === activeStatus),
+    ),
     [activeCategory, activeStatus],
   )
 
   const filteredIds = useMemo(() => new Set(filtered.map(l => l.id)), [filtered])
 
-  const counts = useMemo(
-    () => ({
-      verified:  WORLD_LOCATIONS.filter(l => l.status === 'verified').length,
-      community: WORLD_LOCATIONS.filter(l => l.status === 'community').length,
-      rumored:   WORLD_LOCATIONS.filter(l => l.status === 'rumored').length,
-    }),
-    [],
-  )
+  const counts = useMemo(() => ({
+    verified:  WORLD_LOCATIONS.filter(l => l.status === 'verified').length,
+    community: WORLD_LOCATIONS.filter(l => l.status === 'community').length,
+    rumored:   WORLD_LOCATIONS.filter(l => l.status === 'rumored').length,
+  }), [])
 
-  const selectedLocation = expandedId
-    ? WORLD_LOCATIONS.find(l => l.id === expandedId) ?? null
+  const selectedLocation = selectedId
+    ? WORLD_LOCATIONS.find(l => l.id === selectedId) ?? null
     : null
 
-  // ── Zoom / pan helpers ───────────────────────────────────────────────────
+  // ── Pin visibility logic ─────────────────────────────────────────────────
+  // When something is selected, ONLY that pin is bright; all others ghost.
+  // When nothing is selected, the category+status filter controls visibility.
+  const getPinOpacity = (id: string) => {
+    if (selectedId) return id === selectedId ? 1 : 0.08
+    return filteredIds.has(id) ? 1 : 0.1
+  }
+
+  // ── Zoom / pan ────────────────────────────────────────────────────────────
   const clampZoom = (v: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, v))
 
   const zoomAround = useCallback((delta: number, cx: number, cy: number) => {
@@ -152,7 +116,6 @@ export default function WorldTab() {
     })
   }, [])
 
-  // Passive-false wheel handler attached via ref (required by browsers)
   useEffect(() => {
     const el = mapRef.current
     if (!el) return
@@ -173,33 +136,24 @@ export default function WorldTab() {
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!dragging || !dragStart.current) return
-    setPan({
-      x: dragStart.current.px + e.clientX - dragStart.current.mx,
-      y: dragStart.current.py + e.clientY - dragStart.current.my,
-    })
+    setPan({ x: dragStart.current.px + e.clientX - dragStart.current.mx,
+             y: dragStart.current.py + e.clientY - dragStart.current.my })
   }, [dragging])
 
   const stopDrag = useCallback(() => { setDragging(false); dragStart.current = null }, [])
 
-  // Touch support
+  // Touch
   const touchStart = useRef<{ tx: number; ty: number; px: number; py: number; dist?: number } | null>(null)
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.touches.length === 1) {
-      touchStart.current = {
-        tx: e.touches[0].clientX,
-        ty: e.touches[0].clientY,
-        px: pan.x,
-        py: pan.y,
-      }
+      touchStart.current = { tx: e.touches[0].clientX, ty: e.touches[0].clientY, px: pan.x, py: pan.y }
     } else if (e.touches.length === 2) {
       const dx = e.touches[0].clientX - e.touches[1].clientX
       const dy = e.touches[0].clientY - e.touches[1].clientY
       touchStart.current = {
         tx: (e.touches[0].clientX + e.touches[1].clientX) / 2,
         ty: (e.touches[0].clientY + e.touches[1].clientY) / 2,
-        px: pan.x,
-        py: pan.y,
-        dist: Math.hypot(dx, dy),
+        px: pan.x, py: pan.y, dist: Math.hypot(dx, dy),
       }
     }
   }, [pan])
@@ -216,47 +170,54 @@ export default function WorldTab() {
       const dx = e.touches[0].clientX - e.touches[1].clientX
       const dy = e.touches[0].clientY - e.touches[1].clientY
       const dist = Math.hypot(dx, dy)
-      const delta = (dist - touchStart.current.dist) * 0.004
+      const rect = mapRef.current?.getBoundingClientRect()
       const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2
       const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2
-      const rect = mapRef.current?.getBoundingClientRect()
-      if (rect) zoomAround(delta, cx - rect.left, cy - rect.top)
+      if (rect) zoomAround((dist - touchStart.current.dist) * 0.004, cx - rect.left, cy - rect.top)
       touchStart.current.dist = dist
     }
   }, [zoomAround])
 
   const resetView = () => { setZoom(1); setPan({ x: 0, y: 0 }) }
 
-  const selectLocation = (id: string) => {
-    setExpandedId(prev => prev === id ? null : id)
+  // ── Select + focus pin on map ─────────────────────────────────────────────
+  // Called from either the map pin OR the list card.
+  // If clicking the already-selected item → deselect (restore normal view).
+  const selectAndFocus = useCallback((id: string) => {
+    const alreadySelected = selectedId === id
+    setSelectedId(alreadySelected ? null : id)
     setHoveredId(null)
-  }
 
-  const focusPin = (id: string) => {
-    const loc = WORLD_LOCATIONS.find(l => l.id === id)
-    if (!loc?.mapPosition || !mapRef.current) return
-    setExpandedId(id)
-    // Centre the pin in the viewport
-    const rect = mapRef.current.getBoundingClientRect()
-    const targetZoom = 2
-    const pinXPct = loc.mapPosition.x / MAP_W
-    const pinYPct = loc.mapPosition.y / MAP_H
-    // We need to work out rendered map size at zoom=1
-    // The map is rendered at 100% width of the container, height = width * (MAP_H/MAP_W)
-    const renderedW = rect.width
-    const renderedH = renderedW * (MAP_H / MAP_W)
-    const pinX = pinXPct * renderedW
-    const pinY = pinYPct * renderedH
-    setPan({
-      x: rect.width / 2 - pinX * targetZoom,
-      y: rect.height / 2 - pinY * targetZoom,
-    })
-    setZoom(targetZoom)
-    mapRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }
+    if (!alreadySelected) {
+      const loc = WORLD_LOCATIONS.find(l => l.id === id)
+      if (loc?.mapPosition && mapRef.current) {
+        // Animate the map to centre on the selected pin at a comfortable zoom.
+        const rect = mapRef.current.getBoundingClientRect()
+        const targetZoom = Math.max(zoom, 2)
+        const renderedW = rect.width
+        const renderedH = renderedW * (MAP_H / MAP_W)
+        const pinX = (loc.mapPosition.x / MAP_W) * renderedW
+        const pinY = (loc.mapPosition.y / MAP_H) * renderedH
+        setPan({
+          x: rect.width  / 2 - pinX * targetZoom,
+          y: rect.height / 2 - pinY * targetZoom,
+        })
+        setZoom(targetZoom)
+        // Scroll the map into view on mobile
+        mapRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }
+  }, [selectedId, zoom])
+
+  // Scroll the clicked list card into view
+  const scrollListCardIntoView = useCallback((id: string) => {
+    setTimeout(() => {
+      const el = listRef.current?.querySelector(`[data-loc-id="${id}"]`)
+      el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }, 80)
+  }, [])
 
   const catMeta = (key: POICategory) => CATEGORIES.find(c => c.key === key)
-
   const locationsWithPins = WORLD_LOCATIONS.filter(l => l.mapPosition).length
 
   return (
@@ -267,11 +228,11 @@ export default function WorldTab() {
         <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.3em] text-[#ff9bb5]">Leonida intel</p>
         <h2 className="font-display text-2xl font-bold uppercase tracking-wide text-white sm:text-3xl">World Locations</h2>
         <p className="mt-1 text-xs text-white/40">
-          Locations, loot, secrets, and points of interest across Leonida.
+          {WORLD_LOCATIONS.length} locations — click any pin or card to isolate it on the map
         </p>
       </div>
 
-      {/* Verification overview cards */}
+      {/* Status overview */}
       <div className="mb-5 grid grid-cols-3 gap-2">
         {(['verified', 'community', 'rumored'] as POIStatus[]).map(key => {
           const meta = STATUS_META[key]
@@ -298,54 +259,61 @@ export default function WorldTab() {
         })}
       </div>
 
-      {/* Coordinate accuracy notice */}
+      {/* Accuracy notice */}
       <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-[#ffd27a]/15 bg-[#ffd27a]/[0.05] px-4 py-3">
         <Info size={13} className="mt-0.5 shrink-0 text-[#ffdc9b]/70" />
         <p className="text-[11px] leading-5 text-[#ffdc9b]/70">
-          <strong className="font-semibold">Map pin accuracy:</strong> Pins marked{' '}
-          <em>General search area</em> are approximate placements on the official Rockstar poster.
-          Exact in-game positions may differ. Verification status and coordinate accuracy are shown
-          separately for every location.
+          <strong className="font-semibold">Click any location card or map pin</strong> to isolate
+          just that spot on the map. All other pins dim out. Click again to restore the full view.
+          Coordinate accuracy is marked on each entry — pins marked <em>General search area</em> are
+          approximate placements.
         </p>
       </div>
 
-      {/* ── Map ───────────────────────────────────────────────────────────── */}
+      {/* ── Map ─────────────────────────────────────────────────────────── */}
       <div className="mb-6 overflow-hidden rounded-2xl border border-white/[0.1] bg-[#06111f]">
 
-        {/* Map toolbar */}
         <div className="flex items-center justify-between border-b border-white/[0.07] px-4 py-2">
-          <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40">
-            Official Leonida map — {filtered.length} locations · {locationsWithPins} pinned
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40">
+              {selectedId
+                ? `Showing: ${selectedLocation?.name ?? '—'}`
+                : `${filtered.length} of ${locationsWithPins} pinned locations`}
+            </span>
+            {selectedId && (
+              <button
+                onClick={() => setSelectedId(null)}
+                className="flex items-center gap-1 rounded-full border border-white/15 bg-white/[0.06] px-2 py-0.5 text-[9px] text-white/60 transition hover:bg-white/10 hover:text-white"
+              >
+                <X size={9} /> Clear
+              </button>
+            )}
+          </div>
           <div className="flex items-center gap-1">
             <button
-              onClick={() => { const rect = mapRef.current?.getBoundingClientRect(); if (rect) zoomAround(0.4, rect.width / 2, rect.height / 2) }}
+              onClick={() => { const r = mapRef.current?.getBoundingClientRect(); if (r) zoomAround(0.4, r.width/2, r.height/2) }}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/[0.07] hover:text-white"
               aria-label="Zoom in"
-            ><ZoomIn size={13} /></button>
+            ><ZoomIn size={13}/></button>
             <button
-              onClick={() => { const rect = mapRef.current?.getBoundingClientRect(); if (rect) zoomAround(-0.4, rect.width / 2, rect.height / 2) }}
+              onClick={() => { const r = mapRef.current?.getBoundingClientRect(); if (r) zoomAround(-0.4, r.width/2, r.height/2) }}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/[0.07] hover:text-white"
               aria-label="Zoom out"
-            ><ZoomOut size={13} /></button>
+            ><ZoomOut size={13}/></button>
             <button
               onClick={resetView}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/[0.07] hover:text-white"
               aria-label="Reset view"
-            ><Maximize2 size={12} /></button>
+            ><Maximize2 size={12}/></button>
           </div>
         </div>
 
-        {/* Map viewport — fixed height so the portrait poster doesn't dominate */}
+        {/* Map viewport */}
         <div
           ref={mapRef}
           data-map-viewport
           className="relative overflow-hidden select-none"
-          style={{
-            height: `${mapHeight}px`,
-            cursor: dragging ? 'grabbing' : 'grab',
-            touchAction: 'none',
-          }}
+          style={{ height: `${mapHeight}px`, cursor: dragging ? 'grabbing' : 'grab', touchAction: 'none' }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={stopDrag}
@@ -354,20 +322,16 @@ export default function WorldTab() {
           onTouchMove={handleTouchMove}
           onTouchEnd={() => { touchStart.current = null }}
         >
-          {/* Transformed map layer */}
           <div
             style={{
               transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
               transformOrigin: '0 0',
               willChange: 'transform',
               position: 'absolute',
-              top: 0,
-              left: 0,
-              // Width at zoom=1 is 100% of the container. Height follows the aspect ratio.
+              top: 0, left: 0,
               width: '100%',
             }}
           >
-            {/* Poster image in an aspect-ratio box */}
             <div className="relative w-full" style={{ paddingBottom: `${(MAP_H / MAP_W) * 100}%` }}>
               <img
                 src="/map/Leonida_Map_Poster.08ir77j-.26ny.avif"
@@ -381,7 +345,7 @@ export default function WorldTab() {
                 <p className="mb-1.5 text-[7px] font-bold uppercase tracking-[0.15em] text-white/55">Categories</p>
                 {CATEGORIES.map(cat => (
                   <div key={cat.key} className="mb-0.5 flex items-center gap-1.5">
-                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: CAT_COLOR[cat.key] }} />
+                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: CAT_COLOR[cat.key] }}/>
                     <span className="text-[8px]" style={{ color: CAT_COLOR[cat.key] }}>{cat.label}</span>
                   </div>
                 ))}
@@ -392,35 +356,40 @@ export default function WorldTab() {
                 <p className="mb-1.5 text-[7px] font-bold uppercase tracking-[0.15em] text-white/55">Intel status</p>
                 {(Object.keys(STATUS_META) as POIStatus[]).map(s => (
                   <div key={s} className="mb-1 flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: STATUS_META[s].color }} />
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: STATUS_META[s].color }}/>
                     <span className="text-[8px]" style={{ color: STATUS_META[s].color }}>{STATUS_META[s].label}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Location pins */}
+              {/* Pins */}
               {WORLD_LOCATIONS.map(loc => {
                 if (!loc.mapPosition) return null
-                const inFilter = filteredIds.has(loc.id)
-                const isHovered = hoveredId === loc.id
-                const isSelected = expandedId === loc.id
-                const color = CAT_COLOR[loc.category]
+                const opacity   = getPinOpacity(loc.id)
+                const isHovered  = hoveredId === loc.id
+                const isSelected = selectedId === loc.id
+                const color      = CAT_COLOR[loc.category]
                 const statusMeta = STATUS_META[loc.status]
 
                 return (
                   <button
                     key={loc.id}
                     onMouseDown={e => e.stopPropagation()}
-                    onClick={e => { e.stopPropagation(); selectLocation(loc.id) }}
+                    onClick={e => {
+                      e.stopPropagation()
+                      selectAndFocus(loc.id)
+                      scrollListCardIntoView(loc.id)
+                    }}
                     onMouseEnter={() => setHoveredId(loc.id)}
                     onMouseLeave={() => setHoveredId(null)}
-                    className="absolute transition-all duration-150"
+                    className="absolute transition-all duration-200"
                     style={{
                       left: `${(loc.mapPosition.x / MAP_W) * 100}%`,
                       top:  `${(loc.mapPosition.y / MAP_H) * 100}%`,
-                      transform: `translate(-50%, -100%) scale(${isHovered || isSelected ? 1.35 : 1})`,
-                      opacity: inFilter ? 1 : 0.15,
-                      zIndex: isHovered || isSelected ? 25 : 10,
+                      transform: `translate(-50%, -100%) scale(${isSelected ? 1.5 : isHovered ? 1.3 : 1})`,
+                      opacity,
+                      zIndex: isSelected ? 30 : isHovered ? 25 : 10,
+                      transition: 'opacity 0.2s ease, transform 0.15s ease',
                     }}
                     title={`${loc.name} — ${statusMeta.label}`}
                     aria-label={`Show details for ${loc.name}`}
@@ -431,7 +400,9 @@ export default function WorldTab() {
                       style={{
                         backgroundColor: color,
                         borderColor: isSelected ? '#fff' : statusMeta.color,
-                        boxShadow: `0 0 0 2px rgba(0,0,0,0.6), 0 0 14px ${statusMeta.color}60`,
+                        boxShadow: isSelected
+                          ? `0 0 0 3px rgba(255,255,255,0.4), 0 0 20px ${color}99`
+                          : `0 0 0 2px rgba(0,0,0,0.6), 0 0 14px ${statusMeta.color}60`,
                       }}
                     >
                       <span className="text-[11px] leading-none">{CATEGORY_ICON[loc.category]}</span>
@@ -442,7 +413,7 @@ export default function WorldTab() {
                       style={{ backgroundColor: color }}
                     />
                     {/* Hover tooltip */}
-                    {isHovered && (
+                    {(isHovered || isSelected) && (
                       <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/15 bg-[#0d0e1a]/95 px-2.5 py-1.5 text-left shadow-xl">
                         <span className="block text-[11px] font-semibold text-white">{loc.name}</span>
                         <span className="block text-[9px] text-white/45">{loc.area}</span>
@@ -455,7 +426,7 @@ export default function WorldTab() {
             </div>
           </div>
 
-          {/* Selected location panel */}
+          {/* Selected location overlay panel */}
           {selectedLocation && (
             <div
               className="absolute bottom-3 left-3 right-3 max-h-[55%] overflow-y-auto rounded-xl border border-white/15 bg-[#0d0e1a]/96 p-4 shadow-2xl backdrop-blur-sm sm:left-auto sm:right-3 sm:w-80"
@@ -465,11 +436,11 @@ export default function WorldTab() {
                 <div className="min-w-0">
                   <h3 className="text-sm font-semibold text-white">{selectedLocation.name}</h3>
                   <p className="mt-0.5 flex items-center gap-1 text-[10px] text-white/40">
-                    <MapPin size={10} />{selectedLocation.area}
+                    <MapPin size={10}/>{selectedLocation.area}
                   </p>
                 </div>
-                <button onClick={() => setExpandedId(null)} className="shrink-0 text-white/30 transition hover:text-white" aria-label="Close">
-                  <X size={14} />
+                <button onClick={() => setSelectedId(null)} className="shrink-0 text-white/30 transition hover:text-white" aria-label="Close">
+                  <X size={14}/>
                 </button>
               </div>
 
@@ -486,111 +457,74 @@ export default function WorldTab() {
 
               {selectedLocation.reward && (
                 <div className="mb-2.5 flex items-start gap-2 rounded-lg border border-emerald-400/15 bg-emerald-400/[0.06] px-2.5 py-2">
-                  <Gift size={12} className="mt-0.5 shrink-0 text-emerald-300" />
-                  <div>
-                    <p className="text-[8px] font-bold uppercase tracking-wider text-emerald-300">Reward / loot</p>
-                    <p className="mt-0.5 text-[10px] leading-4 text-white/65">{selectedLocation.reward}</p>
-                  </div>
+                  <Gift size={12} className="mt-0.5 shrink-0 text-emerald-300"/>
+                  <p className="text-[10px] leading-4 text-white/65">{selectedLocation.reward}</p>
                 </div>
               )}
 
               {selectedLocation.tip && (
-                <div className="mb-2.5 flex items-start gap-2 rounded-lg border border-[#ffd27a]/15 bg-[#ffd27a]/[0.06] px-2.5 py-2">
+                <div className="flex items-start gap-2 rounded-lg border border-[#ffd27a]/15 bg-[#ffd27a]/[0.06] px-2.5 py-2">
                   <span className="text-[10px]">💡</span>
                   <p className="text-[10px] leading-[1.6] text-[#ffdc9b]/80">{selectedLocation.tip}</p>
                 </div>
-              )}
-
-              {selectedLocation.accuracy && (
-                <div className="mb-2 flex items-center gap-1.5 text-[9px] text-white/40">
-                  <Crosshair size={10} />
-                  <span>Position: {ACCURACY_META[selectedLocation.accuracy]}</span>
-                </div>
-              )}
-
-              {selectedLocation.gridReference && (
-                <p className="mb-2 text-[9px] text-white/40">Map grid: {selectedLocation.gridReference}</p>
-              )}
-
-              {selectedLocation.evidence && (
-                <p className="mb-2.5 text-[10px] leading-4 text-white/35">Evidence: {selectedLocation.evidence}</p>
-              )}
-
-              {selectedLocation.sourceName && selectedLocation.sourceUrl && (
-                <a
-                  href={selectedLocation.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={e => e.stopPropagation()}
-                  className="inline-flex items-center gap-1.5 text-[10px] text-[#72dce8] transition hover:text-white"
-                >
-                  <ExternalLink size={10} />
-                  Source: {selectedLocation.sourceName}
-                </a>
               )}
             </div>
           )}
 
           {/* Hint */}
-          <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-white/[0.08] bg-black/50 px-3 py-1 text-[9px] text-white/35 backdrop-blur-sm" style={{ zIndex: 5 }}>
-            Scroll to zoom · Drag to pan · Pinch to zoom on mobile
-          </div>
+          {!selectedId && (
+            <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-white/[0.08] bg-black/50 px-3 py-1 text-[9px] text-white/35 backdrop-blur-sm" style={{ zIndex: 5 }}>
+              Click a pin or card to isolate it · Scroll to zoom · Drag to pan
+            </div>
+          )}
         </div>
 
         {/* Zoom bar */}
         <div className="flex items-center gap-3 border-t border-white/[0.06] px-4 py-2">
-          <span className="text-[9px] uppercase tracking-[0.15em] text-white/25">
-            {Math.round(zoom * 100)}%
-          </span>
+          <span className="text-[9px] uppercase tracking-[0.15em] text-white/25">{Math.round(zoom * 100)}%</span>
           <div className="h-0.5 flex-1 rounded bg-white/[0.06]">
-            <div
-              className="h-full rounded bg-white/25 transition-all"
-              style={{ width: `${((zoom - MIN_ZOOM) / (MAX_ZOOM - MIN_ZOOM)) * 100}%` }}
-            />
+            <div className="h-full rounded bg-white/25 transition-all" style={{ width: `${((zoom - MIN_ZOOM) / (MAX_ZOOM - MIN_ZOOM)) * 100}%` }}/>
           </div>
-          <span className="text-[9px] uppercase tracking-[0.15em] text-white/25">{filtered.length} shown</span>
+          <span className="text-[9px] uppercase tracking-[0.15em] text-white/25">
+            {selectedId ? '1 selected' : `${filtered.length} shown`}
+          </span>
         </div>
       </div>
 
-      {/* ── Status filter ─────────────────────────────────────────────────── */}
+      {/* ── Status filter ──────────────────────────────────────────────── */}
       <div className="mb-4">
         <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/35">Filter by intel status</p>
         <div className="flex flex-wrap gap-2">
           {(['all', 'verified', 'community', 'rumored'] as (POIStatus | 'all')[]).map(key => {
-            const isAll = key === 'all'
-            const meta = isAll ? null : STATUS_META[key]
-            const count = isAll ? WORLD_LOCATIONS.length : counts[key as POIStatus]
-            const selected = activeStatus === key
+            const meta  = key === 'all' ? null : STATUS_META[key]
+            const count = key === 'all' ? WORLD_LOCATIONS.length : counts[key as POIStatus]
+            const sel   = activeStatus === key
             return (
               <button
                 key={key}
-                onClick={() => setActiveStatus(key)}
+                onClick={() => { setActiveStatus(key); setSelectedId(null) }}
                 className="rounded-full border px-3 py-1.5 text-[10px] font-semibold transition"
                 style={{
-                  borderColor: selected && meta ? meta.border : selected ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)',
-                  backgroundColor: selected && meta ? meta.background : selected ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.025)',
-                  color: selected && meta ? meta.color : selected ? 'white' : 'rgba(255,255,255,0.45)',
+                  borderColor:     sel && meta ? meta.border     : sel ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)',
+                  backgroundColor: sel && meta ? meta.background : sel ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.025)',
+                  color:           sel && meta ? meta.color      : sel ? 'white'                  : 'rgba(255,255,255,0.45)',
                 }}
               >
-                {isAll ? 'All statuses' : STATUS_META[key as POIStatus].label} ({count})
+                {key === 'all' ? 'All statuses' : STATUS_META[key as POIStatus].label} ({count})
               </button>
             )
           })}
         </div>
       </div>
 
-      {/* ── Category filter ───────────────────────────────────────────────── */}
+      {/* ── Category filter ────────────────────────────────────────────── */}
       <div className="mb-5">
         <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/35">Filter by category</p>
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => setActiveCategory('all')}
-            className={clsx(
-              'rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition',
-              activeCategory === 'all'
-                ? 'border-white/30 bg-white/10 text-white'
-                : 'border-white/10 bg-white/[0.03] text-white/40 hover:bg-white/[0.07] hover:text-white/70',
-            )}
+            onClick={() => { setActiveCategory('all'); setSelectedId(null) }}
+            className={clsx('rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition',
+              activeCategory === 'all' ? 'border-white/30 bg-white/10 text-white' : 'border-white/10 bg-white/[0.03] text-white/40 hover:bg-white/[0.07] hover:text-white/70')}
           >
             All ({WORLD_LOCATIONS.length})
           </button>
@@ -599,13 +533,9 @@ export default function WorldTab() {
             return (
               <button
                 key={cat.key}
-                onClick={() => setActiveCategory(cat.key)}
-                className={clsx(
-                  'rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition',
-                  activeCategory === cat.key
-                    ? `${cat.bg} ${cat.color}`
-                    : 'border-white/10 bg-white/[0.03] text-white/40 hover:bg-white/[0.07] hover:text-white/70',
-                )}
+                onClick={() => { setActiveCategory(cat.key); setSelectedId(null) }}
+                className={clsx('rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition',
+                  activeCategory === cat.key ? `${cat.bg} ${cat.color}` : 'border-white/10 bg-white/[0.03] text-white/40 hover:bg-white/[0.07] hover:text-white/70')}
               >
                 {CATEGORY_ICON[cat.key]} {cat.label} ({count})
               </button>
@@ -614,8 +544,8 @@ export default function WorldTab() {
         </div>
       </div>
 
-      {/* ── Location list ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3">
+      {/* ── Location list ──────────────────────────────────────────────── */}
+      <div ref={listRef} className="flex flex-col gap-2.5">
         {filtered.length === 0 && (
           <div className="rounded-xl border border-white/[0.08] bg-[#11121d]/90 px-5 py-8 text-center">
             <p className="text-sm font-semibold text-white/60">No locations found</p>
@@ -624,40 +554,63 @@ export default function WorldTab() {
         )}
 
         {filtered.map(loc => {
-          const cat = catMeta(loc.category)
-          const isOpen = expandedId === loc.id
-          const statusMeta = STATUS_META[loc.status]
+          const cat     = catMeta(loc.category)
+          const isOpen  = selectedId === loc.id
+          const sMeta   = STATUS_META[loc.status]
 
           return (
             <article
               key={loc.id}
-              className="overflow-hidden rounded-xl border border-white/[0.085] bg-[#11121d]/90 transition hover:border-white/[0.14]"
+              data-loc-id={loc.id}
+              className={clsx(
+                'overflow-hidden rounded-xl border transition-all duration-200',
+                isOpen
+                  ? 'border-white/25 bg-[#16172a]'
+                  : 'border-white/[0.085] bg-[#11121d]/90 hover:border-white/[0.14]',
+              )}
             >
+              {/* Card header / click target */}
               <button
-                onClick={() => selectLocation(loc.id)}
+                onClick={() => selectAndFocus(loc.id)}
                 className="flex w-full items-start gap-3 px-4 py-3.5 text-left sm:px-5"
                 aria-expanded={isOpen}
               >
+                {/* Status dot */}
                 <span
-                  className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: statusMeta.color, boxShadow: `0 0 7px ${statusMeta.color}55` }}
+                  className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full transition-all"
+                  style={{
+                    backgroundColor: sMeta.color,
+                    boxShadow: isOpen ? `0 0 10px ${sMeta.color}80` : `0 0 6px ${sMeta.color}44`,
+                  }}
                 />
+
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-white/90">{loc.name}</span>
+                    <span className={clsx('text-sm font-semibold transition-colors', isOpen ? 'text-white' : 'text-white/85')}>
+                      {loc.name}
+                    </span>
                     {cat && (
                       <span className={clsx('rounded-full border px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.13em]', cat.bg, cat.color)}>
                         {cat.label}
                       </span>
                     )}
                     <StatusBadge status={loc.status} />
+                    {loc.mapPosition && (
+                      <span className="rounded-full border border-[#72dce8]/20 bg-[#72dce8]/[0.06] px-1.5 py-0.5 text-[7px] font-bold uppercase tracking-[0.1em] text-[#72dce8]/70">
+                        📍 pinned
+                      </span>
+                    )}
                   </div>
 
                   <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-white/35">
-                    <MapPin size={10} />
+                    <MapPin size={10}/>
                     <span>{loc.area}</span>
                     {loc.accuracy && (
-                      <><span className="text-white/20">·</span><span className="text-white/25">{ACCURACY_META[loc.accuracy]}</span></>
+                      <><span className="text-white/20">·</span>
+                        <span className="text-white/25">
+                          {loc.accuracy === 'exact' ? 'Exact' : loc.accuracy === 'approximate' ? 'Approximate' : 'General area'}
+                        </span>
+                      </>
                     )}
                   </div>
 
@@ -665,23 +618,31 @@ export default function WorldTab() {
 
                   {loc.reward && !isOpen && (
                     <p className="mt-1 flex items-center gap-1 text-[10px] text-emerald-300/70">
-                      <Gift size={10} />Reward available
+                      <Gift size={10}/>Reward available
                     </p>
                   )}
                 </div>
 
-                {isOpen
-                  ? <ChevronUp size={15} className="mt-1 shrink-0 text-white/30" />
-                  : <ChevronDown size={15} className="mt-1 shrink-0 text-white/30" />}
+                <div className="flex shrink-0 items-center gap-1.5">
+                  {isOpen && (
+                    <span className="rounded-full border border-[#ff79a8]/30 bg-[#ff79a8]/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-[#ff9bb5]">
+                      Isolated
+                    </span>
+                  )}
+                  {isOpen
+                    ? <ChevronUp size={15} className="text-white/50"/>
+                    : <ChevronDown size={15} className="text-white/30"/>}
+                </div>
               </button>
 
+              {/* Expanded detail */}
               {isOpen && (
                 <div className="border-t border-white/[0.07] bg-black/15 px-4 pb-4 pt-3.5 sm:px-5">
-                  <p className="mb-3 text-xs leading-[1.65] text-white/55">{loc.description}</p>
+                  <p className="mb-3 text-xs leading-[1.65] text-white/60">{loc.description}</p>
 
                   {loc.reward && (
                     <div className="mb-3 flex items-start gap-2 rounded-lg border border-emerald-400/15 bg-emerald-400/[0.06] px-3 py-2.5">
-                      <Gift size={13} className="mt-0.5 shrink-0 text-emerald-300" />
+                      <Gift size={13} className="mt-0.5 shrink-0 text-emerald-300"/>
                       <div>
                         <p className="text-[9px] font-bold uppercase tracking-wider text-emerald-300">Reward / loot</p>
                         <p className="mt-1 text-[11px] leading-5 text-white/65">{loc.reward}</p>
@@ -697,7 +658,7 @@ export default function WorldTab() {
                   )}
 
                   <div className="mb-3 flex flex-wrap items-center gap-2 text-[9px] text-white/35">
-                    <StatusBadge status={loc.status} />
+                    <StatusBadge status={loc.status}/>
                     {loc.accuracy && <span>· {ACCURACY_META[loc.accuracy]}</span>}
                     {loc.gridReference && <span>· Grid {loc.gridReference}</span>}
                   </div>
@@ -715,25 +676,27 @@ export default function WorldTab() {
                       rel="noopener noreferrer"
                       className="mb-3 inline-flex items-center gap-1.5 text-[10px] text-[#72dce8] transition hover:text-white"
                     >
-                      <ExternalLink size={10} />
-                      Source: {loc.sourceName}
+                      <ExternalLink size={10}/>Source: {loc.sourceName}
                     </a>
                   )}
 
-                  {loc.mapPosition ? (
+                  <div className="flex items-center gap-3">
+                    {loc.mapPosition ? (
+                      <span className="flex items-center gap-1 text-[10px] text-[#72dce8]">
+                        <Crosshair size={10}/>Pin isolated on map above ↑
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-white/25">
+                        <MapPin size={10} className="mr-1 inline"/>Map pin not available — position on poster unconfirmed
+                      </span>
+                    )}
                     <button
-                      onClick={() => focusPin(loc.id)}
-                      className="flex items-center gap-1.5 text-[10px] text-white/35 transition hover:text-[#72dce8]"
+                      onClick={() => setSelectedId(null)}
+                      className="ml-auto text-[10px] text-white/30 transition hover:text-white/70"
                     >
-                      <MapPin size={10} />
-                      Centre on map ↑
+                      Deselect
                     </button>
-                  ) : (
-                    <p className="text-[10px] text-white/25">
-                      <MapPin size={10} className="mr-1 inline" />
-                      Map pin not available — exact position on the Leonida poster is unconfirmed
-                    </p>
-                  )}
+                  </div>
                 </div>
               )}
             </article>
@@ -742,7 +705,7 @@ export default function WorldTab() {
       </div>
 
       <p className="mt-6 text-center text-[9px] uppercase tracking-[0.18em] text-white/20">
-        Community intel · Coordinate accuracy varies · Sources shown where available · Not affiliated with Rockstar Games
+        Community intel · Coordinate accuracy varies · Not affiliated with Rockstar Games
       </p>
     </div>
   )
