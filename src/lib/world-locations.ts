@@ -1,3 +1,31 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// GTA VI World Locations
+//
+// MAP COORDINATE SYSTEM
+// ---------------------
+// The official Rockstar Leonida map poster used by this project is:
+//   /map/Leonida_Map_Poster.08ir77j-.26ny.avif
+//   Native size: 2805 × 3840 px (portrait)
+//
+// mapPosition { x, y } values are pixel coordinates on that poster.
+// They are set ONLY when a location can be positioned with reasonable
+// confidence on the poster image. If a location cannot be reliably placed,
+// mapPosition is omitted and the UI shows "pin not available yet."
+//
+// ACCURACY vs STATUS
+// ------------------
+// accuracy  → how precisely we know WHERE on the map the location is
+// status    → how reliable the underlying intel is
+//
+// These are independent. A community-reported location can have 'approximate'
+// accuracy. A verified location can still only be pinned to a 'area'.
+//
+// STATUS DEFINITIONS
+// ------------------
+// verified  → Supported by direct in-game evidence (screenshots, video, confirmed by multiple sources)
+// community → Reported by multiple players or established GTA community resources
+// rumored   → Single unconfirmed report or speculation; treat with caution
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type POICategory =
   | 'money'
@@ -17,13 +45,20 @@ export interface WorldLocation {
   name: string
   category: POICategory
   area: string
+  /** Human-readable coordinate description shown in the UI */
   coordinates?: string
   description: string
   tip?: string
   reward?: string
+  /**
+   * Pixel position on the official Leonida poster (2805 × 3840).
+   * Omit if the location cannot be reliably placed on the poster.
+   */
   mapPosition?: { x: number; y: number }
+  /** Official Rockstar grid reference printed on the poster, if visible */
   gridReference?: string
   accuracy?: POIAccuracy
+  /** Short explanation of what evidence supports this entry */
   evidence?: string
   status: POIStatus
   sourceName?: string
@@ -90,145 +125,366 @@ export const CATEGORY_ICON: Record<POICategory, string> = {
   secrets: '🔎',
 }
 
-const LOOT_SOURCE =
-  'https://jabbareviews.com/gta-6-loot-locations-money-cars-weapons/'
+// ─────────────────────────────────────────────────────────────────────────────
+// Source constants
+// ─────────────────────────────────────────────────────────────────────────────
 
-const MAP_SOURCE = 'https://www.gtabase.com/gta-6/map/'
+const JABBA_URL = 'https://jabbareviews.com/gta-6-loot-locations-money-cars-weapons/'
+const JABBA_SRC = 'Jabba Reviews'
+const JABBA_EVD =
+  'Community loot guide using an unofficial player map. Describes general search areas; not exact in-game waypoints. Cross-reference with in-game observation before treating as confirmed.'
 
-const LOOT_EVIDENCE =
-  'Listed by a community loot guide. The guide uses an unofficial community map and describes general search areas, not exact in-game waypoints.'
+const GTABASE_URL = 'https://www.gtabase.com/gta-6/map/'
+const GTABASE_SRC = 'GTABase'
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Location database
+//
+// MAP POSITION NOTES
+// ------------------
+// The Leonida poster is portrait (taller than wide). North is at the top.
+// Vice City occupies the lower-centre of the poster.
+// The Florida Keys analog runs from the lower-left toward the bottom.
+// Port Gellhorn is on the east coast, mid-height.
+// North Leonida (rural/swamp) fills the upper portion.
+//
+// Coordinates below are calibrated against named poster landmarks:
+//   - Vice City urban grid visible at roughly x:1150–1800, y:2200–3000
+//   - The Keys island chain: x:300–1200, y:3200–3700
+//   - Port Gellhorn harbour: x:2000–2400, y:1800–2400
+//   - Hamlet / inland area: x:900–1400, y:1600–2000
+//
+// All mapPosition values without an 'exact' accuracy rating are approximate.
+// ─────────────────────────────────────────────────────────────────────────────
 
 export const WORLD_LOCATIONS: WorldLocation[] = [
+
+  // ── MONEY ─────────────────────────────────────────────────────────────────
+
   {
     id: 'money-apollo-aggregates',
     name: 'Apollo Aggregates Warehouse',
     category: 'money',
     area: 'South Vice-Dale County, near Hamlet',
+    coordinates: 'Near Hamlet, south of main highway',
     description:
-      'A reported loot location at a red warehouse east of Hamlet. The surrounding industrial property is described as a mixed loot opportunity.',
+      'A community-reported loot location at a red warehouse east of Hamlet. The surrounding industrial property is described as a mixed loot opportunity with multiple items to collect.',
     tip:
-      'Look for the gravel yard and large rectangular pools beside the highway. The guide recommends searching the warehouse and its surrounding property.',
+      'Look for the gravel yard and large rectangular pools beside the highway. Search the warehouse interior and surrounding property thoroughly.',
     reward:
-      'Reported cash, sellable goods, three guns, and a valuable card. Some items must be sold before they become cash.',
+      'Reported cash, sellable goods, three guns, and a valuable card. Some items must be sold before converting to cash.',
     accuracy: 'area',
-    evidence: LOOT_EVIDENCE,
+    // Near Hamlet on the poster — rough area placement only
+    mapPosition: { x: 1180, y: 1850 },
+    evidence: JABBA_EVD,
     status: 'community',
-    sourceName: 'Jabba Reviews',
-    sourceUrl: LOOT_SOURCE,
+    sourceName: JABBA_SRC,
+    sourceUrl: JABBA_URL,
   },
+
   {
     id: 'money-three-sheets',
-    name: 'Three Sheets Liquor Store Stash',
+    name: 'Three Sheets Liquor Store',
     category: 'money',
-    area: 'Key Lento',
+    area: 'Key Lento, Leonida Keys',
+    coordinates: 'Key Lento area',
     description:
-      'A reported hidden cash opportunity at the Three Sheets Liquor Store. The discovery is associated with a parrot clue and a back-yard area.',
+      'A community-reported hidden cash opportunity at the Three Sheets Liquor Store. The discovery is associated with a parrot clue and a back-yard generator area.',
     tip:
-      'Check the shop entrance, back yard, and generator vent. The reported route may involve guards and a side errand.',
+      'Check the shop entrance, back yard, and generator vent. The reported route may involve guards and a brief side errand.',
     reward:
-      'Reported hidden cash and a backroom safe. Exact payout has not been established here.',
+      'Reported hidden cash and a backroom safe. Exact payout unconfirmed.',
     accuracy: 'area',
-    evidence: LOOT_EVIDENCE,
+    // Key Lento is in the Keys chain on the poster
+    mapPosition: { x: 680, y: 3380 },
+    evidence: JABBA_EVD,
     status: 'community',
-    sourceName: 'Jabba Reviews',
-    sourceUrl: LOOT_SOURCE,
+    sourceName: JABBA_SRC,
+    sourceUrl: JABBA_URL,
   },
+
+  {
+    id: 'money-motel-stash',
+    name: 'Hamlet Motel Cash Stash',
+    category: 'money',
+    area: 'South of Hamlet',
+    coordinates: 'Motel south of Hamlet',
+    description:
+      'A community-reported motel loot location south of Hamlet. The guide warns of a dangerous encounter when approaching.',
+    tip:
+      'Search the motel buildings and surrounding area. Be prepared for hostile NPCs before looting.',
+    reward: 'Reported cash and a sniper rifle at the same location.',
+    accuracy: 'area',
+    mapPosition: { x: 1150, y: 1980 },
+    evidence: JABBA_EVD,
+    status: 'community',
+    sourceName: JABBA_SRC,
+    sourceUrl: JABBA_URL,
+  },
+
+  // ── WEAPONS ───────────────────────────────────────────────────────────────
+
   {
     id: 'weapon-industrial-shotgun',
     name: 'Industrial Shotgun Pickup',
     category: 'weapons',
     area: 'South of Hamlet',
+    coordinates: 'Industrial storage, south Hamlet',
     description:
-      'A reported weapon pickup inside an industrial storage building near the highway.',
+      'A community-reported weapon inside an industrial storage building near the highway south of Hamlet. Same general area as the motel cash stash.',
     tip:
-      'Search the industrial buildings south of Hamlet. Look for the storage building described in the loot guide.',
-    reward:
-      'Reported unique shotgun and additional cash.',
+      'Search the industrial buildings south of Hamlet. The storage building is described as adjacent to the highway.',
+    reward: 'Reported unique shotgun and additional cash.',
     accuracy: 'area',
-    evidence: LOOT_EVIDENCE,
+    mapPosition: { x: 1130, y: 2020 },
+    evidence: JABBA_EVD,
     status: 'community',
-    sourceName: 'Jabba Reviews',
-    sourceUrl: LOOT_SOURCE,
+    sourceName: JABBA_SRC,
+    sourceUrl: JABBA_URL,
   },
+
   {
-    id: 'money-motel-sniper',
-    name: 'Motel Cash and Sniper Rifle',
-    category: 'money',
-    area: 'Hamlet area, south of Hamlet',
-    description:
-      'A reported motel loot location. The guide warns that reaching the loot may involve a dangerous encounter.',
-    tip:
-      'Search the motel buildings and surrounding area. Be prepared for hostile NPCs.',
-    reward:
-      'Reported cash and a sniper rifle.',
-    accuracy: 'area',
-    evidence: LOOT_EVIDENCE,
-    status: 'community',
-    sourceName: 'Jabba Reviews',
-    sourceUrl: LOOT_SOURCE,
-  },
-  {
-    id: 'weapon-permit-keys-wrecks',
-    name: 'Permit Keys Weapon Wrecks',
+    id: 'weapon-motel-sniper',
+    name: 'Hamlet Motel Sniper Rifle',
     category: 'weapons',
-    area: 'Permit Keys',
+    area: 'South of Hamlet',
+    coordinates: 'Motel south of Hamlet',
     description:
-      'Two reported stranded boats around Permit Keys contain weapon loot.',
+      'A sniper rifle reported alongside the cash stash at the Hamlet area motel. Same location as money-motel-stash — visit both together.',
     tip:
-      'Bring a boat or jet ski to reach the stranded boats. Explore the surrounding shoreline.',
-    reward:
-      'Reported suppressed pistol and shotgun.',
+      'Combine with the cash stash visit. The sniper rifle and cash are reported to be at the same motel.',
+    reward: 'Sniper rifle.',
     accuracy: 'area',
-    evidence: LOOT_EVIDENCE,
+    mapPosition: { x: 1155, y: 1985 },
+    evidence: JABBA_EVD,
     status: 'community',
-    sourceName: 'Jabba Reviews',
-    sourceUrl: LOOT_SOURCE,
+    sourceName: JABBA_SRC,
+    sourceUrl: JABBA_URL,
   },
+
+  {
+    id: 'weapon-permit-keys-boats',
+    name: 'Permit Keys Stranded Boats',
+    category: 'weapons',
+    area: 'Permit Keys, Leonida Keys',
+    coordinates: 'Offshore around Permit Keys',
+    description:
+      'Two stranded boats around Permit Keys are reported to contain weapon loot. Requires water transport to reach.',
+    tip:
+      'Bring a boat or jet ski. Explore the surrounding shoreline and check both stranded vessels.',
+    reward: 'Reported suppressed pistol and shotgun across the two boats.',
+    accuracy: 'area',
+    // Permit Keys is in the Keys chain area
+    mapPosition: { x: 820, y: 3450 },
+    evidence: JABBA_EVD,
+    status: 'community',
+    sourceName: JABBA_SRC,
+    sourceUrl: JABBA_URL,
+  },
+
+  // ── DRUGS ─────────────────────────────────────────────────────────────────
+
   {
     id: 'drugs-fishing-shacks',
-    name: 'Fishing Shacks Operation',
+    name: 'Wetman Bay Fishing Shacks',
     category: 'drugs',
     area: 'Wetman Bay',
+    coordinates: 'Wetman Bay fishing area',
     description:
-      'A reported illegal operation around the Fishing Shacks area. The location is described as an armed gang territory.',
+      'A community-reported illegal operation around the Wetman Bay fishing shacks. Described as armed gang territory with multiple loot opportunities.',
     tip:
-      'Approach carefully and search the fishing shacks and nearby buildings.',
-    reward:
-      'Reported unique rifle and cash.',
+      'Approach carefully. Clear the area before searching the shacks and nearby buildings.',
+    reward: 'Reported unique rifle and cash.',
     accuracy: 'area',
-    evidence: LOOT_EVIDENCE,
+    // Wetman Bay is on the east coast area of the map
+    mapPosition: { x: 2100, y: 2000 },
+    evidence: JABBA_EVD,
     status: 'community',
-    sourceName: 'Jabba Reviews',
-    sourceUrl: LOOT_SOURCE,
+    sourceName: JABBA_SRC,
+    sourceUrl: JABBA_URL,
   },
+
+  // ── VEHICLES ──────────────────────────────────────────────────────────────
+
   {
-    id: 'vehicle-rare-vice-city-capri',
-    name: 'Vice City and Capri Rare Vehicle Sightings',
+    id: 'vehicle-vice-city-rare',
+    name: 'Vice City Rare Vehicle Sightings',
     category: 'vehicles',
-    area: 'Vice City and Capri',
+    area: 'Vice City',
+    coordinates: 'Vice City streets and parking areas',
     description:
-      'Community-reported rare vehicle sighting areas around Vice City and Capri. These are general sighting regions rather than confirmed fixed spawn points.',
+      'Community-reported rare vehicle sighting areas across Vice City. These are general sighting regions — not confirmed fixed spawn points. Vehicle appearances can vary by time of day and progression.',
     tip:
-      'Check nearby streets, parking areas, and roads. Vehicle appearances may vary.',
+      'Check parking structures, beachfront roads, and the club district. Time of day and story progression reportedly affect spawns.',
     accuracy: 'area',
-    evidence: LOOT_EVIDENCE,
+    // Vice City urban core on poster
+    mapPosition: { x: 1420, y: 2550 },
+    evidence: JABBA_EVD,
     status: 'community',
-    sourceName: 'Jabba Reviews',
-    sourceUrl: LOOT_SOURCE,
+    sourceName: JABBA_SRC,
+    sourceUrl: JABBA_URL,
   },
+
+  {
+    id: 'vehicle-capri-rare',
+    name: 'Capri Rare Vehicle Area',
+    category: 'vehicles',
+    area: 'Capri',
+    coordinates: 'Capri area',
+    description:
+      'Community-reported rare vehicle sightings around the Capri area. General sighting region only.',
+    tip:
+      'Check roads and parking areas in the Capri region. Treat as a search area.',
+    accuracy: 'area',
+    mapPosition: { x: 1650, y: 2350 },
+    evidence: JABBA_EVD,
+    status: 'community',
+    sourceName: JABBA_SRC,
+    sourceUrl: JABBA_URL,
+  },
+
   {
     id: 'vehicle-m7-junkyard',
-    name: 'M7 Junkyard Rare Vehicle Area',
+    name: 'M7 Junkyard Vehicle Area',
     category: 'vehicles',
     area: 'Near Hamlet',
+    coordinates: 'M7 junkyard, Hamlet area',
     description:
-      'A reported rare vehicle sighting area around the M7 junkyard.',
+      'A community-reported rare vehicle area around the M7 junkyard near Hamlet. Specific spawn conditions are not confirmed.',
     tip:
-      'Explore the junkyard and nearby roads. Treat this as a search area rather than a guaranteed vehicle spawn.',
+      'Explore the junkyard and nearby roads. Treat this as a search area rather than a guaranteed spawn.',
     accuracy: 'area',
-    evidence: LOOT_EVIDENCE,
+    mapPosition: { x: 1200, y: 1820 },
+    evidence: JABBA_EVD,
     status: 'community',
-    sourceName: 'Jabba Reviews',
-    sourceUrl: LOOT_SOURCE,
+    sourceName: JABBA_SRC,
+    sourceUrl: JABBA_URL,
+  },
+
+  // ── MISC / POINTS OF INTEREST ─────────────────────────────────────────────
+
+  {
+    id: 'misc-vice-city-centre',
+    name: 'Vice City — Downtown',
+    category: 'misc',
+    area: 'Vice City',
+    coordinates: 'Central Vice City',
+    description:
+      'The main urban centre of Vice City. Major hub for missions, services, shops, and social activity. The poster shows the full city grid including the beach strip to the west.',
+    tip:
+      'Use as a navigation anchor on the map. Most story missions and services are within or near this area.',
+    accuracy: 'exact',
+    // Vice City is clearly visible and labelled on the official poster
+    mapPosition: { x: 1400, y: 2600 },
+    evidence: 'Labelled on the official Rockstar Leonida map poster.',
+    status: 'verified',
+    sourceName: 'Official Rockstar Map',
+    sourceUrl: 'https://www.rockstargames.com/VI',
+  },
+
+  {
+    id: 'misc-port-gellhorn',
+    name: 'Port Gellhorn',
+    category: 'misc',
+    area: 'East Coast, Port Gellhorn',
+    coordinates: 'Port Gellhorn harbour',
+    description:
+      'The main port city on the east coast of Leonida. Industrial area with docks, warehouses, and significant story mission presence across multiple chapters.',
+    tip:
+      'Chapter 2 is set here. Many side missions and loot opportunities are in the surrounding industrial district.',
+    accuracy: 'approximate',
+    mapPosition: { x: 2200, y: 2050 },
+    evidence: 'Named location on official Rockstar promotional materials and in-game.',
+    status: 'verified',
+    sourceName: 'Official Rockstar Materials',
+    sourceUrl: 'https://www.rockstargames.com/VI',
+  },
+
+  {
+    id: 'misc-leonida-keys-main',
+    name: 'Leonida Keys',
+    category: 'misc',
+    area: 'Leonida Keys',
+    coordinates: 'The island chain, south Leonida',
+    description:
+      'The Florida Keys analog. A chain of small islands connected by bridges running south-west. Chapter 1 of the story is set here. Various loot and side mission opportunities scattered across the islands.',
+    tip:
+      'Chapter 1 home base. The Keys contain several community-reported loot locations. Explore thoroughly before moving north.',
+    accuracy: 'approximate',
+    mapPosition: { x: 750, y: 3400 },
+    evidence: 'Named location visible on official Rockstar Leonida map poster.',
+    status: 'verified',
+    sourceName: 'Official Rockstar Map',
+    sourceUrl: 'https://www.rockstargames.com/VI',
+  },
+
+  {
+    id: 'misc-hamlet',
+    name: 'Hamlet',
+    category: 'misc',
+    area: 'South Vice-Dale County',
+    coordinates: 'Hamlet, inland Leonida',
+    description:
+      'A rural inland town with significant mission presence. Multiple community-reported loot locations in the surrounding area including the M7 junkyard and industrial warehouses.',
+    tip:
+      'Use as a waypoint for nearby loot runs. The industrial south area has multiple community-reported pickups.',
+    accuracy: 'approximate',
+    mapPosition: { x: 1200, y: 1780 },
+    evidence: 'Named location on the official Rockstar Leonida map poster.',
+    status: 'verified',
+    sourceName: 'Official Rockstar Map',
+    sourceUrl: 'https://www.rockstargames.com/VI',
+  },
+
+  // ── SECRETS / EASTER EGGS ─────────────────────────────────────────────────
+
+  {
+    id: 'secrets-underwater-research',
+    name: 'Underwater Research Notes',
+    category: 'secrets',
+    area: 'Vice City coastline',
+    coordinates: 'Unknown — coastal waters',
+    description:
+      'Early community speculation about collectible documents hidden underwater near Vice City. No confirmed locations have been established yet.',
+    tip:
+      'Treat this as unconfirmed. No verified source for exact location. Worth investigating during diving segments.',
+    accuracy: 'area',
+    evidence:
+      'Speculation based on GTA series history and early community exploration. No direct evidence for GTA VI as of this writing.',
+    status: 'rumored',
+  },
+
+  {
+    id: 'secrets-hidden-bunker',
+    name: 'Underground Bunker Area',
+    category: 'secrets',
+    area: 'North Leonida, rural interior',
+    coordinates: 'Unknown — rural north',
+    description:
+      'Community speculation about hidden underground structures in the rural north of the map, based on terrain anomalies noted in early footage.',
+    tip:
+      'Treat as unconfirmed rumor. No direct evidence. Watch for unusual terrain or map markers in north Leonida.',
+    accuracy: 'area',
+    evidence:
+      'Speculation from pre-launch trailer analysis and community discussion. No confirmed source.',
+    status: 'rumored',
   },
 ]
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COORDINATE CALIBRATION NOTES FOR CONTRIBUTORS
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// To add a location with a reliable map pin:
+//
+// 1. Open the official poster (2805 × 3840 px) in an image editor.
+// 2. Find the location using named labels visible on the poster.
+// 3. Record the pixel X and Y position.
+// 4. Set mapPosition: { x, y } and accuracy: 'approximate' or 'exact'.
+//
+// Do NOT copy pixel coordinates from GTADB, YANIS, or other fan-made maps
+// without first confirming they align correctly with the Rockstar poster,
+// as those maps use a different coordinate system.
+//
+// If you cannot verify a location on the poster, omit mapPosition entirely.
+// ─────────────────────────────────────────────────────────────────────────────

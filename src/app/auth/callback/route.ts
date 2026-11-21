@@ -6,15 +6,10 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/'
 
-  // No code — Supabase never reached the callback (config issue or user cancelled).
   if (!code) {
     return NextResponse.redirect(`${origin}/?error=missing_code`)
   }
 
-  // Build the redirect response FIRST so we can set session cookies directly
-  // onto it. Using cookies() from next/headers and then returning a separate
-  // NextResponse.redirect() would put the cookies on a different response
-  // object — the browser would never see them and the session would be lost.
   const redirectTo = NextResponse.redirect(`${origin}${next}`)
 
   const supabase = createServerClient(
@@ -22,12 +17,9 @@ export async function GET(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        // Read incoming cookies from the request (e.g. PKCE code verifier).
         get(name: string) {
           return request.cookies.get(name)?.value
         },
-        // Write session cookies directly onto the redirect response so the
-        // browser receives them in the same HTTP round-trip.
         set(name: string, value: string, options: CookieOptions) {
           redirectTo.cookies.set({ name, value, ...options })
         },
@@ -35,7 +27,7 @@ export async function GET(request: NextRequest) {
           redirectTo.cookies.set({ name, value: '', ...options })
         },
       },
-    }
+    },
   )
 
   const { data, error } = await supabase.auth.exchangeCodeForSession(code)
@@ -45,8 +37,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/?error=auth_failed`)
   }
 
-  // Upsert profile row on first login.
-  // GitHub exposes user_name; Google exposes full_name / name.
+  // Build a safe username from whatever the OAuth provider returns.
+  // Multiple fallbacks + a guaranteed non-empty default prevent FK violations
+  // on user_progress (which references profiles.id).
   const meta = data.user.user_metadata ?? {}
   const rawName =
     meta.user_name ??
@@ -55,13 +48,19 @@ export async function GET(request: NextRequest) {
     data.user.email?.split('@')[0] ??
     'player'
 
-  const username = rawName
+  // Sanitise: lowercase, spaces→dashes, strip non-alphanumeric except - and _,
+  // trim to 32 chars, then guarantee at least one character remains.
+  const sanitised = rawName
     .toLowerCase()
     .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-_]/g, '')
+    .replace(/[^a-z0-9\-_]/g, '')
     .slice(0, 32)
 
-  await supabase
+  // If sanitisation produced an empty string (e.g. all-emoji name), fall back
+  // to the first 8 hex chars of the user UUID so the row is always valid.
+  const username = sanitised.length > 0 ? sanitised : data.user.id.slice(0, 8)
+
+  const { error: profileError } = await supabase
     .from('profiles')
     .upsert(
       {
@@ -69,9 +68,14 @@ export async function GET(request: NextRequest) {
         username,
         avatar_url: meta.avatar_url ?? null,
       },
-      { onConflict: 'id', ignoreDuplicates: true }
+      { onConflict: 'id', ignoreDuplicates: true },
     )
 
-  // Session cookies are already on redirectTo — just return it.
+  if (profileError) {
+    // Log but don't block the redirect — the user is authenticated even if
+    // profile creation fails. The next login attempt will retry.
+    console.error('[auth/callback] profile upsert error:', profileError.message)
+  }
+
   return redirectTo
 }
