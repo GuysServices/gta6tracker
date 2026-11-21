@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Image from 'next/image'
 import { WORLD_LOCATIONS, CATEGORIES, CATEGORY_ICON, POICategory } from '@/lib/world-locations'
-import { MapPin, ChevronDown, ChevronUp } from 'lucide-react'
+import { MapPin, ChevronDown, ChevronUp, Map } from 'lucide-react'
 import clsx from 'clsx'
 
 export default function WorldTab() {
   const [activeCategory, setActiveCategory] = useState<POICategory | 'all'>('all')
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [mapOpen, setMapOpen] = useState(true)
 
   const filtered = useMemo(
     () =>
@@ -17,13 +19,13 @@ export default function WorldTab() {
     [activeCategory],
   )
 
-  const catMeta = (key: POICategory) =>
-    CATEGORIES.find(c => c.key === key)!
+  const catMeta = (key: POICategory) => CATEGORIES.find(c => c.key === key)!
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-7 sm:px-6 sm:py-9">
+
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-5">
         <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.3em] text-[#ff9bb5]">
           Leonida intel
         </p>
@@ -31,12 +33,50 @@ export default function WorldTab() {
           World Locations
         </h2>
         <p className="mt-1 text-xs text-white/40">
-          Money stashes · weapons · drug caches · rare vehicles · supply routes
+          Money stashes · weapons · drug caches · rare vehicles · supply routes — all 22 spots mapped
         </p>
       </div>
 
-      {/* Category filter */}
-      <div className="mb-6 flex flex-wrap gap-2">
+      {/* ── Collapsible map panel ──────────────────────────────────── */}
+      <div className="mb-6 overflow-hidden rounded-2xl border border-white/[0.085] bg-[#0d0e1a]">
+        <button
+          onClick={() => setMapOpen(o => !o)}
+          className="flex w-full items-center gap-2.5 px-4 py-3 text-left transition hover:bg-white/[0.03]"
+        >
+          <Map size={14} className="shrink-0 text-[#72dce8]" />
+          <span className="flex-1 text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+            Leonida Map — All Locations
+          </span>
+          <span className="text-[9px] text-white/30">
+            {mapOpen ? 'click to hide' : 'click to show'}
+          </span>
+          {mapOpen
+            ? <ChevronUp size={13} className="shrink-0 text-white/30" />
+            : <ChevronDown size={13} className="shrink-0 text-white/30" />}
+        </button>
+
+        {mapOpen && (
+          <div className="border-t border-white/[0.07] p-3 sm:p-4">
+            <div className="relative w-full overflow-hidden rounded-xl">
+              <Image
+                src="/map/leonida-map.svg"
+                alt="Leonida map showing all 22 world locations with color-coded pins"
+                width={900}
+                height={640}
+                className="w-full h-auto"
+                priority
+                unoptimized
+              />
+            </div>
+            <p className="mt-2 text-center text-[9px] text-white/25 tracking-[0.15em] uppercase">
+              Pin colors match category filter below · Coordinates are approximate in-game references
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Category filter ────────────────────────────────────────── */}
+      <div className="mb-5 flex flex-wrap gap-2">
         <button
           onClick={() => setActiveCategory('all')}
           className={clsx(
@@ -48,6 +88,7 @@ export default function WorldTab() {
         >
           All ({WORLD_LOCATIONS.length})
         </button>
+
         {CATEGORIES.map(cat => {
           const count = WORLD_LOCATIONS.filter(l => l.category === cat.key).length
           return (
@@ -57,7 +98,7 @@ export default function WorldTab() {
               className={clsx(
                 'rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition',
                 activeCategory === cat.key
-                  ? `border-opacity-60 ${cat.bg} ${cat.color} border`
+                  ? `${cat.bg} ${cat.color}`
                   : 'border-white/10 bg-white/[0.03] text-white/40 hover:bg-white/[0.07] hover:text-white/70',
               )}
             >
@@ -67,7 +108,7 @@ export default function WorldTab() {
         })}
       </div>
 
-      {/* Location cards */}
+      {/* ── Location cards ─────────────────────────────────────────── */}
       <div className="flex flex-col gap-3">
         {filtered.map(loc => {
           const cat = catMeta(loc.category)
@@ -83,40 +124,41 @@ export default function WorldTab() {
                 className="flex w-full items-start gap-3 px-4 py-3.5 text-left sm:px-5"
                 aria-expanded={isOpen}
               >
-                {/* Icon */}
-                <span className="mt-0.5 shrink-0 text-lg leading-none">
-                  {CATEGORY_ICON[loc.category]}
-                </span>
+                {/* Category pin icon */}
+                <div className="mt-0.5 shrink-0 relative w-7 h-9">
+                  <Image
+                    src={`/map/pin-${loc.category}.svg`}
+                    alt={cat.label}
+                    width={28}
+                    height={36}
+                    unoptimized
+                  />
+                </div>
 
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-white/90">
-                      {loc.name}
-                    </span>
-                    <span
-                      className={clsx(
-                        'rounded-full border px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.13em]',
-                        cat.bg,
-                        cat.color,
-                      )}
-                    >
+                    <span className="text-sm font-semibold text-white/90">{loc.name}</span>
+                    <span className={clsx(
+                      'rounded-full border px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.13em]',
+                      cat.bg, cat.color,
+                    )}>
                       {cat.label}
                     </span>
                   </div>
+
                   <div className="mt-1 flex items-center gap-1.5 text-[11px] text-white/35">
                     <MapPin size={10} />
                     <span>{loc.area}</span>
                     {loc.coordinates && (
                       <>
                         <span className="text-white/20">·</span>
-                        <span className="text-white/25">{loc.coordinates}</span>
+                        <span className="text-white/25 italic">{loc.coordinates}</span>
                       </>
                     )}
                   </div>
+
                   {!isOpen && (
-                    <p className="mt-1.5 line-clamp-1 text-xs text-white/40">
-                      {loc.description}
-                    </p>
+                    <p className="mt-1.5 line-clamp-1 text-xs text-white/40">{loc.description}</p>
                   )}
                 </div>
 
@@ -127,13 +169,19 @@ export default function WorldTab() {
 
               {isOpen && (
                 <div className="border-t border-white/[0.07] bg-black/15 px-4 pb-4 pt-3.5 sm:px-5">
-                  <p className="mb-3 text-xs leading-5.5 text-white/55">
-                    {loc.description}
-                  </p>
+                  <p className="mb-3 text-xs leading-5.5 text-white/55">{loc.description}</p>
+
                   <div className="flex items-start gap-2 rounded-lg border border-[#ffd27a]/15 bg-[#ffd27a]/[0.06] px-3 py-2.5">
                     <span className="mt-0.5 text-xs">💡</span>
                     <p className="text-[11px] leading-5 text-[#ffdc9b]/85">{loc.tip}</p>
                   </div>
+
+                  {loc.coordinates && (
+                    <p className="mt-2.5 flex items-center gap-1.5 text-[10px] text-white/25">
+                      <MapPin size={9} />
+                      <span className="italic">{loc.coordinates} — see pin on map above</span>
+                    </p>
+                  )}
                 </div>
               )}
             </article>
@@ -148,7 +196,7 @@ export default function WorldTab() {
       </div>
 
       <p className="mt-6 text-center text-[9px] uppercase tracking-[0.18em] text-white/20">
-        Locations based on community intel · Coordinates are approximate in-game references
+        Community intel · Coordinates approximate · Subject to game updates
       </p>
     </div>
   )
