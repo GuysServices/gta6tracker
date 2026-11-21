@@ -17,6 +17,7 @@ export interface WorldLocation {
   name: string
   category: POICategory
   area: string
+  coordinates?: string
   description: string
   tip?: string
 
