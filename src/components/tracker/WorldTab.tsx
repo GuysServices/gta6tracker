@@ -162,7 +162,7 @@ export default function WorldTab() {
               <img
                 src="/map/Leonida_Map_Poster.08ir77j-.26ny.avif"
                 alt="Leonida map"
-                className="absolute inset-0 w-full h-full object-fill select-none"
+                className="absolute inset-0 w-full h-full object-contain select-none"
                 draggable={false}
               />
 
