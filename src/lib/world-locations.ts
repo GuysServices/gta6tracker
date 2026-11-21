@@ -35,7 +35,74 @@ export interface WorldLocation {
   sourceUrl?: string
 }
 
-export const WORLD_LOCATIONS: WorldLocation[] = []
+export const WORLD_LOCATIONS: WorldLocation[] = [
+  {
+    id: 'test-money-01',
+    name: 'TEST — Money Location',
+    category: 'money',
+    area: 'Test Area',
+    coordinates: 'Test coordinates',
+    description: 'Temporary test marker for the Money category.',
+    tip: 'This is a test pin. Not a confirmed GTA VI location.',
+    mapPosition: { x: 156, y: 558 },
+    status: 'community',
+  },
+  {
+    id: 'test-weapons-01',
+    name: 'TEST — Weapons Location',
+    category: 'weapons',
+    area: 'Test Area',
+    coordinates: 'Test coordinates',
+    description: 'Temporary test marker for the Weapons category.',
+    tip: 'This is a test pin. Not a confirmed GTA VI location.',
+    mapPosition: { x: 710, y: 356 },
+    status: 'community',
+  },
+  {
+    id: 'test-drugs-01',
+    name: 'TEST — Drugs Location',
+    category: 'drugs',
+    area: 'Test Area',
+    coordinates: 'Test coordinates',
+    description: 'Temporary test marker for the Drugs category.',
+    tip: 'This is a test pin. Not a confirmed GTA VI location.',
+    mapPosition: { x: 203, y: 348 },
+    status: 'community',
+  },
+  {
+    id: 'test-ammo-01',
+    name: 'TEST — Ammo Location',
+    category: 'ammo',
+    area: 'Test Area',
+    coordinates: 'Test coordinates',
+    description: 'Temporary test marker for the Ammo category.',
+    tip: 'This is a test pin. Not a confirmed GTA VI location.',
+    mapPosition: { x: 438, y: 363 },
+    status: 'community',
+  },
+  {
+    id: 'test-vehicles-01',
+    name: 'TEST — Vehicles Location',
+    category: 'vehicles',
+    area: 'Test Area',
+    coordinates: 'Test coordinates',
+    description: 'Temporary test marker for the Vehicles category.',
+    tip: 'This is a test pin. Not a confirmed GTA VI location.',
+    mapPosition: { x: 280, y: 586 },
+    status: 'community',
+  },
+  {
+    id: 'test-misc-01',
+    name: 'TEST — Misc Location',
+    category: 'misc',
+    area: 'Test Area',
+    coordinates: 'Test coordinates',
+    description: 'Temporary test marker for the Misc category.',
+    tip: 'This is a test pin. Not a confirmed GTA VI location.',
+    mapPosition: { x: 618, y: 118 },
+    status: 'community',
+  },
+]
 
 export const CATEGORIES: {
   key: POICategory
