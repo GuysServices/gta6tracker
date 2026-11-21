@@ -18,6 +18,10 @@ const CAT_COLOR: Record<POICategory, string> = {
 
 const MAP_W = 900
 const MAP_H = 640
+
+const IMAGE_W = 2805
+const IMAGE_H = 3840
+
 const MIN_ZOOM = 0.9
 const MAX_ZOOM = 4
 
