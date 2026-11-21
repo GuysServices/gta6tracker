@@ -6,35 +6,6 @@ import { MapPin, ChevronDown, ChevronUp, ZoomIn, ZoomOut, Maximize2, X } from 'l
 import clsx from 'clsx'
 
 // ─── Map pin positions as % of the base 900×640 viewBox ─────────────────────
-// These match the leonida-map.png dimensions exactly.
-const PIN_POSITIONS: Record<string, { x: number; y: number }> = {
-  'money-01':   { x: 156, y: 558 },
-  'money-02':   { x: 710, y: 356 },
-  'money-03':   { x: 203, y: 348 },
-  'money-04':   { x: 438, y: 363 },
-  'money-05':   { x: 280, y: 586 },
-  'money-06':   { x:  76, y: 396 },
-  'money-07':   { x: 618, y: 118 },
-  'weapon-01':  { x: 193, y: 566 },
-  'weapon-02':  { x: 770, y: 400 },
-  'weapon-03':  { x: 108, y: 563 },
-  'weapon-04':  { x: 666, y:  73 },
-  'weapon-05':  { x: 363, y: 323 },
-  'weapon-06':  { x: 563, y: 208 },
-  'drug-01':    { x: 228, y: 570 },
-  'drug-02':    { x: 738, y: 428 },
-  'drug-03':    { x: 176, y: 516 },
-  'drug-04':    { x: 246, y: 360 },
-  'drug-05':    { x: 183, y: 386 },
-  'ammo-01':    { x: 150, y: 580 },
-  'ammo-02':    { x: 698, y: 338 },
-  'vehicle-01': { x:  98, y: 408 },
-  'vehicle-02': { x: 298, y: 378 },
-  'vehicle-03': { x: 728, y: 153 },
-  'misc-01':    { x: 258, y: 588 },
-  'misc-02':    { x: 313, y: 598 },
-  'misc-03':    { x: 118, y: 423 },
-}
 
 const CAT_COLOR: Record<POICategory, string> = {
   money:    '#ffd27a',
@@ -211,15 +182,17 @@ export default function WorldTab() {
 
               {/* ── Pins overlay — absolutely positioned over the image ── */}
               {WORLD_LOCATIONS.map(loc => {
-                const pos = PIN_POSITIONS[loc.id]
-                if (!pos) return null
+              const pos = loc.mapPosition
+              if (!pos) return null
                 const isFiltered = filteredIds.has(loc.id)
+                if (!isFiltered) return null
                 const isHovered = hoveredId === loc.id
                 const color = CAT_COLOR[loc.category]
 
                 return (
                   <button
                     key={loc.id}
+                    onMouseDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation()
                       setExpandedId(prev => prev === loc.id ? null : loc.id)
