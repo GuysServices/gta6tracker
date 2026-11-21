@@ -16,8 +16,8 @@ const CAT_COLOR: Record<POICategory, string> = {
   misc:     '#8888aa',
 }
 
-const MAP_W = 900
-const MAP_H = 640
+const MAP_W = 2805
+const MAP_H = 3840
 
 const IMAGE_W = 2805
 const IMAGE_H = 3840
