@@ -44,7 +44,7 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     coordinates: 'Test coordinates',
     description: 'Temporary test marker for the Money category.',
     tip: 'This is a test pin. Not a confirmed GTA VI location.',
-    mapPosition: { x: 156, y: 558 },
+    mapPosition: { x: 486, y: 3348 },
     status: 'community',
   },
   {
@@ -55,7 +55,7 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     coordinates: 'Test coordinates',
     description: 'Temporary test marker for the Weapons category.',
     tip: 'This is a test pin. Not a confirmed GTA VI location.',
-    mapPosition: { x: 710, y: 356 },
+    mapPosition: { x: 2211, y: 2136 },
     status: 'community',
   },
   {
@@ -66,7 +66,7 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     coordinates: 'Test coordinates',
     description: 'Temporary test marker for the Drugs category.',
     tip: 'This is a test pin. Not a confirmed GTA VI location.',
-    mapPosition: { x: 203, y: 348 },
+    mapPosition: 	{ x: 632, y: 2088 },
     status: 'community',
   },
   {
@@ -77,7 +77,7 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     coordinates: 'Test coordinates',
     description: 'Temporary test marker for the Ammo category.',
     tip: 'This is a test pin. Not a confirmed GTA VI location.',
-    mapPosition: { x: 438, y: 363 },
+    mapPosition: { x: 1364, y: 2178 },
     status: 'community',
   },
   {
@@ -88,7 +88,7 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     coordinates: 'Test coordinates',
     description: 'Temporary test marker for the Vehicles category.',
     tip: 'This is a test pin. Not a confirmed GTA VI location.',
-    mapPosition: { x: 280, y: 586 },
+    mapPosition: { x: 872, y: 3516 },
     status: 'community',
   },
   {
@@ -99,7 +99,7 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     coordinates: 'Test coordinates',
     description: 'Temporary test marker for the Misc category.',
     tip: 'This is a test pin. Not a confirmed GTA VI location.',
-    mapPosition: { x: 618, y: 118 },
+    mapPosition: { x: 1924, y: 708 },
     status: 'community',
   },
 ]
