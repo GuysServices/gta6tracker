@@ -134,7 +134,11 @@ export default function WorldTab() {
           ref={mapRef}
           data-map-viewport
           className="relative overflow-hidden"
-          style={{ height: '460px', cursor: dragging ? 'grabbing' : 'grab' }}
+          style={{
+            aspectRatio: `${MAP_W} / ${MAP_H}`,
+            width: '100%',
+            cursor: dragging ? 'grabbing' : 'grab',
+          }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={stopDrag}
@@ -158,7 +162,7 @@ export default function WorldTab() {
               <img
                 src="/map/Leonida_Map_Poster.08ir77j-.26ny.avif"
                 alt="Leonida map"
-                className="absolute inset-0 w-full h-full object-cover select-none"
+                className="absolute inset-0 w-full h-full object-fill select-none"
                 draggable={false}
               />
 
