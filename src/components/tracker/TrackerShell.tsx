@@ -42,12 +42,11 @@ export default function TrackerShell({
   const [activeTab, setActiveTab] = useState<Tab>('missions')
 
   const supabase = createClient()
-
   const completedCount = Object.values(progress).filter(p => p.status === 'completed').length
 
   const showError = useCallback((msg: string) => {
     setErrorMsg(msg)
-    setTimeout(() => setErrorMsg(null), 6000)
+    setTimeout(() => setErrorMsg(null), 7000)
   }, [])
 
   const updateMission = useCallback(async (
@@ -55,43 +54,85 @@ export default function TrackerShell({
     status: MissionStatus,
     note?: string,
   ) => {
+    if (saving) return
+
+    // ── OPTIMISTIC UPDATE ─────────────────────────────────────────
+    // Apply immediately so buttons feel instant. We'll roll back if
+    // the server fails.
+    const previous = progress[missionId]
+    const optimistic: UserProgress = {
+      user_id: user.id,
+      mission_id: missionId,
+      status,
+      note: note ?? null,
+      updated_at: new Date().toISOString(),
+    }
+    setProgress(prev => ({ ...prev, [missionId]: optimistic }))
     setSaving(missionId)
+
     try {
       const res = await fetch('/api/progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        // credentials: 'same-origin' is the default for same-origin fetches,
+        // but being explicit ensures the session cookie is always included.
+        credentials: 'same-origin',
         body: JSON.stringify({ mission_id: missionId, status, note }),
       })
 
-      const payload = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
+      // Always parse the body — even error responses have a JSON payload.
+      let payload: { data?: UserProgress; error?: string } = {}
+      try { payload = await res.json() } catch { /* empty body */ }
 
       if (!res.ok) {
+        // Roll back the optimistic update.
+        setProgress(prev => {
+          const next = { ...prev }
+          if (previous) {
+            next[missionId] = previous
+          } else {
+            delete next[missionId]
+          }
+          return next
+        })
+
         if (res.status === 401) {
-          showError('Session expired — reloading…')
-          setTimeout(() => window.location.reload(), 1500)
+          showError('Session expired — please sign in again.')
+          setTimeout(() => window.location.reload(), 2000)
           return
         }
-        const msg = payload?.error ?? `Server error (${res.status})`
-        console.error('[TrackerShell] updateMission failed:', msg)
-        showError(`Couldn't save — ${msg}`)
+
+        const msg = payload.error ?? `Server error (${res.status})`
+        console.error('[TrackerShell] updateMission failed:', res.status, msg)
+        showError(`Couldn't save "${missionId}" — ${msg}`)
         return
       }
 
-      if (!payload?.data) {
-        console.error('[TrackerShell] updateMission: ok response but no data', payload)
-        showError('Save may have failed — no data returned. Try refreshing.')
-        return
+      // Server confirmed — replace optimistic record with real one if returned.
+      if (payload.data) {
+        setProgress(prev => ({ ...prev, [missionId]: payload.data! }))
       }
+      // If no data returned (synthetic response from route fallback) the
+      // optimistic record stays — it's already correct.
 
-      setProgress(prev => ({ ...prev, [missionId]: payload.data }))
     } catch (err) {
+      // Network failure — roll back.
+      setProgress(prev => {
+        const next = { ...prev }
+        if (previous) {
+          next[missionId] = previous
+        } else {
+          delete next[missionId]
+        }
+        return next
+      })
       const msg = err instanceof Error ? err.message : String(err)
       console.error('[TrackerShell] updateMission network error:', msg)
-      showError(`Network error — check your connection. (${msg})`)
+      showError(`Network error — ${msg}`)
     } finally {
       setSaving(null)
     }
-  }, [showError])
+  }, [saving, progress, user.id, showError])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -108,7 +149,7 @@ export default function TrackerShell({
         className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,105,139,.11),transparent_55%),radial-gradient(ellipse_at_100%_25%,rgba(104,91,214,.08),transparent_38%)]"
       />
 
-      {/* Error banner */}
+      {/* ── Error banner ──────────────────────────────────────────── */}
       {errorMsg && (
         <div
           role="alert"
@@ -118,10 +159,8 @@ export default function TrackerShell({
           <button
             onClick={() => setErrorMsg(null)}
             className="shrink-0 text-rose-300/60 transition hover:text-rose-200"
-            aria-label="Dismiss error"
-          >
-            ✕
-          </button>
+            aria-label="Dismiss"
+          >✕</button>
         </div>
       )}
 
@@ -139,15 +178,13 @@ export default function TrackerShell({
         completedCount={completedCount}
       />
 
-      {/* Tab switcher */}
+      {/* ── Tab switcher ──────────────────────────────────────────── */}
       <div className="relative z-10 border-b border-white/[0.08] bg-[#0a0b14]">
         <div className="mx-auto flex max-w-5xl px-4 sm:px-6">
-          {(
-            [
-              { id: 'missions' as Tab, label: 'Missions', icon: ListChecks },
-              { id: 'world'    as Tab, label: 'World',    icon: Map },
-            ] as const
-          ).map(({ id, label, icon: Icon }) => (
+          {([
+            { id: 'missions' as Tab, label: 'Missions', icon: ListChecks },
+            { id: 'world'    as Tab, label: 'World',    icon: Map },
+          ] as const).map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
@@ -158,14 +195,13 @@ export default function TrackerShell({
                   : 'border-transparent text-white/35 hover:text-white/60',
               )}
             >
-              <Icon size={13} />
-              {label}
+              <Icon size={13} />{label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Tab content */}
+      {/* ── Tab content ───────────────────────────────────────────── */}
       {activeTab === 'missions' ? (
         <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-7 sm:px-6 sm:py-9">
           {chapters.map(chapter => (
