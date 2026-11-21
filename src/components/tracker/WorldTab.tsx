@@ -185,7 +185,7 @@ export default function WorldTab() {
               {/* ── Real Leonida map image ── */}
               {/* Drop your map image at public/map/leonida-map.png */}
               <img
-                src="/map/leonida-map.svg"
+                src="/map/Leonida_Map_Poster.08ir77j-.26ny.avif"
                 alt="Leonida map"
                 className="absolute inset-0 w-full h-full object-cover select-none"
                 draggable={false}
