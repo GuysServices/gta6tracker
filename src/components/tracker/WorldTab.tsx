@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useMemo, useRef, useCallback } from 'react'
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import { WORLD_LOCATIONS, CATEGORIES, CATEGORY_ICON, POICategory } from '@/lib/world-locations'
 import { MapPin, ChevronDown, ChevronUp, ZoomIn, ZoomOut, Maximize2, X } from 'lucide-react'
 import clsx from 'clsx'
 
 // ─── Map pin positions as % of the base 900×640 viewBox ─────────────────────
-// These match the SVG coordinates in leonida-map.svg exactly.
+// These match the leonida-map.png dimensions exactly.
 const PIN_POSITIONS: Record<string, { x: number; y: number }> = {
   'money-01':   { x: 156, y: 558 },
   'money-02':   { x: 710, y: 356 },
@@ -83,12 +83,22 @@ export default function WorldTab() {
     })
   }, [])
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault()
-    const rect = mapRef.current!.getBoundingClientRect()
-    const cx = e.clientX - rect.left
-    const cy = e.clientY - rect.top
-    zoomAround(e.deltaY < 0 ? 0.2 : -0.2, cx, cy)
+  // ── non-passive wheel listener — prevents page scroll while zooming ────────
+  // React's synthetic onWheel is passive by default in modern browsers, so
+  // e.preventDefault() inside it does nothing. We attach directly to the DOM
+  // element with { passive: false } so the browser actually honours the prevent.
+  useEffect(() => {
+    const el = mapRef.current
+    if (!el) return
+    const handler = (e: WheelEvent) => {
+      e.preventDefault()
+      const rect = el.getBoundingClientRect()
+      const cx = e.clientX - rect.left
+      const cy = e.clientY - rect.top
+      zoomAround(e.deltaY < 0 ? 0.2 : -0.2, cx, cy)
+    }
+    el.addEventListener('wheel', handler, { passive: false })
+    return () => el.removeEventListener('wheel', handler)
   }, [zoomAround])
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -109,14 +119,7 @@ export default function WorldTab() {
 
   const resetView = () => { setZoom(1); setPan({ x: 0, y: 0 }) }
 
-  // Convert SVG coordinate (900×640 space) to % of rendered container
-  const toPercent = (x: number, y: number) => ({
-    left: `${(x / MAP_W) * 100}%`,
-    top:  `${(y / MAP_H) * 100}%`,
-  })
-
   const catMeta = (key: POICategory) => CATEGORIES.find(c => c.key === key)!
-  const hoveredLoc = hoveredId ? WORLD_LOCATIONS.find(l => l.id === hoveredId) : null
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-7 sm:px-6 sm:py-9">
@@ -158,9 +161,9 @@ export default function WorldTab() {
         {/* Map viewport */}
         <div
           ref={mapRef}
+          data-map-viewport
           className="relative overflow-hidden"
           style={{ height: '460px', cursor: dragging ? 'grabbing' : 'grab' }}
-          onWheel={handleWheel}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={stopDrag}
@@ -176,145 +179,37 @@ export default function WorldTab() {
               willChange: 'transform',
             }}
           >
-            {/* Map background — real Vice City / Leonida geography SVG */}
+            {/* Map background + pins container */}
             <div className="relative w-full" style={{ paddingBottom: `${(MAP_H / MAP_W) * 100}%` }}>
 
-              {/* Background SVG — full Leonida geography */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox={`0 0 ${MAP_W} ${MAP_H}`}
-                className="absolute inset-0 w-full h-full"
-              >
-                <defs>
-                  <radialGradient id="og" cx="50%" cy="50%" r="80%">
-                    <stop offset="0%" stopColor="#0a2540"/>
-                    <stop offset="100%" stopColor="#05101a"/>
-                  </radialGradient>
-                  <radialGradient id="vcGlow" cx="50%" cy="50%" r="60%">
-                    <stop offset="0%" stopColor="#ff79a8" stopOpacity="0.12"/>
-                    <stop offset="100%" stopColor="#ff79a8" stopOpacity="0"/>
-                  </radialGradient>
-                  <radialGradient id="pgGlow" cx="50%" cy="50%" r="60%">
-                    <stop offset="0%" stopColor="#72dce8" stopOpacity="0.1"/>
-                    <stop offset="100%" stopColor="#72dce8" stopOpacity="0"/>
-                  </radialGradient>
-                  <filter id="fs"><feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="#000" floodOpacity="0.5"/></filter>
-                  <filter id="glow"><feGaussianBlur stdDeviation="6" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter>
-                </defs>
+              {/* ── Real Leonida map image ── */}
+              {/* Drop your map image at public/map/leonida-map.png */}
+              <img
+                src="/map/leonida-map.png"
+                alt="Leonida map"
+                className="absolute inset-0 w-full h-full object-cover select-none"
+                draggable={false}
+              />
 
-                {/* Ocean */}
-                <rect width={MAP_W} height={MAP_H} fill="url(#og)"/>
-                {/* Ocean shimmer */}
-                {[80,160,240,320,400,480,560].map(y => (
-                  <line key={y} x1="0" y1={y} x2={MAP_W} y2={y} stroke="#1a4a7a" strokeWidth="0.4" opacity="0.25"/>
-                ))}
-
-                {/* North Leonida — mainland */}
-                <path d="M520,20 L900,20 L900,285 L775,315 L695,292 L645,262 L618,222 L578,202 L538,172 L508,132 L503,82 Z"
-                      fill="#243d24" stroke="#162616" strokeWidth="1.5"/>
-                {/* Forest overlay */}
-                <path d="M520,20 L900,20 L900,285 L775,315 L695,292 L645,262 L618,222 L578,202 L538,172 L508,132 L503,82 Z"
-                      fill="#1a3a1a" opacity="0.4"/>
-                {/* North roads */}
-                <path d="M598,162 L718,202 L818,242" stroke="#6a8a6a" strokeWidth="2" fill="none" opacity="0.5"/>
-                <path d="M648,82 L678,182 L698,292" stroke="#6a8a6a" strokeWidth="1.5" fill="none" opacity="0.4"/>
-                {/* Route label */}
-                <text x="720" y="175" textAnchor="middle" fontSize="8" fill="#8aaa8a" opacity="0.5" letterSpacing="1">ROUTE 7</text>
-
-                {/* Port Gellhorn glow */}
-                <ellipse cx="720" cy="385" rx="95" ry="75" fill="url(#pgGlow)"/>
-                {/* Port Gellhorn landmass */}
-                <path d="M645,262 L775,315 L818,362 L798,422 L758,442 L698,452 L658,432 L628,392 L618,342 L628,302 Z"
-                      fill="#2a3a2a" stroke="#1a2a1a" strokeWidth="1.5"/>
-                {/* Port buildings */}
-                {[[680,340,6,8],[695,347,5,10],[712,338,8,12],[728,342,5,9],[690,362,9,6],[706,358,6,11],[722,355,8,8],[738,362,5,10]].map(([x,y,w,h],i) => (
-                  <rect key={i} x={x} y={y} width={w} height={h} rx="1" fill="#4a7a6a" opacity="0.6"/>
-                ))}
-                {/* Port docks */}
-                <path d="M778,382 L820,377 L824,397 L778,402 Z" fill="#1a2a2a" stroke="#3a6a6a" strokeWidth="1" opacity="0.8"/>
-                <path d="M788,387 L812,385" stroke="#5a9a98" strokeWidth="1.5" opacity="0.5"/>
-                <path d="M788,392 L814,390" stroke="#5a9a98" strokeWidth="1.5" opacity="0.5"/>
-                <text x="718" y="418" textAnchor="middle" fontSize="10" fontWeight="700" fill="#7accd8" letterSpacing="1" opacity="0.85">PORT GELLHORN</text>
-
-                {/* Central connector */}
-                <path d="M628,392 L618,442 L578,472 L538,482 L498,472 L478,452 L488,422 L518,402 L568,392 Z"
-                      fill="#2a3a1a" stroke="#1a2a0a" strokeWidth="1.5"/>
-
-                {/* Vice City glow */}
-                <ellipse cx="308" cy="418" rx="165" ry="108" fill="url(#vcGlow)"/>
-                {/* Vice City landmass */}
-                <path d="M118,292 L278,272 L398,282 L478,322 L498,382 L488,452 L458,492 L398,512 L318,522 L238,512 L178,492 L128,462 L98,422 L93,372 Z"
-                      fill="#2a2040" stroke="#1a1030" strokeWidth="1.5"/>
-                {/* City grid */}
-                {[150,200,250,300,350,400,450].map(x => (
-                  <line key={x} x1={x} y1="285" x2={x} y2="515" stroke="#4a3a6a" strokeWidth="0.6" opacity="0.35"/>
-                ))}
-                {[330,370,410,450].map(y => (
-                  <line key={y} x1="103" x2="490" y1={y} y2={y} stroke="#4a3a6a" strokeWidth="0.6" opacity="0.35"/>
-                ))}
-                {/* Skyline silhouette */}
-                {[[200,312,8,30],[215,306,6,36],[228,316,10,26],[245,300,7,42],[260,308,9,34],[275,295,6,47],[290,310,8,32],[305,302,7,40],[320,312,9,30],[338,298,6,44],[352,308,8,34],[368,316,7,26]].map(([x,y,w,h],i) => (
-                  <rect key={i} x={x} y={y} width={w} height={h} rx="1" fill="#4a3875" opacity="0.5"/>
-                ))}
-                {/* Neon strip highlight */}
-                <path d="M228,332 L378,332" stroke="#ff79a8" strokeWidth="1.5" opacity="0.35" strokeDasharray="4,3"/>
-                <text x="303" y="328" textAnchor="middle" fontSize="6.5" fill="#ff9bb5" opacity="0.4" letterSpacing="1">NEON STRIP</text>
-                {/* Ocean Beach */}
-                <path d="M118,292 L148,352 L128,422 L98,462 L83,442 L78,392 L88,342 Z"
-                      fill="#1e2d40" stroke="#152030" strokeWidth="1"/>
-                <path d="M83,382 L118,372 L116,432 L83,442 Z" fill="#b89860" opacity="0.35"/>
-                <text x="300" y="470" textAnchor="middle" fontSize="13" fontWeight="700" fill="#ff9bb5" letterSpacing="1.5" opacity="0.9">VICE CITY</text>
-                <text x="300" y="484" textAnchor="middle" fontSize="7" fill="#c8a8c8" letterSpacing="2" opacity="0.55">LEONIDA STATE</text>
-
-                {/* Leonida Keys */}
-                {[
-                  [160,570,55,22],[260,590,45,18],[350,600,40,15],[430,608,30,12],[495,613,22,10]
-                ].map(([cx,cy,rx,ry],i) => (
-                  <ellipse key={i} cx={cx} cy={cy} rx={rx} ry={ry} fill="#243a24" stroke="#162616" strokeWidth="1.2"/>
-                ))}
-                {/* Keys bridges */}
-                <path d="M210,570 L218,570" stroke="#c8b870" strokeWidth="2" opacity="0.55"/>
-                <path d="M298,585 L312,588" stroke="#c8b870" strokeWidth="2" opacity="0.55"/>
-                <path d="M383,598 L393,601" stroke="#c8b870" strokeWidth="2" opacity="0.55"/>
-                <path d="M453,608 L465,610" stroke="#c8b870" strokeWidth="2" opacity="0.55"/>
-                <text x="160" y="577" textAnchor="middle" fontSize="8" fontWeight="700" fill="#90d890" letterSpacing="0.5" opacity="0.85">LEONIDA KEYS</text>
-                {/* Lighthouse */}
-                <circle cx="110" cy="563" r="3" fill="#fffab0" stroke="#c8c870" strokeWidth="1"/>
-
-                {/* Ocean Hwy */}
-                <path d="M198,512 L213,542 L198,567" stroke="#c8b870" strokeWidth="2" fill="none" opacity="0.45" strokeDasharray="5,3"/>
-
-                {/* Water labels */}
-                <text x="55" y="195" textAnchor="middle" fontSize="10" fill="#3a7aaf" opacity="0.4" letterSpacing="2" transform="rotate(-15,55,195)">ATLANTIC</text>
-                <text x="822" y="560" textAnchor="middle" fontSize="9" fill="#3a7aaf" opacity="0.35" letterSpacing="1.5">GULF</text>
-                <text x="210" y="635" textAnchor="middle" fontSize="8" fill="#3a7aaf" opacity="0.3" letterSpacing="2">FLORIDA STRAITS</text>
-
-                {/* Legend */}
-                <rect x="12" y="12" width="118" height="125" rx="6" fill="#080910" fillOpacity="0.9" stroke="#ffffff" strokeOpacity="0.1" strokeWidth="1"/>
-                <text x="71" y="29" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="white" letterSpacing="1.5" opacity="0.75">LEGEND</text>
+              {/* ── Legend overlay ── */}
+              <div className="absolute top-2 left-2 rounded-lg border border-white/10 bg-black/80 px-3 py-2 backdrop-blur-sm">
+                <p className="mb-1.5 text-[7px] font-bold uppercase tracking-[0.15em] text-white/60">Legend</p>
                 {([
-                  ['#ffd27a','Money'],
-                  ['#72dce8','Weapons'],
-                  ['#ff79a8','Drugs'],
-                  ['#9b83ff','Ammo'],
-                  ['#5fad5f','Vehicles'],
-                  ['#8888aa','Misc'],
-                ] as const).map(([color, label], i) => (
-                  <g key={label} transform={`translate(20,${38 + i * 16})`}>
-                    <circle cx="5" cy="4" r="5" fill={color}/>
-                    <text x="15" y="8" fontSize="8" fill={color}>{label}</text>
-                  </g>
+                  ['#ffd27a', 'Money'],
+                  ['#72dce8', 'Weapons'],
+                  ['#ff79a8', 'Drugs'],
+                  ['#9b83ff', 'Ammo'],
+                  ['#5fad5f', 'Vehicles'],
+                  ['#8888aa', 'Misc'],
+                ] as const).map(([color, label]) => (
+                  <div key={label} className="flex items-center gap-1.5 mb-0.5">
+                    <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }}/>
+                    <span className="text-[8px]" style={{ color }}>{label}</span>
+                  </div>
                 ))}
+              </div>
 
-                {/* Compass */}
-                <g transform="translate(856,28)">
-                  <text x="0" y="-3" textAnchor="middle" fontSize="7" fill="white" opacity="0.35">N</text>
-                  <line x1="0" y1="0" x2="0" y2="-10" stroke="white" strokeWidth="1" opacity="0.35"/>
-                  <line x1="-8" y1="0" x2="8" y2="0" stroke="white" strokeWidth="0.5" opacity="0.2"/>
-                </g>
-              </svg>
-
-              {/* ── Pins overlay — absolutely positioned over the SVG ── */}
+              {/* ── Pins overlay — absolutely positioned over the image ── */}
               {WORLD_LOCATIONS.map(loc => {
                 const pos = PIN_POSITIONS[loc.id]
                 if (!pos) return null
@@ -474,7 +369,6 @@ export default function WorldTab() {
                 className="flex w-full items-start gap-3 px-4 py-3.5 text-left sm:px-5"
                 aria-expanded={isOpen}
               >
-                {/* Colored dot matching pin */}
                 <span
                   className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
                   style={{ backgroundColor: CAT_COLOR[loc.category] }}
@@ -508,8 +402,6 @@ export default function WorldTab() {
                   <button
                     onClick={() => {
                       setExpandedId(loc.id)
-                      // map already shown above
-                      // scroll map into view
                       document.querySelector('[data-map-viewport]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
                     }}
                     className="mt-2.5 flex items-center gap-1.5 text-[10px] text-white/30 transition hover:text-[#72dce8]"
