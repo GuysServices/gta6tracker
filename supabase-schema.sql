@@ -56,6 +56,17 @@ create policy "progress_update_own"
 
 create policy "progress_delete_own"
   on public.user_progress for delete using (auth.uid() = user_id);
+-- ================================================================
+-- Role grants (required — SQL-editor tables do not auto-grant)
+-- ================================================================
+
+grant usage on schema public to anon, authenticated;
+
+grant select                           on public.profiles      to anon;
+grant select, insert, update           on public.profiles      to authenticated;
+
+grant select                           on public.user_progress to anon;
+grant select, insert, update, delete   on public.user_progress to authenticated;
 
 -- ================================================================
 -- Done. Tables: profiles, user_progress
