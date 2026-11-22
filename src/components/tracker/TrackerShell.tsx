@@ -183,7 +183,7 @@ export default function TrackerShell({
         <div className="mx-auto flex max-w-5xl px-4 sm:px-6">
           {([
             { id: 'missions' as Tab, label: 'Missions', icon: ListChecks },
-            { id: 'world'    as Tab, label: 'World',    icon: Map },
+            { id: 'world'    as Tab, label: 'Car Finder',    icon: Map },
           ] as const).map(({ id, label, icon: Icon }) => (
             <button
               key={id}

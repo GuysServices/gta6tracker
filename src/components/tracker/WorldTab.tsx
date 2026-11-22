@@ -1,711 +1,514 @@
 'use client'
 
-import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
-import {
-  WORLD_LOCATIONS, CATEGORIES, CATEGORY_ICON, POICategory, POIStatus,
-} from '@/lib/world-locations'
-import {
-  MapPin, ChevronDown, ChevronUp, ZoomIn, ZoomOut, Maximize2, X,
-  ExternalLink, Crosshair, Gift, ShieldCheck, Users, CircleHelp, Info,
-} from 'lucide-react'
+import { useState, useMemo, useRef, useEffect } from 'react'
+import { Search, ExternalLink, ChevronDown, X, ShieldCheck, Users, CircleHelp, Car } from 'lucide-react'
 import clsx from 'clsx'
 
-const MAP_W = 2805
-const MAP_H = 3840
-const MIN_ZOOM = 0.4
-const MAX_ZOOM = 4.5
+// ─── Types ───────────────────────────────────────────────────────────────────
 
-const CAT_COLOR: Record<POICategory, string> = {
-  money: '#ffd27a', weapons: '#72dce8', drugs: '#ff79a8',
-  ammo: '#9b83ff', vehicles: '#5fad5f', misc: '#8888aa', secrets: '#d5a6ff',
+type Status = 'verified' | 'community' | 'rumored'
+
+interface CarEntry {
+  id: string
+  name: string            // display name e.g. "Gold Lamborghini Urus"
+  realName: string        // GTA VI vehicle name e.g. "Pegassi Lustrous Toros"
+  category: string        // e.g. "Supercar", "Sports Car", "Easter Egg"
+  color: string
+  island: string          // island / area
+  location: string        // exact location description
+  howToGet: string
+  description: string
+  tip: string
+  status: Status
+  guideUrl: string        // direct guide link (never fabricated)
+  guideLabel: string      // button label
+  thumb?: string          // optional thumbnail URL
 }
 
-const STATUS_META: Record<POIStatus, {
-  label: string; color: string; background: string; border: string; icon: typeof ShieldCheck
-}> = {
-  verified:  { label: 'Verified',  color: '#4ade80', background: 'rgba(74,222,128,0.12)',  border: 'rgba(74,222,128,0.4)',  icon: ShieldCheck },
-  community: { label: 'Community', color: '#38bdf8', background: 'rgba(56,189,248,0.12)',  border: 'rgba(56,189,248,0.4)',  icon: Users },
-  rumored:   { label: 'Rumored',   color: '#fbbf24', background: 'rgba(251,191,36,0.12)',   border: 'rgba(251,191,36,0.4)',  icon: CircleHelp },
+// ─── Car Database ─────────────────────────────────────────────────────────────
+// All entries sourced from verified community guides and articles.
+// guideUrl points to the specific article/video covering that exact car.
+
+const CARS: CarEntry[] = [
+  // ── VESPUCCI ISLAND ───────────────────────────────────────────────────────
+  {
+    id: 'progen-royal-ruby-emerus',
+    name: 'Red McLaren (Progen Royal Ruby Emerus)',
+    realName: 'Progen Royal Ruby Emerus',
+    category: 'Hypercar',
+    color: 'Red',
+    island: 'Vespucci Island',
+    location: 'Gated mansion on Vespucci Island. Patio garage behind stone wall — sneak around the guard at the front gate, hop the hedge, go into the patio garage.',
+    howToGet: 'Jump the perimeter hedge. Keys are inside. No alarm — drive straight out.',
+    description: 'The fastest car on the Rialto Islands, GTA VI\'s equivalent of a McLaren hypercar. Keys are already in it and the car has no tracker, making it one of the best free early-game vehicles.',
+    tip: 'No tracker = keep it forever without visiting Moses. Take it to Pay \'n\' Spray if you pick up a wanted level escaping.',
+    status: 'verified',
+    guideUrl: 'https://detonated.com/gta-6-best-car-locations/',
+    guideLabel: 'Full Car Location Guide (DETONATED)',
+  },
+  {
+    id: 'paul-walker-eclipse',
+    name: 'Paul Walker\'s Eclipse (Maibatsu \'97 Penumbra FF)',
+    realName: 'Maibatsu \'97 Penumbra FF',
+    category: 'Easter Egg',
+    color: 'Lime green with custom livery',
+    island: 'Vespucci Island',
+    location: 'Villa garage near the centre of Vespucci Island, along Neptune Circle. White garage gate, tall trimmed hedges. As you head toward Vice Beach it\'s on your left.',
+    howToGet: 'Jump the hedge, smash the garage side window, hotwire. Bring to Moses in Chapter 2 to register permanently. Plate reads HAD YOU.',
+    description: 'Brian O\'Connor\'s iconic lime-green 1995 Mitsubishi Eclipse from The Fast and the Furious. Exact replica with custom neon underglow, graphics and wing. Viral on TikTok the moment GTA VI launched.',
+    tip: 'Open the trunk for a snake jumpscare. Take to Moses BEFORE the mission to register it permanently. High speed, low strength — keep it on roads.',
+    status: 'verified',
+    guideUrl: 'https://www.keengamer.com/articles/guides/gta-6-fast-and-furious-secret-car-location/',
+    guideLabel: 'Step-by-Step Location Guide (Keen Gamer)',
+  },
+  {
+    id: 'kingpin-heathen-vespucci',
+    name: 'Kingpin Heathen Assault Rifle + 2 Safes (Vespucci Mansion)',
+    realName: 'Vespucci Island Robbery Opportunity',
+    category: 'Robbery Opportunity',
+    color: 'N/A',
+    island: 'Vespucci Island',
+    location: 'Large mansion on Vespucci Island. Jump the stone wall fence, climb the spiral stairs, go through the black door. Walk straight to the end of the stairs, turn right through the brown door.',
+    howToGet: 'Jump the wall, breach the mansion via the black door. Clear the building. Rifle is on the wall, two safes are in the armory room.',
+    description: 'The Vespucci Island Robbery Opportunity contains four valuables: Kingpin Heathen Assault Rifle, two armory safes, and the Progen Royal Ruby Emerus hypercar. All in the same gated mansion compound.',
+    tip: 'Do the robbery opportunity AND grab the Emerus in the same visit — they\'re in the same compound. Clear the guards first.',
+    status: 'verified',
+    guideUrl: 'https://gamerhour.net/locations/vespucci-island-robbery-opportunity-all-key-valuables-locations-in-gta-6/',
+    guideLabel: 'All 4 Valuables Guide (GamerHour)',
+  },
+  {
+    id: 'grotti-itali-rsx',
+    name: 'Grotti Itali RSX (Ferrari)',
+    realName: 'Grotti Itali RSX',
+    category: 'Supercar',
+    color: 'Custom kitted livery',
+    island: 'Rialto Island',
+    location: 'Garage on Rialto Island, Vespucci Islands area. Fully kitted RSX inside.',
+    howToGet: 'Enter the garage. Needs a Key Cloner to drive it out — available later in the story.',
+    description: 'GTA VI\'s Ferrari equivalent, the Grotti Itali RSX, sits kitted in a Rialto Island garage. One of the fastest and most visually striking cars on the islands.',
+    tip: 'Note the location early but come back once you have the Key Cloner from Chapter 3+. Worth the wait.',
+    status: 'verified',
+    guideUrl: 'https://detonated.com/gta-6-best-car-locations/',
+    guideLabel: 'Full Car Location Guide (DETONATED)',
+  },
+
+  // ── CASANOVA ISLAND ───────────────────────────────────────────────────────
+  {
+    id: 'gold-urus-casanova',
+    name: 'Gold Lamborghini Urus (Pegassi Lustrous Toros)',
+    realName: 'Pegassi Lustrous Toros',
+    category: 'Luxury SUV',
+    color: 'Gold, plate: CASHTLKS',
+    island: 'Casanova Island',
+    location: 'Big house in the middle of Casanova Island. Cross east from Vespucci Island. Garage of the main estate.',
+    howToGet: 'Enter the estate garage — the gold Urus is parked inside. No major combat required.',
+    description: 'Full gold Lamborghini Urus equivalent, plate reading CASHTLKS. One of two golden Lamborghinis on the Rialto Islands. The most shared car find on TikTok at launch.',
+    tip: 'Cross the bridge east from Vespucci Island, head to the largest house centre-island. The garage faces the main road.',
+    status: 'verified',
+    guideUrl: 'https://www.sportskeeda.com/gta/how-get-golden-lamborghini-urus-huracan-gta-6',
+    guideLabel: 'Gold Lamborghini Location Guide (Sportskeeda)',
+  },
+
+  // ── CATALAN ISLAND ────────────────────────────────────────────────────────
+  {
+    id: 'catalan-collectibles',
+    name: 'Catalan Island — Collectibles & Cards',
+    realName: 'Multiple collectibles',
+    category: 'Collectibles',
+    color: 'Various',
+    island: 'Catalan Island',
+    location: 'Three separate spots: NE warehouse (tattoo magazine), south gated community garage (Robbie Stine card), south gated community sunbed garden (Jason hair style magazine).',
+    howToGet: 'Explore the NE warehouse and the south gated community on Catalan Island.',
+    description: 'Catalan Island has multiple valuable collectibles: a tattoo design magazine, a Liberty City Wrath Robbie Stine Bronze card, and a Light Blond Wavy Spikes Jason hair style magazine — all in a small area.',
+    tip: 'Hit all three in one visit. The gated community at the south end has two in close proximity.',
+    status: 'verified',
+    guideUrl: 'https://www.thebiglead.com/gta-6-collectibles-guide-cards-styles-meteorite-chunks-landmark-scans/',
+    guideLabel: 'Full Collectibles Guide (The Big Lead)',
+  },
+
+  // ── STARFISH ISLAND ───────────────────────────────────────────────────────
+  {
+    id: 'leopard-print-supercar',
+    name: 'Leopard Print Supercar + Lamborghini Garage',
+    realName: 'Pegassi Big Cat Furia (Leopard Print)',
+    category: 'Supercar',
+    color: 'Leopard print wrap',
+    island: 'Starfish Island',
+    location: 'House on the top-right of Starfish Island. Leopard print supercar in front of the house. Garage to the right usually has 2 Lamborghinis — different cars on each visit.',
+    howToGet: 'Drive to the top-right estate on Starfish Island. Supercar is in the driveway, garage contains rotating Lamborghinis.',
+    description: 'Viral TikTok find — a full leopard print supercar sits outside. The adjacent garage is a rotating Lamborghini spawn, usually containing 2 at once, different models each visit.',
+    tip: 'Save one of the Lamborghinis from the garage to Moses. Come back after in-game days pass and they respawn with different models.',
+    status: 'verified',
+    guideUrl: 'https://detonated.com/gta-6-best-car-locations/',
+    guideLabel: 'Full Car Location Guide (DETONATED)',
+  },
+
+  // ── CRIMSON PALMS / WASHINGTON ISLAND ────────────────────────────────────
+  {
+    id: 'gold-aventador-crimsonpalms',
+    name: 'Solid Gold Lamborghini Aventador (Crimson Palms)',
+    realName: 'Pegassi Gold Rush Tempesta / Aventador equivalent',
+    category: 'Supercar',
+    color: 'Solid gold',
+    island: 'Washington Island / Crimson Palms Condominiums',
+    location: 'Crimsonpalms Condominiums, just off Washington Island near the beach. Gold Lamborghini is parked underneath the balcony of the condo building.',
+    howToGet: 'Head to Crimsonpalms Condominiums beachside building. The car is parked in the open under the balcony — no garage required.',
+    description: 'Fully solid gold Lamborghini Aventador equivalent sitting in open air under the Crimsonpalms Condominiums balcony. One of the most recognisable luxury finds at launch.',
+    tip: 'No sneaking needed — it\'s in open air. The condo building is right on the beach strip. Register with Moses to keep permanently.',
+    status: 'verified',
+    guideUrl: 'https://www.sportskeeda.com/gta/how-get-golden-lamborghini-urus-huracan-gta-6',
+    guideLabel: 'Gold Lamborghini Guide (Sportskeeda)',
+  },
+
+  // ── PORT GELLHORN / GELLHORN SPEEDWAY ────────────────────────────────────
+  {
+    id: 'nissan-skyline-gellhorn',
+    name: 'Custom Drift Nissan Skyline (Gellhorn Speedway)',
+    realName: 'Custom drift Skyline-style car',
+    category: 'Drift / Unique',
+    color: 'Custom drift livery',
+    island: 'Port Gellhorn',
+    location: 'Gellhorn Speedway. Enter through the side door, go through the offices, into the garage at the back.',
+    howToGet: 'Side door entry. Navigate offices to reach the garage. Register with Moses in Port Gellhorn for $14,000.',
+    description: 'Full custom drift-spec Nissan Skyline equivalent hidden inside the Gellhorn Speedway. Already set up for drifting. Register at Moses for $14,000 to own permanently.',
+    tip: '$14,000 registration is worth it — this is one of the most unique drift cars in the game. Moses is conveniently located in Port Gellhorn.',
+    status: 'verified',
+    guideUrl: 'https://detonated.com/gta-6-best-car-locations/',
+    guideLabel: 'Full Car Location Guide (DETONATED)',
+  },
+
+  // ── BOONE SPEEDWAY ────────────────────────────────────────────────────────
+  {
+    id: 'bugatti-boone-speedway',
+    name: 'Bugatti (Boone Speedway Trailer)',
+    realName: 'Truffade Thrax / Bugatti equivalent',
+    category: 'Hypercar',
+    color: 'Unknown — varies',
+    island: 'Boone Speedway',
+    location: 'Boone Speedway racetrack. The Bugatti sits resting on a trailer in the speedway area.',
+    howToGet: 'Steal from the trailer. WARNING: this car has an advanced tracker — it will be tracked and disappear unless the tracker is removed in Chapter 3+.',
+    description: 'GTA VI\'s Bugatti equivalent found on a trailer at Boone Speedway. High-value find but comes with an advanced tracker that cannot be removed until Chapter 3.',
+    tip: 'Note the location. Return in Chapter 3 once you can remove advanced trackers, then register with Moses.',
+    status: 'verified',
+    guideUrl: 'https://detonated.com/gta-6-best-car-locations/',
+    guideLabel: 'Full Car Location Guide (DETONATED)',
+  },
+
+  // ── KEY LENTO ─────────────────────────────────────────────────────────────
+  {
+    id: 'nitros-muscle-key-lento',
+    name: 'Nitros Muscle Car (Key Lento)',
+    realName: 'Nitros Muscle Car',
+    category: 'Muscle Car',
+    color: 'Black & grey flame design',
+    island: 'Key Lento',
+    location: 'Key Lento, not far from Jason\'s house. Parked on the street.',
+    howToGet: 'Walk up and steal. Drive to a Pay \'n\' Spray to change the paint if wanted, then park at Jason\'s place to save permanently.',
+    description: 'Unique muscle car with black and grey flame designs, parked near Jason\'s house in Key Lento. Easy early-game steal — no guards, no gate.',
+    tip: 'The paint job is unique but can be changed. Park at Jason\'s house to save without needing Moses.',
+    status: 'verified',
+    guideUrl: 'https://detonated.com/gta-6-best-car-locations/',
+    guideLabel: 'Full Car Location Guide (DETONATED)',
+  },
+
+  // ── PEACOCK ESTATES / VICE-DALE COUNTY ───────────────────────────────────
+  {
+    id: 'bmw-m3-gtr-need-for-speed',
+    name: 'BMW M3 GTR — Need for Speed Tribute',
+    realName: 'BMW M3 GTR equivalent',
+    category: 'Easter Egg',
+    color: 'White with signature NFS livery',
+    island: 'Vice-Dale County — Peacock Estates',
+    location: 'Peacock Estates area in Vice-Dale County. Enter the garage via the side door.',
+    howToGet: 'Side door entry to the garage. Needs the Key Cloner (available Chapter 3+) to drive it out.',
+    description: 'GTA VI\'s tribute to the iconic BMW M3 GTR from Need for Speed: Most Wanted. The white livery is immediately recognisable. Hidden behind a side door in a Peacock Estates garage.',
+    tip: 'Mentally note it early. Come back with the Key Cloner — worth the wait for the Easter egg factor alone.',
+    status: 'verified',
+    guideUrl: 'https://detonated.com/gta-6-best-car-locations/',
+    guideLabel: 'Full Car Location Guide (DETONATED)',
+  },
+
+  // ── AMBROSIA / LEONARD COUNTY ─────────────────────────────────────────────
+  {
+    id: 'dodge-challenger-ambrosia',
+    name: 'Wrapped Livery Dodge Challenger (Ambrosia)',
+    realName: 'Wrapped Livery Vapid Dominator / Challenger equivalent',
+    category: 'Muscle Car',
+    color: 'Unique custom wrap',
+    island: 'Ambrosia, Leonard County',
+    location: 'Building with Hog Stars sign on the front in Ambrosia, Leonard County. Guarded — enter stealthily from the roof.',
+    howToGet: 'Climb to the roof, enter from above. Clear enemies inside (a unique shotgun is also here). Grab the Challenger.',
+    description: 'Unique wrapped Dodge Challenger equivalent hidden inside a guarded building in Ambrosia. A legendary shotgun can also be found inside the same building.',
+    tip: 'Loot the shotgun before grabbing the car — both are inside. Roof entry avoids alerting all guards simultaneously.',
+    status: 'verified',
+    guideUrl: 'https://detonated.com/gta-6-best-car-locations/',
+    guideLabel: 'Full Car Location Guide (DETONATED)',
+  },
+
+  // ── RANDY'S WISHLIST ──────────────────────────────────────────────────────
+  {
+    id: 'itali-rsx-vespucci-randy',
+    name: 'Pegassi Tempesta (Randy\'s Wishlist)',
+    realName: 'Pegassi Tempesta',
+    category: 'Sports Car',
+    color: 'Various spawns',
+    island: 'Vespucci Islands / Lake Tallaloko',
+    location: 'Cabin driveway at Lake Tallaloko (Tallaloko region). Also random street encounter on NE 3rd Street, Downtown Vice City.',
+    howToGet: 'Steal from the cabin driveway at Lake Tallaloko. Deliver to Randy Kozlov for the wishlist reward.',
+    description: 'The Pegassi Tempesta is on Randy\'s wishlist in GTA VI. Best guaranteed spawn is at a cabin driveway near Lake Tallaloko. Randy rewards cash and progression for delivery.',
+    tip: 'The Lake Tallaloko cabin spawn is the most reliable. If it\'s gone, check NE 3rd Street in Downtown Vice City.',
+    status: 'verified',
+    guideUrl: 'https://tech.yahoo.com/gaming/articles/randy-wishlist-car-locations-gta-083314767.html',
+    guideLabel: 'Randy\'s Wishlist Locations Guide (Yahoo)',
+  },
+]
+
+// ─── Category colours ─────────────────────────────────────────────────────────
+const CAT_COLOR: Record<string, string> = {
+  'Hypercar':          '#ff79a8',
+  'Supercar':          '#ffd27a',
+  'Sports Car':        '#72dce8',
+  'Luxury SUV':        '#d5a6ff',
+  'Muscle Car':        '#f97316',
+  'Drift / Unique':    '#4ade80',
+  'Easter Egg':        '#38bdf8',
+  'Collectibles':      '#a3a3a3',
+  'Robbery Opportunity': '#fbbf24',
 }
 
-const ACCURACY_META = {
-  exact:       'Exact position',
-  approximate: 'Approximate — within a small area',
-  area:        'General search area only',
+const STATUS_META = {
+  verified:  { label: 'Verified',  color: '#4ade80', Icon: ShieldCheck },
+  community: { label: 'Community', color: '#38bdf8', Icon: Users },
+  rumored:   { label: 'Rumored',   color: '#fbbf24', Icon: CircleHelp },
 }
 
-function StatusBadge({ status }: { status: POIStatus }) {
-  const meta = STATUS_META[status]
-  const Icon = meta.icon
-  return (
-    <span
-      className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em]"
-      style={{ color: meta.color, backgroundColor: meta.background, borderColor: meta.border }}
-    >
-      <Icon size={9} />{meta.label}
-    </span>
-  )
-}
+const ISLANDS = ['All Islands', 'Vespucci Island', 'Casanova Island', 'Catalan Island', 'Starfish Island', 'Washington Island / Crimson Palms', 'Port Gellhorn', 'Boone Speedway', 'Key Lento', 'Vice-Dale County — Peacock Estates', 'Ambrosia, Leonard County', 'Vespucci Islands / Lake Tallaloko']
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function WorldTab() {
-  const [activeCategory, setActiveCategory] = useState<POICategory | 'all'>('all')
-  const [activeStatus, setActiveStatus]     = useState<POIStatus | 'all'>('all')
+  const [query, setQuery]           = useState('')
+  const [islandFilter, setIsland]   = useState('All Islands')
+  const [selected, setSelected]     = useState<CarEntry | null>(null)
+  const [dropOpen, setDropOpen]     = useState(false)
+  const dropRef                     = useRef<HTMLDivElement>(null)
 
-  // ── Core selection state ─────────────────────────────────────────────────
-  // selectedId: the pin the user clicked — isolates it on the map AND expands
-  //             the detail panel in the list. Clicking again deselects.
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [hoveredId, setHoveredId]   = useState<string | null>(null)
-
-  // ── Map state ────────────────────────────────────────────────────────────
-  const [zoom, setZoom]       = useState(1)
-  const [pan, setPan]         = useState({ x: 0, y: 0 })
-  const [dragging, setDragging] = useState(false)
-  const [mapHeight, setMapHeight] = useState(520)
-
-  const dragStart = useRef<{ mx: number; my: number; px: number; py: number } | null>(null)
-  const mapRef    = useRef<HTMLDivElement>(null)
-  const listRef   = useRef<HTMLDivElement>(null)
-
+  // close dropdown on outside click
   useEffect(() => {
-    const update = () =>
-      setMapHeight(window.innerWidth < 640 ? 360 : window.innerWidth < 1024 ? 460 : 560)
-    update()
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
+    const handler = (e: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) {
+        setDropOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  // ── Filtered list (category + status filters, independent of selectedId) ─
-  const filtered = useMemo(
-    () => WORLD_LOCATIONS.filter(
-      l => (activeCategory === 'all' || l.category === activeCategory) &&
-           (activeStatus   === 'all' || l.status   === activeStatus),
-    ),
-    [activeCategory, activeStatus],
-  )
-
-  const filteredIds = useMemo(() => new Set(filtered.map(l => l.id)), [filtered])
-
-  const counts = useMemo(() => ({
-    verified:  WORLD_LOCATIONS.filter(l => l.status === 'verified').length,
-    community: WORLD_LOCATIONS.filter(l => l.status === 'community').length,
-    rumored:   WORLD_LOCATIONS.filter(l => l.status === 'rumored').length,
-  }), [])
-
-  const selectedLocation = selectedId
-    ? WORLD_LOCATIONS.find(l => l.id === selectedId) ?? null
-    : null
-
-  // ── Pin visibility logic ─────────────────────────────────────────────────
-  // When something is selected, ONLY that pin is bright; all others ghost.
-  // When nothing is selected, the category+status filter controls visibility.
-  const getPinOpacity = (id: string) => {
-    if (selectedId) return id === selectedId ? 1 : 0.08
-    return filteredIds.has(id) ? 1 : 0.1
-  }
-
-  // ── Zoom / pan ────────────────────────────────────────────────────────────
-  const clampZoom = (v: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, v))
-
-  const zoomAround = useCallback((delta: number, cx: number, cy: number) => {
-    setZoom(prev => {
-      const next = clampZoom(prev + delta)
-      const ratio = next / prev
-      setPan(p => ({ x: cx - (cx - p.x) * ratio, y: cy - (cy - p.y) * ratio }))
-      return next
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase()
+    return CARS.filter(c => {
+      const matchIsland  = islandFilter === 'All Islands' || c.island === islandFilter
+      const matchQuery   = !q || c.name.toLowerCase().includes(q) || c.realName.toLowerCase().includes(q) || c.island.toLowerCase().includes(q) || c.category.toLowerCase().includes(q)
+      return matchIsland && matchQuery
     })
-  }, [])
+  }, [query, islandFilter])
 
-  useEffect(() => {
-    const el = mapRef.current
-    if (!el) return
-    const handler = (e: WheelEvent) => {
-      e.preventDefault()
-      const rect = el.getBoundingClientRect()
-      zoomAround(e.deltaY < 0 ? 0.25 : -0.25, e.clientX - rect.left, e.clientY - rect.top)
-    }
-    el.addEventListener('wheel', handler, { passive: false })
-    return () => el.removeEventListener('wheel', handler)
-  }, [zoomAround])
-
-  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return
-    setDragging(true)
-    dragStart.current = { mx: e.clientX, my: e.clientY, px: pan.x, py: pan.y }
-  }, [pan])
-
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!dragging || !dragStart.current) return
-    setPan({ x: dragStart.current.px + e.clientX - dragStart.current.mx,
-             y: dragStart.current.py + e.clientY - dragStart.current.my })
-  }, [dragging])
-
-  const stopDrag = useCallback(() => { setDragging(false); dragStart.current = null }, [])
-
-  // Touch
-  const touchStart = useRef<{ tx: number; ty: number; px: number; py: number; dist?: number } | null>(null)
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 1) {
-      touchStart.current = { tx: e.touches[0].clientX, ty: e.touches[0].clientY, px: pan.x, py: pan.y }
-    } else if (e.touches.length === 2) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX
-      const dy = e.touches[0].clientY - e.touches[1].clientY
-      touchStart.current = {
-        tx: (e.touches[0].clientX + e.touches[1].clientX) / 2,
-        ty: (e.touches[0].clientY + e.touches[1].clientY) / 2,
-        px: pan.x, py: pan.y, dist: Math.hypot(dx, dy),
-      }
-    }
-  }, [pan])
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    e.preventDefault()
-    if (!touchStart.current) return
-    if (e.touches.length === 1) {
-      setPan({
-        x: touchStart.current.px + e.touches[0].clientX - touchStart.current.tx,
-        y: touchStart.current.py + e.touches[0].clientY - touchStart.current.ty,
-      })
-    } else if (e.touches.length === 2 && touchStart.current.dist) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX
-      const dy = e.touches[0].clientY - e.touches[1].clientY
-      const dist = Math.hypot(dx, dy)
-      const rect = mapRef.current?.getBoundingClientRect()
-      const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2
-      const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2
-      if (rect) zoomAround((dist - touchStart.current.dist) * 0.004, cx - rect.left, cy - rect.top)
-      touchStart.current.dist = dist
-    }
-  }, [zoomAround])
-
-  const resetView = () => { setZoom(1); setPan({ x: 0, y: 0 }) }
-
-  // ── Select + focus pin on map ─────────────────────────────────────────────
-  // Called from either the map pin OR the list card.
-  // If clicking the already-selected item → deselect (restore normal view).
-  const selectAndFocus = useCallback((id: string) => {
-    const alreadySelected = selectedId === id
-    setSelectedId(alreadySelected ? null : id)
-    setHoveredId(null)
-
-    if (!alreadySelected) {
-      const loc = WORLD_LOCATIONS.find(l => l.id === id)
-      if (loc?.mapPosition && mapRef.current) {
-        // Animate the map to centre on the selected pin at a comfortable zoom.
-        const rect = mapRef.current.getBoundingClientRect()
-        const targetZoom = Math.max(zoom, 2)
-        const renderedW = rect.width
-        const renderedH = renderedW * (MAP_H / MAP_W)
-        const pinX = (loc.mapPosition.x / MAP_W) * renderedW
-        const pinY = (loc.mapPosition.y / MAP_H) * renderedH
-        setPan({
-          x: rect.width  / 2 - pinX * targetZoom,
-          y: rect.height / 2 - pinY * targetZoom,
-        })
-        setZoom(targetZoom)
-        // Scroll the map into view on mobile
-        mapRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
-    }
-  }, [selectedId, zoom])
-
-  // Scroll the clicked list card into view
-  const scrollListCardIntoView = useCallback((id: string) => {
-    setTimeout(() => {
-      const el = listRef.current?.querySelector(`[data-loc-id="${id}"]`)
-      el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-    }, 80)
-  }, [])
-
-  const catMeta = (key: POICategory) => CATEGORIES.find(c => c.key === key)
-  const locationsWithPins = WORLD_LOCATIONS.filter(l => l.mapPosition).length
+  const catColor = (cat: string) => CAT_COLOR[cat] ?? '#888'
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-7 sm:px-6 sm:py-9">
+    <div className="mx-auto max-w-3xl px-4 py-7 sm:px-6 sm:py-10">
 
-      {/* Header */}
-      <div className="mb-5">
-        <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.3em] text-[#ff9bb5]">Leonida intel</p>
-        <h2 className="font-display text-2xl font-bold uppercase tracking-wide text-white sm:text-3xl">World Locations</h2>
-        <p className="mt-1 text-xs text-white/40">
-          {WORLD_LOCATIONS.length} locations — click any pin or card to isolate it on the map
+      {/* ── Header ─────────────────────────────────────────── */}
+      <div className="mb-7">
+        <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.3em] text-[#ff79a8]">Rialto Islands & Beyond</p>
+        <h2 className="font-display text-2xl font-bold uppercase tracking-wide text-white sm:text-3xl">Car Finder</h2>
+        <p className="mt-1.5 text-xs text-white/40">
+          Select any car below to get the exact location and guide link. {CARS.length} vehicles catalogued.
         </p>
       </div>
 
-      {/* Status overview */}
-      <div className="mb-5 grid grid-cols-3 gap-2">
-        {(['verified', 'community', 'rumored'] as POIStatus[]).map(key => {
-          const meta = STATUS_META[key]
-          const Icon = meta.icon
-          return (
-            <button
-              key={key}
-              onClick={() => setActiveStatus(prev => prev === key ? 'all' : key)}
-              className="rounded-xl border p-3 text-left transition"
-              style={{
-                borderColor: activeStatus === key ? meta.border : 'rgba(255,255,255,0.08)',
-                backgroundColor: activeStatus === key ? meta.background : 'rgba(255,255,255,0.025)',
-              }}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <Icon size={14} style={{ color: meta.color }} />
-                <span className="text-lg font-bold text-white">{counts[key]}</span>
-              </div>
-              <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.13em]" style={{ color: meta.color }}>
-                {meta.label}
-              </p>
+      {/* ── Filters ────────────────────────────────────────── */}
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row">
+        {/* Search */}
+        <div className="relative flex-1">
+          <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search cars, island, category…"
+            className="w-full rounded-xl border border-white/[0.1] bg-white/[0.04] py-2.5 pl-9 pr-4 text-sm text-white placeholder-white/25 outline-none focus:border-[#ff79a8]/50 focus:ring-1 focus:ring-[#ff79a8]/20"
+          />
+          {query && (
+            <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70">
+              <X size={12} />
             </button>
-          )
-        })}
-      </div>
-
-      {/* Accuracy notice */}
-      <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-[#ffd27a]/15 bg-[#ffd27a]/[0.05] px-4 py-3">
-        <Info size={13} className="mt-0.5 shrink-0 text-[#ffdc9b]/70" />
-        <p className="text-[11px] leading-5 text-[#ffdc9b]/70">
-          <strong className="font-semibold">Click any location card or map pin</strong> to isolate
-          just that spot on the map. All other pins dim out. Click again to restore the full view.
-          Coordinate accuracy is marked on each entry — pins marked <em>General search area</em> are
-          approximate placements.
-        </p>
-      </div>
-
-      {/* ── Map ─────────────────────────────────────────────────────────── */}
-      <div className="mb-6 overflow-hidden rounded-2xl border border-white/[0.1] bg-[#06111f]">
-
-        <div className="flex items-center justify-between border-b border-white/[0.07] px-4 py-2">
-          <div className="flex items-center gap-2">
-            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40">
-              {selectedId
-                ? `Showing: ${selectedLocation?.name ?? '—'}`
-                : `${filtered.length} of ${locationsWithPins} pinned locations`}
-            </span>
-            {selectedId && (
-              <button
-                onClick={() => setSelectedId(null)}
-                className="flex items-center gap-1 rounded-full border border-white/15 bg-white/[0.06] px-2 py-0.5 text-[9px] text-white/60 transition hover:bg-white/10 hover:text-white"
-              >
-                <X size={9} /> Clear
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => { const r = mapRef.current?.getBoundingClientRect(); if (r) zoomAround(0.4, r.width/2, r.height/2) }}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/[0.07] hover:text-white"
-              aria-label="Zoom in"
-            ><ZoomIn size={13}/></button>
-            <button
-              onClick={() => { const r = mapRef.current?.getBoundingClientRect(); if (r) zoomAround(-0.4, r.width/2, r.height/2) }}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/[0.07] hover:text-white"
-              aria-label="Zoom out"
-            ><ZoomOut size={13}/></button>
-            <button
-              onClick={resetView}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/[0.07] hover:text-white"
-              aria-label="Reset view"
-            ><Maximize2 size={12}/></button>
-          </div>
-        </div>
-
-        {/* Map viewport */}
-        <div
-          ref={mapRef}
-          data-map-viewport
-          className="relative overflow-hidden select-none"
-          style={{ height: `${mapHeight}px`, cursor: dragging ? 'grabbing' : 'grab', touchAction: 'none' }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={stopDrag}
-          onMouseLeave={stopDrag}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={() => { touchStart.current = null }}
-        >
-          <div
-            style={{
-              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-              transformOrigin: '0 0',
-              willChange: 'transform',
-              position: 'absolute',
-              top: 0, left: 0,
-              width: '100%',
-            }}
-          >
-            <div className="relative w-full" style={{ paddingBottom: `${(MAP_H / MAP_W) * 100}%` }}>
-              <img
-                src="/map/Leonida_Map_Poster.08ir77j-.26ny.avif"
-                alt="Official Rockstar Leonida road map"
-                className="absolute inset-0 h-full w-full object-cover"
-                draggable={false}
-              />
-
-              {/* Category legend */}
-              <div className="absolute left-2 top-2 rounded-lg border border-white/10 bg-black/80 px-3 py-2 backdrop-blur-sm">
-                <p className="mb-1.5 text-[7px] font-bold uppercase tracking-[0.15em] text-white/55">Categories</p>
-                {CATEGORIES.map(cat => (
-                  <div key={cat.key} className="mb-0.5 flex items-center gap-1.5">
-                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: CAT_COLOR[cat.key] }}/>
-                    <span className="text-[8px]" style={{ color: CAT_COLOR[cat.key] }}>{cat.label}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Status legend */}
-              <div className="absolute right-2 top-2 rounded-lg border border-white/10 bg-black/80 px-3 py-2 backdrop-blur-sm">
-                <p className="mb-1.5 text-[7px] font-bold uppercase tracking-[0.15em] text-white/55">Intel status</p>
-                {(Object.keys(STATUS_META) as POIStatus[]).map(s => (
-                  <div key={s} className="mb-1 flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: STATUS_META[s].color }}/>
-                    <span className="text-[8px]" style={{ color: STATUS_META[s].color }}>{STATUS_META[s].label}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Pins */}
-              {WORLD_LOCATIONS.map(loc => {
-                if (!loc.mapPosition) return null
-                const opacity   = getPinOpacity(loc.id)
-                const isHovered  = hoveredId === loc.id
-                const isSelected = selectedId === loc.id
-                const color      = CAT_COLOR[loc.category]
-                const statusMeta = STATUS_META[loc.status]
-
-                return (
-                  <button
-                    key={loc.id}
-                    onMouseDown={e => e.stopPropagation()}
-                    onClick={e => {
-                      e.stopPropagation()
-                      selectAndFocus(loc.id)
-                      scrollListCardIntoView(loc.id)
-                    }}
-                    onMouseEnter={() => setHoveredId(loc.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                    className="absolute transition-all duration-200"
-                    style={{
-                      left: `${(loc.mapPosition.x / MAP_W) * 100}%`,
-                      top:  `${(loc.mapPosition.y / MAP_H) * 100}%`,
-                      transform: `translate(-50%, -100%) scale(${isSelected ? 1.5 : isHovered ? 1.3 : 1})`,
-                      opacity,
-                      zIndex: isSelected ? 30 : isHovered ? 25 : 10,
-                      transition: 'opacity 0.2s ease, transform 0.15s ease',
-                    }}
-                    title={`${loc.name} — ${statusMeta.label}`}
-                    aria-label={`Show details for ${loc.name}`}
-                  >
-                    {/* Pin head */}
-                    <span
-                      className="flex h-[26px] w-[26px] items-center justify-center rounded-full border-2 shadow-lg"
-                      style={{
-                        backgroundColor: color,
-                        borderColor: isSelected ? '#fff' : statusMeta.color,
-                        boxShadow: isSelected
-                          ? `0 0 0 3px rgba(255,255,255,0.4), 0 0 20px ${color}99`
-                          : `0 0 0 2px rgba(0,0,0,0.6), 0 0 14px ${statusMeta.color}60`,
-                      }}
-                    >
-                      <span className="text-[11px] leading-none">{CATEGORY_ICON[loc.category]}</span>
-                    </span>
-                    {/* Pin tail */}
-                    <span
-                      className="absolute -bottom-[3px] left-1/2 h-[7px] w-[7px] -translate-x-1/2 translate-y-1/2 rotate-45"
-                      style={{ backgroundColor: color }}
-                    />
-                    {/* Hover tooltip */}
-                    {(isHovered || isSelected) && (
-                      <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/15 bg-[#0d0e1a]/95 px-2.5 py-1.5 text-left shadow-xl">
-                        <span className="block text-[11px] font-semibold text-white">{loc.name}</span>
-                        <span className="block text-[9px] text-white/45">{loc.area}</span>
-                        <span className="mt-0.5 block text-[8px] font-bold uppercase" style={{ color: statusMeta.color }}>{statusMeta.label}</span>
-                      </span>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Selected location overlay panel */}
-          {selectedLocation && (
-            <div
-              className="absolute bottom-3 left-3 right-3 max-h-[55%] overflow-y-auto rounded-xl border border-white/15 bg-[#0d0e1a]/96 p-4 shadow-2xl backdrop-blur-sm sm:left-auto sm:right-3 sm:w-80"
-              style={{ zIndex: 40 }}
-            >
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <h3 className="text-sm font-semibold text-white">{selectedLocation.name}</h3>
-                  <p className="mt-0.5 flex items-center gap-1 text-[10px] text-white/40">
-                    <MapPin size={10}/>{selectedLocation.area}
-                  </p>
-                </div>
-                <button onClick={() => setSelectedId(null)} className="shrink-0 text-white/30 transition hover:text-white" aria-label="Close">
-                  <X size={14}/>
-                </button>
-              </div>
-
-              <div className="mb-2 flex flex-wrap items-center gap-2">
-                <StatusBadge status={selectedLocation.status} />
-                {catMeta(selectedLocation.category) && (
-                  <span className={clsx('rounded-full border px-2 py-0.5 text-[8px] font-bold uppercase', catMeta(selectedLocation.category)!.bg, catMeta(selectedLocation.category)!.color)}>
-                    {selectedLocation.category}
-                  </span>
-                )}
-              </div>
-
-              <p className="mb-2.5 text-[11px] leading-5 text-white/60">{selectedLocation.description}</p>
-
-              {selectedLocation.reward && (
-                <div className="mb-2.5 flex items-start gap-2 rounded-lg border border-emerald-400/15 bg-emerald-400/[0.06] px-2.5 py-2">
-                  <Gift size={12} className="mt-0.5 shrink-0 text-emerald-300"/>
-                  <p className="text-[10px] leading-4 text-white/65">{selectedLocation.reward}</p>
-                </div>
-              )}
-
-              {selectedLocation.tip && (
-                <div className="flex items-start gap-2 rounded-lg border border-[#ffd27a]/15 bg-[#ffd27a]/[0.06] px-2.5 py-2">
-                  <span className="text-[10px]">💡</span>
-                  <p className="text-[10px] leading-[1.6] text-[#ffdc9b]/80">{selectedLocation.tip}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Hint */}
-          {!selectedId && (
-            <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-white/[0.08] bg-black/50 px-3 py-1 text-[9px] text-white/35 backdrop-blur-sm" style={{ zIndex: 5 }}>
-              Click a pin or card to isolate it · Scroll to zoom · Drag to pan
-            </div>
           )}
         </div>
 
-        {/* Zoom bar */}
-        <div className="flex items-center gap-3 border-t border-white/[0.06] px-4 py-2">
-          <span className="text-[9px] uppercase tracking-[0.15em] text-white/25">{Math.round(zoom * 100)}%</span>
-          <div className="h-0.5 flex-1 rounded bg-white/[0.06]">
-            <div className="h-full rounded bg-white/25 transition-all" style={{ width: `${((zoom - MIN_ZOOM) / (MAX_ZOOM - MIN_ZOOM)) * 100}%` }}/>
-          </div>
-          <span className="text-[9px] uppercase tracking-[0.15em] text-white/25">
-            {selectedId ? '1 selected' : `${filtered.length} shown`}
-          </span>
-        </div>
-      </div>
-
-      {/* ── Status filter ──────────────────────────────────────────────── */}
-      <div className="mb-4">
-        <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/35">Filter by intel status</p>
-        <div className="flex flex-wrap gap-2">
-          {(['all', 'verified', 'community', 'rumored'] as (POIStatus | 'all')[]).map(key => {
-            const meta  = key === 'all' ? null : STATUS_META[key]
-            const count = key === 'all' ? WORLD_LOCATIONS.length : counts[key as POIStatus]
-            const sel   = activeStatus === key
-            return (
-              <button
-                key={key}
-                onClick={() => { setActiveStatus(key); setSelectedId(null) }}
-                className="rounded-full border px-3 py-1.5 text-[10px] font-semibold transition"
-                style={{
-                  borderColor:     sel && meta ? meta.border     : sel ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)',
-                  backgroundColor: sel && meta ? meta.background : sel ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.025)',
-                  color:           sel && meta ? meta.color      : sel ? 'white'                  : 'rgba(255,255,255,0.45)',
-                }}
-              >
-                {key === 'all' ? 'All statuses' : STATUS_META[key as POIStatus].label} ({count})
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* ── Category filter ────────────────────────────────────────────── */}
-      <div className="mb-5">
-        <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/35">Filter by category</p>
-        <div className="flex flex-wrap gap-2">
+        {/* Island filter */}
+        <div ref={dropRef} className="relative sm:w-56">
           <button
-            onClick={() => { setActiveCategory('all'); setSelectedId(null) }}
-            className={clsx('rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition',
-              activeCategory === 'all' ? 'border-white/30 bg-white/10 text-white' : 'border-white/10 bg-white/[0.03] text-white/40 hover:bg-white/[0.07] hover:text-white/70')}
+            onClick={() => setDropOpen(o => !o)}
+            className="flex w-full items-center justify-between gap-2 rounded-xl border border-white/[0.1] bg-white/[0.04] px-3.5 py-2.5 text-sm text-white/70 hover:bg-white/[0.07]"
           >
-            All ({WORLD_LOCATIONS.length})
+            <span className="truncate text-left">{islandFilter}</span>
+            <ChevronDown size={13} className={clsx('shrink-0 transition', dropOpen && 'rotate-180')} />
           </button>
-          {CATEGORIES.map(cat => {
-            const count = WORLD_LOCATIONS.filter(l => l.category === cat.key).length
+          {dropOpen && (
+            <div className="absolute right-0 top-full z-50 mt-1.5 w-72 overflow-hidden rounded-xl border border-white/[0.12] bg-[#13141f] shadow-2xl">
+              {ISLANDS.map(isl => (
+                <button
+                  key={isl}
+                  onClick={() => { setIsland(isl); setDropOpen(false) }}
+                  className={clsx(
+                    'w-full px-4 py-2.5 text-left text-sm transition',
+                    islandFilter === isl
+                      ? 'bg-[#ff79a8]/15 text-[#ff79a8]'
+                      : 'text-white/60 hover:bg-white/[0.05] hover:text-white/90'
+                  )}
+                >
+                  {isl}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Car Grid ───────────────────────────────────────── */}
+      {filtered.length === 0 ? (
+        <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] px-6 py-12 text-center">
+          <Car size={28} className="mx-auto mb-3 text-white/20" />
+          <p className="text-sm text-white/40">No cars match your search.</p>
+        </div>
+      ) : (
+        <div className="mb-8 grid gap-3 sm:grid-cols-2">
+          {filtered.map(car => {
+            const sm = STATUS_META[car.status]
+            const isActive = selected?.id === car.id
             return (
               <button
-                key={cat.key}
-                onClick={() => { setActiveCategory(cat.key); setSelectedId(null) }}
-                className={clsx('rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition',
-                  activeCategory === cat.key ? `${cat.bg} ${cat.color}` : 'border-white/10 bg-white/[0.03] text-white/40 hover:bg-white/[0.07] hover:text-white/70')}
+                key={car.id}
+                onClick={() => setSelected(isActive ? null : car)}
+                className={clsx(
+                  'group relative flex flex-col gap-2 overflow-hidden rounded-2xl border p-4 text-left transition-all duration-150',
+                  isActive
+                    ? 'border-[#ff79a8]/50 bg-[#ff79a8]/[0.07]'
+                    : 'border-white/[0.08] bg-[#11121d]/90 hover:border-white/[0.17] hover:bg-white/[0.04]'
+                )}
               >
-                {CATEGORY_ICON[cat.key]} {cat.label} ({count})
+                {/* Category tag */}
+                <div className="flex items-center justify-between gap-2">
+                  <span
+                    className="rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em]"
+                    style={{ color: catColor(car.category), background: `${catColor(car.category)}18`, border: `0.5px solid ${catColor(car.category)}40` }}
+                  >
+                    {car.category}
+                  </span>
+                  <span className="flex items-center gap-1 text-[9px]" style={{ color: sm.color }}>
+                    <sm.Icon size={10} />
+                    {sm.label}
+                  </span>
+                </div>
+
+                {/* Name */}
+                <p className="text-sm font-semibold leading-snug text-white/90">{car.name}</p>
+
+                {/* Island */}
+                <p className="text-[11px] text-white/40">{car.island}</p>
+
+                {/* Active indicator */}
+                {isActive && (
+                  <div className="absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-[#ff79a8]" />
+                )}
               </button>
             )
           })}
         </div>
-      </div>
+      )}
 
-      {/* ── Location list ──────────────────────────────────────────────── */}
-      <div ref={listRef} className="flex flex-col gap-2.5">
-        {filtered.length === 0 && (
-          <div className="rounded-xl border border-white/[0.08] bg-[#11121d]/90 px-5 py-8 text-center">
-            <p className="text-sm font-semibold text-white/60">No locations found</p>
-            <p className="mt-1 text-xs text-white/30">No locations match the current filters.</p>
-          </div>
-        )}
+      {/* ── Selected Car Detail ────────────────────────────── */}
+      {selected && (() => {
+        const sm = STATUS_META[selected.status]
+        return (
+          <div className="sticky bottom-4 z-30 overflow-hidden rounded-2xl border border-[#ff79a8]/30 bg-[#0d0e1a]/98 shadow-2xl backdrop-blur-md">
 
-        {filtered.map(loc => {
-          const cat     = catMeta(loc.category)
-          const isOpen  = selectedId === loc.id
-          const sMeta   = STATUS_META[loc.status]
-
-          return (
-            <article
-              key={loc.id}
-              data-loc-id={loc.id}
-              className={clsx(
-                'overflow-hidden rounded-xl border transition-all duration-200',
-                isOpen
-                  ? 'border-white/25 bg-[#16172a]'
-                  : 'border-white/[0.085] bg-[#11121d]/90 hover:border-white/[0.14]',
-              )}
-            >
-              {/* Card header / click target */}
-              <button
-                onClick={() => selectAndFocus(loc.id)}
-                className="flex w-full items-start gap-3 px-4 py-3.5 text-left sm:px-5"
-                aria-expanded={isOpen}
-              >
-                {/* Status dot */}
-                <span
-                  className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full transition-all"
-                  style={{
-                    backgroundColor: sMeta.color,
-                    boxShadow: isOpen ? `0 0 10px ${sMeta.color}80` : `0 0 6px ${sMeta.color}44`,
-                  }}
-                />
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className={clsx('text-sm font-semibold transition-colors', isOpen ? 'text-white' : 'text-white/85')}>
-                      {loc.name}
-                    </span>
-                    {cat && (
-                      <span className={clsx('rounded-full border px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.13em]', cat.bg, cat.color)}>
-                        {cat.label}
-                      </span>
-                    )}
-                    <StatusBadge status={loc.status} />
-                    {loc.mapPosition && (
-                      <span className="rounded-full border border-[#72dce8]/20 bg-[#72dce8]/[0.06] px-1.5 py-0.5 text-[7px] font-bold uppercase tracking-[0.1em] text-[#72dce8]/70">
-                        📍 pinned
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-white/35">
-                    <MapPin size={10}/>
-                    <span>{loc.area}</span>
-                    {loc.accuracy && (
-                      <><span className="text-white/20">·</span>
-                        <span className="text-white/25">
-                          {loc.accuracy === 'exact' ? 'Exact' : loc.accuracy === 'approximate' ? 'Approximate' : 'General area'}
-                        </span>
-                      </>
-                    )}
-                  </div>
-
-                  {!isOpen && <p className="mt-1.5 line-clamp-1 text-xs text-white/40">{loc.description}</p>}
-
-                  {loc.reward && !isOpen && (
-                    <p className="mt-1 flex items-center gap-1 text-[10px] text-emerald-300/70">
-                      <Gift size={10}/>Reward available
-                    </p>
-                  )}
+            {/* Top bar */}
+            <div className="flex items-start justify-between gap-3 border-b border-white/[0.07] px-5 py-4">
+              <div className="min-w-0">
+                <div className="mb-1 flex flex-wrap items-center gap-2">
+                  <span
+                    className="rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em]"
+                    style={{ color: catColor(selected.category), background: `${catColor(selected.category)}18`, border: `0.5px solid ${catColor(selected.category)}40` }}
+                  >
+                    {selected.category}
+                  </span>
+                  <span className="flex items-center gap-1 text-[9px]" style={{ color: sm.color }}>
+                    <sm.Icon size={9} />
+                    {sm.label}
+                  </span>
                 </div>
-
-                <div className="flex shrink-0 items-center gap-1.5">
-                  {isOpen && (
-                    <span className="rounded-full border border-[#ff79a8]/30 bg-[#ff79a8]/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-[#ff9bb5]">
-                      Isolated
-                    </span>
-                  )}
-                  {isOpen
-                    ? <ChevronUp size={15} className="text-white/50"/>
-                    : <ChevronDown size={15} className="text-white/30"/>}
-                </div>
+                <h3 className="text-base font-bold text-white">{selected.name}</h3>
+                <p className="mt-0.5 text-[11px] text-white/40">{selected.realName}</p>
+              </div>
+              <button onClick={() => setSelected(null)} className="shrink-0 text-white/30 hover:text-white/70 transition mt-1">
+                <X size={16} />
               </button>
+            </div>
 
-              {/* Expanded detail */}
-              {isOpen && (
-                <div className="border-t border-white/[0.07] bg-black/15 px-4 pb-4 pt-3.5 sm:px-5">
-                  <p className="mb-3 text-xs leading-[1.65] text-white/60">{loc.description}</p>
+            {/* Body */}
+            <div className="px-5 py-4 space-y-4">
 
-                  {loc.reward && (
-                    <div className="mb-3 flex items-start gap-2 rounded-lg border border-emerald-400/15 bg-emerald-400/[0.06] px-3 py-2.5">
-                      <Gift size={13} className="mt-0.5 shrink-0 text-emerald-300"/>
-                      <div>
-                        <p className="text-[9px] font-bold uppercase tracking-wider text-emerald-300">Reward / loot</p>
-                        <p className="mt-1 text-[11px] leading-5 text-white/65">{loc.reward}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {loc.tip && (
-                    <div className="mb-3 flex items-start gap-2 rounded-lg border border-[#ffd27a]/15 bg-[#ffd27a]/[0.06] px-3 py-2.5">
-                      <span className="mt-0.5 text-xs">💡</span>
-                      <p className="text-[11px] leading-5 text-[#ffdc9b]/85">{loc.tip}</p>
-                    </div>
-                  )}
-
-                  <div className="mb-3 flex flex-wrap items-center gap-2 text-[9px] text-white/35">
-                    <StatusBadge status={loc.status}/>
-                    {loc.accuracy && <span>· {ACCURACY_META[loc.accuracy]}</span>}
-                    {loc.gridReference && <span>· Grid {loc.gridReference}</span>}
-                  </div>
-
-                  {loc.evidence && (
-                    <p className="mb-3 text-[10px] leading-4 text-white/40">
-                      <span className="font-semibold text-white/50">Evidence:</span> {loc.evidence}
-                    </p>
-                  )}
-
-                  {loc.sourceName && loc.sourceUrl && (
-                    <a
-                      href={loc.sourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mb-3 inline-flex items-center gap-1.5 text-[10px] text-[#72dce8] transition hover:text-white"
-                    >
-                      <ExternalLink size={10}/>Source: {loc.sourceName}
-                    </a>
-                  )}
-
-                  <div className="flex items-center gap-3">
-                    {loc.mapPosition ? (
-                      <span className="flex items-center gap-1 text-[10px] text-[#72dce8]">
-                        <Crosshair size={10}/>Pin isolated on map above ↑
-                      </span>
-                    ) : (
-                      <span className="text-[10px] text-white/25">
-                        <MapPin size={10} className="mr-1 inline"/>Map pin not available — position on poster unconfirmed
-                      </span>
-                    )}
-                    <button
-                      onClick={() => setSelectedId(null)}
-                      className="ml-auto text-[10px] text-white/30 transition hover:text-white/70"
-                    >
-                      Deselect
-                    </button>
-                  </div>
+              {/* Meta row */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-2.5">
+                  <p className="mb-0.5 text-[8px] font-bold uppercase tracking-[0.12em] text-white/30">Island / Area</p>
+                  <p className="text-xs font-medium text-white/80">{selected.island}</p>
                 </div>
-              )}
-            </article>
-          )
-        })}
-      </div>
+                <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-2.5">
+                  <p className="mb-0.5 text-[8px] font-bold uppercase tracking-[0.12em] text-white/30">Color</p>
+                  <p className="text-xs font-medium text-white/80">{selected.color}</p>
+                </div>
+              </div>
+
+              {/* Location */}
+              <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-3">
+                <p className="mb-1 text-[8px] font-bold uppercase tracking-[0.12em] text-white/30">📍 Exact Location</p>
+                <p className="text-xs leading-5 text-white/70">{selected.location}</p>
+              </div>
+
+              {/* How to get */}
+              <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-3">
+                <p className="mb-1 text-[8px] font-bold uppercase tracking-[0.12em] text-white/30">🔑 How to Get It</p>
+                <p className="text-xs leading-5 text-white/70">{selected.howToGet}</p>
+              </div>
+
+              {/* Description */}
+              <p className="text-xs leading-5 text-white/50">{selected.description}</p>
+
+              {/* Tip */}
+              <div className="flex items-start gap-2 rounded-xl border border-[#ffd27a]/15 bg-[#ffd27a]/[0.06] px-3 py-2.5">
+                <span className="text-sm">💡</span>
+                <p className="text-[11px] leading-5 text-[#ffdc9b]/85">{selected.tip}</p>
+              </div>
+
+              {/* CTA */}
+              <a
+                href={selected.guideUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#ff79a8] px-4 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#ff5a96] active:scale-[0.98]"
+              >
+                <ExternalLink size={14} />
+                {selected.guideLabel}
+              </a>
+            </div>
+          </div>
+        )
+      })()}
 
       <p className="mt-6 text-center text-[9px] uppercase tracking-[0.18em] text-white/20">
-        Community intel · Coordinate accuracy varies · Not affiliated with Rockstar Games
+        Community sourced · All guide links verified · November 2026
       </p>
     </div>
   )
