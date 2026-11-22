@@ -1016,6 +1016,7 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     tip: 'Treat as unconfirmed. Bring a scuba tank and dive the bay floor if you want to investigate.',
     accuracy: 'area',
     evidence: 'Speculation from early community diving footage. No confirmed source or video evidence of the vault itself.',
+    mapPosition: { x: 1500, y: 2750 },
     status: 'rumored',
   },
 
@@ -1029,6 +1030,7 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     tip: 'Treat as unconfirmed. No video evidence published as of this database update.',
     accuracy: 'area',
     evidence: 'Speculation from pre-launch trailer analysis and early community discussion.',
+    mapPosition: { x: 1100, y: 650 },
     status: 'rumored',
   },
 
@@ -1047,4 +1049,511 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     sourceName: YT,
     sourceUrl: YTU,
   },
+  // ═══════════════════════════════════════════════════════════════════════════
+  // VERIFIED SECRETS & EASTER EGGS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  {
+    id: 'secrets-ufo-starlet',
+    name: 'UFO Encounter — Starlet Motel Woods',
+    category: 'secrets',
+    area: 'Kelly County — east of Port Gellhorn',
+    coordinates: 'Forest roads east of Starlet Motel, Kelly County',
+    description:
+      'At approximately 2 AM, a flying saucer hovers above the forest east of the Starlet Motel. A woman is suspended in its beam. Walk underneath to interrupt the abduction — she falls, asks you to retrieve a nearby car, and you lose consciousness and wake up post-abduction. Unlocks the hidden achievement "The Truth Is Out There". Best triggered solo, after Chapter 1.',
+    tip:
+      'Set in-game time to 2 AM. Drive east from Port Gellhorn through Kelly County rural roads. Look for a parked car with flashing lights beside the road — the trail into the woods starts there. If the UFO doesn\'t spawn, leave and return the next night.',
+    reward: '🏆 Hidden achievement: "The Truth Is Out There". Unique UFO cutscene.',
+    mapPosition: { x: 2200, y: 1650 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed by multiple independent video recordings. Achievement listed in-game.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'secrets-skunk-ape',
+    name: 'Skunk Ape (Bigfoot) — Cottonmouth Lake',
+    category: 'secrets',
+    area: 'South of Hamlet — Cottonmouth Lake swamp',
+    coordinates: 'Swamp trails south of Hamlet, near Cottonmouth Lake',
+    description:
+      'Leonida\'s version of Bigfoot — the Skunk Ape, based on the famous Florida cryptid. Find a deer carcass being examined by a large hairy creature. It flees into the woods on approach. Follow its trail to discover a human-shaped structure made of branches. A separate quest chain starts at Skeeter\'s bar in Hamlet (look for Kirk\'s flyer).',
+    tip:
+      'Explore the dirt tracks and narrow woodland trails around Cottonmouth Lake south of Hamlet. Best at dusk. Triggering the branch structure starts the investigation side quest chain.',
+    reward: '🕵️ Paranormal encounter. Triggers multi-part Skunk Ape quest chain via Skeeter\'s bar.',
+    mapPosition: { x: 1180, y: 2050 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed by multiple independent sources and in-game mission chain.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'secrets-cool-dog',
+    name: 'Cool Dog — Open Water Rescue',
+    category: 'secrets',
+    area: 'Open waters west of Leonida — Gambit Bay / SOS Island vicinity',
+    coordinates: 'Open water, west of Leonida mainland',
+    description:
+      'Leave your character stranded in open water without a vehicle near the SOS island or Gambit Bay. A dog wearing protective goggles may approach on a jet ski. Climb on and the dog transports you to a secret beach populated by many dogs. Random encounter — may require multiple attempts.',
+    tip:
+      'Take a boat to the SOS island, abandon the boat, and swim away from shore. After enough time in the water, Cool Dog may appear. If not, try another offshore area nearby.',
+    reward: '🐕 Unique NPC encounter. Secret dog beach. One of the most viral GTA VI moments on TikTok.',
+    mapPosition: { x: 300, y: 2000 },
+    accuracy: 'area',
+    evidence: 'Confirmed by viral TikTok and YouTube videos. Random encounter — not guaranteed on every attempt.',
+    status: 'verified',
+    sourceName: TT,
+    sourceUrl: TTU,
+  },
+
+  {
+    id: 'secrets-sos-island',
+    name: 'SOS Island — Found-Footage Phone',
+    category: 'secrets',
+    area: 'Gulf Leonida — far west of Watson Bay',
+    coordinates: 'Isolated offshore island, far west, Gulf Leonida',
+    description:
+      'Remote island with two large messages carved into the sand: "SOS" and "Send Beer". A mobile phone lies near the first S. Its stored recording resembles found-footage horror and ends with an unsettling scene. Unusual meteorite fragments may also be present. Connect this visit with the Cool Dog encounter — both happen in the same offshore area.',
+    tip:
+      'Boat or jet ski required. Head far west from Watson Bay until you reach a small isolated island with sand messages. Look carefully near the first "S" letter on the ground for the phone.',
+    reward: '🕵️ Mysterious video recording. Potential part of a larger island mystery.',
+    mapPosition: { x: 200, y: 1800 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed by multiple exploration videos. Phone recording and meteorite fragments documented.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'secrets-purple-meteorite',
+    name: 'Purple Meteorite — Table Rock, Mount Kalaga',
+    category: 'secrets',
+    area: 'Mount Kalaga — eastern slope of Table Rock, Lummox County',
+    coordinates: 'Eastern slope of Table Rock, Mount Kalaga National Park',
+    description:
+      'An unexplained purple meteorite-like object sits embedded in a rocky depression on the eastern slope of Table Rock, Mount Kalaga. No confirmed connection to other mysteries yet, but may be part of the extraterrestrial thread running through Leonida. Possibly linked to the UFO encounter.',
+    tip:
+      'Off-road vehicle or motorcycle recommended. Drive north into Lummox County and head for Mount Kalaga summit, then descend the eastern side. Look in rocky depressions between vegetation rather than on main paths.',
+    reward: '🔎 Unexplained anomaly. Likely connected to the broader alien mystery thread.',
+    mapPosition: { x: 1050, y: 450 },
+    accuracy: 'approximate',
+    evidence: 'Multiple independent videos confirm the meteorite object on Table Rock\'s eastern slope.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'secrets-mount-kalaga-bunker',
+    name: 'Mount Kalaga Tower + Secret Bunker (Code: 69185)',
+    category: 'secrets',
+    area: 'Mount Kalaga National Park, Lummox County',
+    coordinates: 'Mountain summit area, Mount Kalaga National Park',
+    description:
+      'A tall metal tower sits near the mountain summit. At its base: a wooden structure with a locked electronic keypad. Climb the tower\'s ladder, read the signs near the upper platform — one displays the five-digit code. The bunker code is 69185. Inside: a logbook with a mysterious ballpoint drawing on page two. The drawing\'s significance is unsolved.',
+    tip:
+      'Climb the ladder (don\'t fast-travel). The code sign is at the top platform. Enter 69185 at the keypad. Turn to page 2 of the logbook for the drawing. This may be the start of a larger Chiliad-style mystery.',
+    reward: '🕵️ Code: 69185. Mysterious logbook drawing. Possible start of a larger ARG mystery.',
+    mapPosition: { x: 980, y: 380 },
+    accuracy: 'approximate',
+    evidence: 'Code and location confirmed independently. Mystery remains partially unsolved.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'secrets-easter-eggs-tower',
+    name: 'Literal Easter Eggs — South Vice-Dale Communications Tower',
+    category: 'secrets',
+    area: 'South Vice-Dale County — tallest communications tower',
+    coordinates: 'South Vice-Dale County, tall communications mast with exterior ladders',
+    description:
+      'Rockstar hid actual painted Easter eggs at the top of the tallest communications tower in Leonida. Reaching the top takes ~6–7 real minutes of climbing. At the top: a bird\'s nest with colourful eggs. Pick one up and throw it off the edge with maximum force — a hidden comedic cutscene triggers. A weak throw does nothing.',
+    tip:
+      'Find the communications mast in South Vice-Dale County (not a Vice City skyscraper — look for a tall standalone metal structure with ladders). Climb every ladder to the very top. The throw must be at full power. If the cutscene doesn\'t fire, grab another egg.',
+    reward: '🏆 Hidden comedic cutscene. One of GTA VI\'s most viral exploration moments.',
+    mapPosition: { x: 1150, y: 2450 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed independently by multiple YouTube exploration videos.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'secrets-mystery-house-belville',
+    name: 'The San Andreas Mystery House — Belville',
+    category: 'secrets',
+    area: 'Belville residential neighbourhood, Leonard County',
+    coordinates: 'Belville, Leonard County — pale single-story house, white garage, two palm trees',
+    description:
+      'The house from a 2021 GTA San Andreas: Definitive Edition photograph — which fans speculated showed GTA VI — is now confirmed in Belville. Inside the garage: notes from a resident who has deduced they exist inside a video game. References to "J and L" (Jason and Lucia). Outside: a parked car with a snake in the trunk that lunges when opened.',
+    tip:
+      'Look for a pale single-story home with a white garage door, two palm trees and white fencing in Belville. Break open the garage. Approach the car\'s trunk separately for the snake encounter. Police may respond if witnesses see you entering.',
+    reward: '🕵️ Meta conspiracy notes. Snake encounter. Direct GTA San Andreas cross-reference.',
+    mapPosition: { x: 1600, y: 1200 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed by multiple independent videos. Cross-reference to SA:DE photograph now verified.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'secrets-dexter-apartment',
+    name: "Dexter Morgan's Apartment — Washington Island",
+    category: 'secrets',
+    area: 'Washington Island, northeastern Vice City',
+    coordinates: 'Trinity Apartments, waterfront, Washington Island',
+    description:
+      'A residential apartment complex on Washington Island closely resembles Dexter Morgan\'s apartment from the TV series. The building has a pale exterior, exterior balconies and a dock immediately alongside. A boat moored at the dock resembles the Slice of Life — Dexter\'s vessel from the show. Visual homage, no dedicated mission.',
+    tip:
+      'Head to northeastern Vice City and locate Washington Island. Walk the waterfront until you find the low-rise pale complex with balconies directly on the water. Check the boats at the dock.',
+    reward: '🕵️ Dexter TV series reference. Iconic apartment and boat recreation.',
+    mapPosition: { x: 1900, y: 2600 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed by multiple independent video comparisons to show footage.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'secrets-rdr-book',
+    name: 'Red Dead Redemption Book — Jacob\'s Tavern, Millport',
+    category: 'secrets',
+    area: 'Millport — Jacob\'s Tavern',
+    coordinates: "Jacob's Tavern, Millport",
+    description:
+      'A Western novel associated with New Austin — recognisable as the setting of Red Dead Redemption — sits on a shelf inside Jacob\'s Tavern in Millport. A direct cross-franchise reference between Rockstar\'s two major open-world series.',
+    tip:
+      'Walk into Jacob\'s Tavern and inspect the books and furnishings. The novel is interactive. Does not confirm a shared universe but is the strongest Rockstar cross-reference in the game.',
+    reward: '🕵️ Red Dead Redemption franchise cross-reference. Collectible lore item.',
+    mapPosition: { x: 1400, y: 900 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed by multiple independent videos showing the interactive novel.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'secrets-manifest-monument',
+    name: 'Monument of Leonidan Supremacy — Manifest Canyon',
+    category: 'secrets',
+    area: 'Manifest Canyon, Kelly County',
+    coordinates: 'Manifest Canyon, Kelly County',
+    description:
+      'An unusual stone monument in Manifest Canyon displays symbols and markings no one has fully decoded. Players have reported strange sounds in the area resembling coded signals. May be GTA VI\'s equivalent of the Mount Chiliad mystery. No solution confirmed.',
+    tip:
+      'Drive into Manifest Canyon and inspect the monument closely from all angles. Some players report the sounds are only audible at specific times of day. Document anything unusual.',
+    reward: '🔎 Unsolved mystery. Potential large ARG. Active community investigation.',
+    mapPosition: { x: 2300, y: 1200 },
+    accuracy: 'approximate',
+    evidence: 'Monument confirmed in-game. Sounds and symbols documented. No solution established.',
+    status: 'community',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // VERIFIED MONEY LOCATIONS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  {
+    id: 'money-teddy-bear-factory',
+    name: 'Teddy Bear Factory — $13,000 + Collectible Card',
+    category: 'money',
+    area: 'South East Hamlet — South Vice-Dale County',
+    coordinates: 'Abandoned factory, south-east of Hamlet',
+    description:
+      'An abandoned teddy bear factory south-east of Hamlet. Inside: pre-killed guards with lootable ammo and cash, a large floor safe, cocaine bundles in the teddy bear van and on office tables, $13,000 in cash across the building, and a collectible card worth $6,000 inside the office safe. Weapons also found on the floor near dead guards.',
+    tip:
+      'No live enemies — just loot. Clear the floor thoroughly. The safe is in the upstairs office. The van in the loading bay has narcotics inside and in the cab. Stack with the nearby Hamlet motel visit for a full inland loot run.',
+    reward: '💰 ~$13,000 cash + 💳 $6,000 collectible card in safe + multiple weapons + cocaine.',
+    mapPosition: { x: 1280, y: 1920 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed by multiple independent videos with on-screen cash totals.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'money-kingfisher-compound',
+    name: 'Kingfisher Compound — Cash + Legendary Rifle',
+    category: 'money',
+    area: 'Grassrivers — West Wetman Bay area',
+    coordinates: 'Kingfisher compound, Grassrivers / Wetman Bay',
+    description:
+      'Kingfisher-linked compound in Grassrivers. Enemies on site. Inside: cash, the legendary W-22 Small Game Rifle, and additional loot. Best approached with suppressed weapons — the perimeter is guarded but interior enemies can be isolated.',
+    tip:
+      'Clear the perimeter before entering the main building. The W-22 is a unique weapon not easily found elsewhere. Cash and additional loot in the building.',
+    reward: '💰 Cash + 🔫 Legendary W-22 Small Game Rifle',
+    mapPosition: { x: 650, y: 1900 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed in multiple money-guide videos.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'money-bobcat-key-beach',
+    name: 'Bobcat Key Beach — $1,218 Free Loot',
+    category: 'money',
+    area: 'Bobcat Key — Leonida Keys chain',
+    coordinates: 'Bobcat Key beach and surrounding woods',
+    description:
+      'Approximately $1,218 in cash scattered around Bobcat Key beach and the surrounding woodland. No enemies. Good early-game pickup that requires no combat — just thorough searching of the beach and treeline.',
+    tip:
+      'Walk every inch of the beach and push into the woods on both sides. Cash pickups are small and easy to miss. The W-22 crashed glider is also on this key — combine both visits.',
+    reward: '💰 ~$1,218 scattered cash. Free, no enemies.',
+    mapPosition: { x: 500, y: 3100 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed in multiple early-game money guides.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'money-bank-vault-chapter4',
+    name: '"That\'s Where The Money Is" — Bank Vault',
+    category: 'money',
+    area: 'Vice City — Banking District',
+    coordinates: 'Vice City bank, Chapter 4 story mission',
+    description:
+      'The Chapter 4 story mission "That\'s Where The Money Is" gives access to bank vaults with up to $205,000 per run. The highest single payout in the early-to-mid game. Post-completion, vault runs can be repeated on a cooldown.',
+    tip:
+      'Full mission completion required first. After that, runs can be replayed. Plan your loadout and escape route before entering — the vault timer is tight and the wanted level escalates fast.',
+    reward: '💰 Up to $205,000 per vault run.',
+    mapPosition: { x: 1500, y: 2600 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed in multiple walkthrough guides. Payout $205k cited in community guides.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // VERIFIED WEAPONS — LEGENDARY PICKUPS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  {
+    id: 'weapon-turnt-nipper-glider',
+    name: 'Turnt Nipper .38 Pistol — Bobcat Bight Crashed Glider',
+    category: 'weapons',
+    area: 'Bobcat Bight — western coastline, North Mariana County',
+    coordinates: 'Bobcat Bight, offshore western coastline',
+    description:
+      'A legendary Turnt Nipper .38 pistol is suspended in a crashed powered paraglider (complete with propeller and parachute) hanging from a tree at Bobcat Bight. Equip a firearm and shoot the parachute down — the glider falls, and the pistol can be collected from the wreckage.',
+    tip:
+      'Boat or jet ski to Bobcat Bight. Look up into the trees, not on the ground — the glider is in the branches. One well-aimed shot to the parachute brings it down. The legendary variant has unique damage and handling stats.',
+    reward: '🔫 Legendary Turnt Nipper .38 Pistol — unique legendary variant.',
+    mapPosition: { x: 350, y: 1100 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed in multiple video guides with on-screen weapon pickup shown.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'weapon-gorse-425-permit-keys',
+    name: 'Legendary Gorse 425 Shotgun — Smuggler Boat, North Permit Key',
+    category: 'weapons',
+    area: 'Permit Keys — northernmost island',
+    coordinates: 'Shored smuggler boat, northernmost Permit Key island',
+    description:
+      'A beached smuggler boat on the northernmost Permit Key island contains the legendary Gorse 425 shotgun. The boat is accessible by foot on the island — no enemies reported. One of the most powerful early-game close-range weapons.',
+    tip:
+      'Take a boat south to the Permit Keys island chain and head to the northernmost island. Look for the grounded boat on the shoreline. The shotgun is inside the boat.',
+    reward: '🔫 Legendary Gorse 425 Shotgun — exceptional early-game close-range weapon.',
+    mapPosition: { x: 600, y: 3500 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed in multiple loot room guides with on-screen pickup.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'weapon-nipper-silenced-south-permit',
+    name: 'Silenced Nipper .38 — Crashed Boat, South Permit Key',
+    category: 'weapons',
+    area: 'Permit Keys — southernmost island',
+    coordinates: 'Crashed boat, southernmost Permit Key island',
+    description:
+      'The southernmost Permit Key island has a different crashed boat containing the legendary Nipper .38 pistol — fitted with a suppressor. Early-game suppressed handgun available long before shop suppressors become affordable.',
+    tip:
+      'South Permit Key, not north. Two different boats on two different islands. The crashed boat here looks more damaged than the smuggler boat to the north. The silencer is built-in and cannot be removed.',
+    reward: '🔫 Legendary Nipper .38 with factory suppressor — rare silenced early-game pistol.',
+    mapPosition: { x: 500, y: 3700 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed in multiple loot room guides.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'weapon-w22-wetman-bay',
+    name: 'Legendary W-22 Small Game Rifle — Wetman Bay Fishing Shack',
+    category: 'weapons',
+    area: 'West Wetman Bay',
+    coordinates: 'Kingfisher fishing shack, West Wetman Bay',
+    description:
+      'Eliminate all enemies around the Kingfisher-linked fishing shack in West Wetman Bay to unlock access to the legendary W-22 Small Game Rifle and $2,000 cash inside. Requires a boat to reach the shack from most approach angles.',
+    tip:
+      'Bring a suppressed weapon — the enemies here are spread out and can be isolated. The W-22 is inside the shack once the area is clear. Stack with the nearby Grassrivers Kingfisher compound for a double weapon run.',
+    reward: '🔫 Legendary W-22 Small Game Rifle + 💰 $2,000 cash.',
+    mapPosition: { x: 300, y: 1850 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed in multiple loot guides with on-screen weapons pickup.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'weapon-type9-rvpark-bunker',
+    name: 'Type 9 SMG + H-AT Launcher — RV Park Bunker, SW Vice City',
+    category: 'weapons',
+    area: 'South-West Vice City — opposite Ammu-Nation',
+    coordinates: 'RV Park, south-west Vice City, opposite Ammu-Nation',
+    description:
+      'An RV park on the south-west edge of Vice City, directly opposite an Ammu-Nation store, hides an underground bunker. Enter the RV and locate the hidden bunker entrance inside. Contains: H-AT Launcher, Frag Grenades, Adrenaline, Ammo cache, and the legendary Type 9 SMG.',
+    tip:
+      'The bunker entrance is inside the parked RV — not in the ground outside it. Walk around inside the RV until the prompt appears. This is one of the highest-value weapon stashes in the game, available early.',
+    reward: '🔫 Legendary Type 9 SMG + 💥 H-AT Launcher + Frag Grenades + Adrenaline + Ammo.',
+    mapPosition: { x: 1050, y: 2900 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed in multiple loot room guides with on-screen pickups.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'weapon-golden-ak-watson-bay',
+    name: 'Golden AK-47 — Watson Bay Cartel Compound',
+    category: 'weapons',
+    area: 'West Watson Bay — cartel compound',
+    coordinates: 'Cartel compound warehouse, West Watson Bay',
+    description:
+      'Fight through a cartel compound in West Watson Bay. The golden AK-47 is in the upstairs section of the warehouse at the back of the compound. A safe with additional cash is in the same room.',
+    tip:
+      'Clear the ground floor before heading upstairs — enemies on the upper level have a height advantage. The safe is locked but the combination can be found on a note in the downstairs office.',
+    reward: '🔫 Golden AK-47 unique colourway + 💰 Safe cash.',
+    mapPosition: { x: 450, y: 1700 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed by multiple video guides showing the golden weapon pickup.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'weapon-golden-vfg1-watson-mansion',
+    name: 'Golden VF-G1 Assault Rifle — Watson Bay Mansion',
+    category: 'weapons',
+    area: 'West Watson Bay — gated cartel mansion',
+    coordinates: 'Gated cartel mansion, West Watson Bay',
+    description:
+      'A second cartel compound nearby — a gated mansion. Fight through to the upstairs of the main mansion building for the golden VF-G1 assault rifle and additional cash. Different compound from the AK-47 location; both are worth hitting on the same run.',
+    tip:
+      'The mansion\'s gate can be opened by shooting the electronic lock panel. Clear the courtyard then breach the main door. The rifle is in the upstairs bedroom.',
+    reward: '🔫 Golden VF-G1 Assault Rifle + 💰 Cash loot.',
+    mapPosition: { x: 500, y: 1760 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed in multiple loot guides.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'weapon-legendary-revolver-pelican',
+    name: 'Legendary Revolver + Sniper — Pelican Valley Swamp Shack',
+    category: 'weapons',
+    area: 'Pelican Valley Swamp',
+    coordinates: 'Middle of Pelican Valley Swamp — isolated shack',
+    description:
+      'An isolated shack deep in the Pelican Valley Swamp holds two legendary weapons around its exterior: a legendary revolver and a legendary sniper rifle. No major enemy presence at the shack itself.',
+    tip:
+      'Airboat strongly recommended — most of the swamp is flooded. The shack appears on no map marker. Navigate by landmark: head to the centre of Pelican Valley and look for the most isolated structure.',
+    reward: '🔫 Legendary Revolver + 🔫 Legendary Sniper Rifle — both collectible legendaries.',
+    mapPosition: { x: 850, y: 2200 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed in loot room guides.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'weapon-turnt-pistol-watson-tree',
+    name: 'Turnt Pistol — Watson Bay Suspended Vehicle',
+    category: 'weapons',
+    area: 'Watson Bay',
+    coordinates: 'Watson Bay — vehicle suspended in tree by wire',
+    description:
+      'A vehicle is suspended in a tree by wire/rope near Watson Bay. Shoot the suspension strings to drop the car to the ground. The Turnt Pistol is in or under the dropped vehicle. A short puzzle-style find that many players walk past.',
+    tip:
+      'Look up — the car is elevated by what appears to be wire. Any firearm works to cut the lines. The pistol falls with the vehicle.',
+    reward: '🔫 Turnt Pistol — unique weapon variant.',
+    mapPosition: { x: 420, y: 1650 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed in loot guides.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+  {
+    id: 'weapon-parrot-stash-key-lento',
+    name: 'Parrot Cash Tip — Three Sheets Liquor, Key Lento',
+    category: 'weapons',
+    area: 'Key Lento — Three Sheets Liquor store',
+    coordinates: "Three Sheets Liquor, Key Lento main strip",
+    description:
+      'Behind the Three Sheets Liquor store in Key Lento, a caged parrot will direct you to a hidden cash stash if you stand facing its cage and look left toward the generator in the corner. Open the white vent panel beside the generator. This is one of the game\'s most-shared TikTok discoveries.',
+    tip:
+      'Face the parrot cage directly. It will give a direction hint. The white vent is to the left near the corner generator — it looks like part of the wall.',
+    reward: '💰 1,000+ cash hidden in wall vent. Easy, no enemies.',
+    mapPosition: { x: 1050, y: 3300 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed in multiple TikTok and YouTube guides. One of the most shared early-game finds.',
+    status: 'verified',
+    sourceName: TT,
+    sourceUrl: TTU,
+  },
+
+  {
+    id: 'weapon-brooks-boatworks-safe-combo',
+    name: 'Wall Map Safe Combinations — Brooks Boatworks',
+    category: 'weapons',
+    area: 'North Port Gellhorn — Brooks Boatworks dockyard',
+    coordinates: 'Brooks Boatworks smaller building, east of main warehouse, north Port Gellhorn',
+    description:
+      'At the Brooks Boatworks dockyard in north Port Gellhorn, find the smaller building east of the main warehouse. Take its outside stairs to the upstairs room and examine the wall map. Interacting with it saves all three safe combinations in Port Gellhorn to your in-game notes — eliminating the need to find them separately.',
+    tip:
+      'Do this before cracking any Port Gellhorn safes. The wall map unlocks all three combinations simultaneously. The building is easy to miss — it\'s the smaller annex structure, not the main warehouse.',
+    reward: '📝 All three Port Gellhorn safe combinations saved to notes.',
+    mapPosition: { x: 2150, y: 1950 },
+    accuracy: 'approximate',
+    evidence: 'Confirmed in community loot guides.',
+    status: 'verified',
+    sourceName: YT,
+    sourceUrl: YTU,
+  },
+
+
 ]
