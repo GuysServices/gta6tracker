@@ -9,10 +9,14 @@ import ChapterCard from './ChapterCard'
 import TopBar from './TopBar'
 import StatsBar from './StatsBar'
 import WorldTab from './WorldTab'
-import { Map, ListChecks } from 'lucide-react'
+import ChapterGuide from './ChapterGuide'
+import PropertyTracker from './PropertyTracker'
+import FenceDirectory from './FenceDirectory'
+import CheatCodes from './CheatCodes'
+import { Map, ListChecks, BookOpen, Building2, ShoppingBag, Terminal } from 'lucide-react'
 import clsx from 'clsx'
 
-type Tab = 'missions' | 'world'
+type Tab = 'missions' | 'world' | 'guide' | 'properties' | 'fences' | 'cheats'
 
 interface Props {
   user: User
@@ -180,24 +184,30 @@ export default function TrackerShell({
 
       {/* ── Tab switcher ──────────────────────────────────────────── */}
       <div className="relative z-10 border-b border-white/[0.08] bg-[#0a0b14]">
-        <div className="mx-auto flex max-w-5xl px-4 sm:px-6">
-          {([
-            { id: 'missions' as Tab, label: 'Missions', icon: ListChecks },
-            { id: 'world'    as Tab, label: 'Car Finder',    icon: Map },
-          ] as const).map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id)}
-              className={clsx(
-                'flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-semibold uppercase tracking-[0.16em] transition',
-                activeTab === id
-                  ? 'border-[#ff79a8] text-white'
-                  : 'border-transparent text-white/35 hover:text-white/60',
-              )}
-            >
-              <Icon size={13} />{label}
-            </button>
-          ))}
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <div className="flex overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            {([
+              { id: 'missions'   as Tab, label: 'Missions',       icon: ListChecks },
+              { id: 'world'      as Tab, label: 'Car Finder',      icon: Map },
+              { id: 'guide'      as Tab, label: 'Chapter Guide',   icon: BookOpen },
+              { id: 'properties' as Tab, label: 'Properties',      icon: Building2 },
+              { id: 'fences'     as Tab, label: 'Fences',          icon: ShoppingBag },
+              { id: 'cheats'     as Tab, label: 'Cheat Codes',     icon: Terminal },
+            ] as const).map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={clsx(
+                  'flex shrink-0 items-center gap-2 border-b-2 px-4 py-3.5 text-xs font-semibold uppercase tracking-[0.16em] transition',
+                  activeTab === id
+                    ? 'border-[#ff79a8] text-white'
+                    : 'border-transparent text-white/35 hover:text-white/60',
+                )}
+              >
+                <Icon size={13} />{label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -219,9 +229,25 @@ export default function TrackerShell({
             />
           ))}
         </div>
-      ) : (
+      ) : activeTab === 'world' ? (
         <div className="relative z-10 w-full">
           <WorldTab />
+        </div>
+      ) : activeTab === 'guide' ? (
+        <div className="relative z-10 w-full">
+          <ChapterGuide />
+        </div>
+      ) : activeTab === 'properties' ? (
+        <div className="relative z-10 w-full">
+          <PropertyTracker />
+        </div>
+      ) : activeTab === 'fences' ? (
+        <div className="relative z-10 w-full">
+          <FenceDirectory />
+        </div>
+      ) : (
+        <div className="relative z-10 w-full">
+          <CheatCodes />
         </div>
       )}
 
