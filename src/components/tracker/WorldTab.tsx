@@ -497,8 +497,6 @@ const CARS: CarEntry[] = [
   },
 ]
 
-]
-
 // ─── Category colours ─────────────────────────────────────────────────────────
 const CAT_COLOR: Record<string, string> = {
   'Hypercar':          '#ff79a8',
