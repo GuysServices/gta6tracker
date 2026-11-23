@@ -10,10 +10,13 @@ import TopBar from './TopBar'
 import StatsBar from './StatsBar'
 import WorldTab from './WorldTab'
 import ChapterGuide from './ChapterGuide'
-import { Map, ListChecks, BookOpen } from 'lucide-react'
+import PropertyTracker from './PropertyTracker'
+import FenceDirectory from './FenceDirectory'
+import CheatCodes from './CheatCodes'
+import { Map, ListChecks, BookOpen, Home, Users, Zap } from 'lucide-react'
 import clsx from 'clsx'
 
-type Tab = 'missions' | 'world' | 'chapters'
+type Tab = 'missions' | 'world' | 'chapters' | 'properties' | 'fences' | 'cheats'
 
 interface Props {
   user: User
@@ -186,6 +189,9 @@ export default function TrackerShell({
             { id: 'missions' as Tab, label: 'Missions', icon: ListChecks },
             { id: 'world'    as Tab, label: 'Car Finder',    icon: Map },
             { id: 'chapters' as Tab, label: 'Chapter Guide', icon: BookOpen },
+            { id: 'properties' as Tab, label: 'Properties', icon: Home },
+            { id: 'fences'     as Tab, label: 'Fences',     icon: Users },
+            { id: 'cheats'    as Tab, label: 'Cheats',     icon: Zap },
           ] as const).map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -225,9 +231,21 @@ export default function TrackerShell({
         <div className="relative z-10 w-full">
           <WorldTab />
         </div>
-      ) : (
+      ) : activeTab === 'chapters' ? (
         <div className="relative z-10 w-full">
           <ChapterGuide />
+        </div>
+      ) : activeTab === 'properties' ? (
+        <div className="relative z-10 w-full">
+          <PropertyTracker />
+        </div>
+      ) : activeTab === 'fences' ? (
+        <div className="relative z-10 w-full">
+          <FenceDirectory />
+        </div>
+      ) : (
+        <div className="relative z-10 w-full">
+          <CheatCodes />
         </div>
       )}
 

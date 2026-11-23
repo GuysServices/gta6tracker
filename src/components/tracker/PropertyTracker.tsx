@@ -1,488 +1,348 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Building2, DollarSign, TrendingUp, MapPin, Clock, CheckSquare, Square, ChevronDown } from 'lucide-react'
+import { useState } from 'react'
+import { Home, Car, ExternalLink, Info } from 'lucide-react'
 import clsx from 'clsx'
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-type PropertyType = 'residential' | 'business' | 'story'
-type SortKey = 'roi' | 'price_asc' | 'price_desc' | 'income'
+type PropType = 'all' | 'story' | 'purchasable' | 'exclusive'
 
 interface Property {
   id: string
   name: string
-  type: PropertyType
   location: string
   area: string
-  price: number | null        // null = story-locked, can't buy
-  weeklyIncome: number | null // null = no passive income
-  chapterAvailable: number    // 0 = from start
-  perks: string[]
-  notes: string
-  requiresUnlock?: string     // specific unlock condition
+  price: string
+  priceNum: number
+  spaces: number
+  type: PropType
+  unlock: string
+  features: string[]
+  tip: string
 }
 
-// ─── Data ────────────────────────────────────────────────────────────────────
-
 const PROPERTIES: Property[] = [
-  // ── Story Properties (reference only) ──────────────────────────────────
+  // ── Free story properties ──────────────────────────────────────────────────
   {
-    id: 'jason-house',
-    name: "Jason's Stilt House",
-    type: 'story',
-    location: 'Key Lento, east shore',
+    id: 'jasons-house',
+    name: "Jason's House",
+    location: 'Key Lento',
     area: 'Leonida Keys',
-    price: null,
-    weeklyIncome: null,
-    chapterAvailable: 1,
-    perks: ['Personal vehicle garage (2 cars)', 'Weapon stash', 'Floor stash space', 'Medkit spawn on counter'],
-    notes: 'Jason\'s starting base. Lost permanently at the Chapter 1 point of no return. Upgrade the kitchen, porch, and roof before Tourist Trap — raises resale value and adds stash space.',
+    price: 'Free',
+    priceNum: 0,
+    spaces: 1,
+    type: 'story',
+    unlock: 'Chapter 1 — Start of game',
+    features: ['Personal safehouse', 'Save point', 'Base of operations Ch. 1', 'Floor stash for cash'],
+    tip: 'Empty the floor stash before Tourist Trap — pocket cash above the stash is lost at chapter end. This property is gone after Ch. 1.',
   },
   {
     id: 'starlet-motel',
     name: 'Starlet Motel Room',
+    location: 'Kelly County — Port Gellhorn',
+    area: 'Kelly County',
+    price: 'Free',
+    priceNum: 0,
+    spaces: 1,
     type: 'story',
-    location: 'Starlet Motel, north wing',
-    area: 'Port Gellhorn',
-    price: null,
-    weeklyIncome: null,
-    chapterAvailable: 2,
-    perks: ['Neutral safe house', 'Moses contact nearby', 'Free vending machine on lot'],
-    notes: 'Chapter 2 base. Lost at Checking Out. No upgrades available but Moses is 90 seconds away — ideal for car-selling runs.',
+    unlock: 'Chapter 2 — Home Sweet Home',
+    features: ['Chapter 2 base', 'Save point', 'Lucia\'s necklace stored here', 'Free room from Linda'],
+    tip: 'Sell all loot to Dunk before Checking Out — the motel closes at the end of Ch. 2.',
   },
   {
     id: 'bayside-apt',
-    name: 'Bayside Apartment',
-    type: 'story',
-    location: 'Bayside District, 4th floor',
+    name: 'Bayside Apartment 201',
+    location: 'Vice City — Bayside',
     area: 'Vice City',
-    price: null,
-    weeklyIncome: null,
-    chapterAvailable: 3,
-    perks: ['City-centre spawn', 'Garage (2 cars)', 'Proximity to Tyrone and Yasmani fences', 'Roof access'],
-    notes: 'Chapter 3 base. Retained after Chapter 3 ends as a secondary safe house. Good central Vice City spawn.',
-  },
-  {
-    id: 'y-hotel',
-    name: 'Y Hotel Suite',
+    price: 'Free',
+    priceNum: 0,
+    spaces: 1,
     type: 'story',
-    location: 'Ocean Beach strip, 7th floor',
+    unlock: 'Chapter 3 — Welcome to Vice City',
+    features: ['Chapter 3 base', 'Save point', 'Jason + Lucia shared space'],
+    tip: 'The $120k story payout at end of Ch. 3 is best saved here before the chapter finale.',
+  },
+  {
+    id: 'y-hotel-701',
+    name: 'Y Hotel Room 701',
+    location: 'Ocean Beach, Vice City',
     area: 'Vice City',
-    price: null,
-    weeklyIncome: null,
-    chapterAvailable: 4,
-    perks: ['Premium ocean view spawn', 'Valet garage (4 cars)', 'Rooftop helipad', 'Lawyer Abe on speed dial'],
-    notes: 'Chapter 4 base. Retained post-game. Best vanilla spawn point in Vice City proper — helipad makes it the fastest way in and out of Ocean Beach.',
-  },
-
-  // ── Purchasable Residential ─────────────────────────────────────────────
-  {
-    id: 'keys-cottage',
-    name: 'Keys Cottage',
-    type: 'residential',
-    location: 'South Key Lento, waterfront',
-    area: 'Leonida Keys',
-    price: 45000,
-    weeklyIncome: null,
-    chapterAvailable: 2,
-    perks: ['2-car garage', 'Dock with boat spawn', 'Hidden stash under the porch', 'Low wanted-level zone'],
-    notes: 'Best-value early property. Buyable in Ch2 when you first get spending money. The dock lets you skip the ferry entirely for Keys access in post-game.',
+    price: 'Free',
+    priceNum: 0,
+    spaces: 1,
+    type: 'story',
+    unlock: 'Chapter 4 — Ocean Beach',
+    features: ['Chapter 4 base', 'Premium hotel suite', 'Weapon locker', 'Save point'],
+    tip: 'The best story safehouse. BuckMe Black unlocks here — $2m checking limit.',
   },
   {
-    id: 'gellhorn-bungalow',
-    name: 'Port Gellhorn Bungalow',
-    type: 'residential',
-    location: 'Harbour Road, west end',
-    area: 'Port Gellhorn',
-    price: 85000,
-    weeklyIncome: null,
-    chapterAvailable: 2,
-    perks: ['2-car garage', 'Tool shed (bonus stash)', 'Moses fence walkable distance', 'Kelly County border access'],
-    notes: 'Solid Ch2 purchase if you want a permanent base after losing the Starlet Motel. Proximity to Moses makes it the best car-flipping hub on the mainland.',
-  },
-  {
-    id: 'kelly-farmhouse',
-    name: 'Kelly County Farmhouse',
-    type: 'residential',
-    location: 'Old Cattle Road, north Kelly',
+    id: 'port-gellhorn-garage',
+    name: 'Port Gellhorn Station Garage',
+    location: 'North Port Gellhorn (near Moses)',
     area: 'Kelly County',
-    price: 125000,
-    weeklyIncome: 1200,
-    chapterAvailable: 2,
-    perks: ['4-car barn', 'Trailer spawn (heavy vehicle)', 'Large weapon cache', '$1,200/wk tenant income', 'Low police density'],
-    notes: 'Only residential property with passive income — tenants pay rent. Best off-grid base in the game. The trailer spawn is unique and needed for two optional Ch3 jobs.',
+    price: 'Free',
+    priceNum: 0,
+    spaces: 1,
+    type: 'story',
+    unlock: 'Chapter 2 — Daily Driver (gift from Moses)',
+    features: ['1 vehicle space', 'First owned garage', 'Close to Moses auto shop'],
+    tip: 'Moses gives this automatically. Use it to safely store your first big steal before you can afford other garages.',
+  },
+  // ── Edition-exclusive ──────────────────────────────────────────────────────
+  {
+    id: 'paradise-garage',
+    name: 'Paradise Garage',
+    location: 'Watson Bay',
+    area: 'Watson Bay / Grassrivers',
+    price: 'Free (Ultimate Edition)',
+    priceNum: 0,
+    spaces: 1,
+    type: 'exclusive',
+    unlock: 'Chapter 2+ — Ultimate Edition only. Unlocks after Daily Driver.',
+    features: ['1 vehicle space', 'Watson Bay location', 'Weapon locker', 'Exclusive Edition bonus'],
+    tip: 'Located near the gold Lamborghini and Watson Bay cartel compounds — very convenient base for loot runs in that area.',
   },
   {
-    id: 'ocean-condo',
-    name: 'Ocean Drive Condo',
-    type: 'residential',
-    location: 'Ocean Drive North, 3rd floor',
-    area: 'Vice City',
-    price: 280000,
-    weeklyIncome: 800,
-    chapterAvailable: 3,
-    perks: ['2-car garage', '$800/wk short-term rental income', 'Beach spawn', 'Proximity to Yasmani'],
-    notes: 'Short-term rental income is Airbnb-style — fluctuates ±15% weekly. ROI is slower than pure businesses but useful as a Vice City spawn near Yasmani.',
+    id: 'shore-court-garage',
+    name: 'Shore Court Garage',
+    location: 'Shore Drive, Ocean Beach',
+    area: 'Vice Beach, Vice City',
+    price: 'Free (Vintage Vice City Pack)',
+    priceNum: 0,
+    spaces: 1,
+    type: 'exclusive',
+    unlock: 'Chapter 3+ — Pre-order Vintage Vice City Pack bonus. All editions.',
+    features: ['1 vehicle space', 'Steps from Ocean Beach', 'Weapon locker', 'Comes with \'55 Vapid Stanier'],
+    tip: 'The best-located free garage. Right next to the Ocean Beach strip, Y Hotel and Vice City\'s best car spawns.',
+  },
+  // ── Purchasable garages ────────────────────────────────────────────────────
+  {
+    id: 'mitchel-auto',
+    name: 'Mitchel Auto Center',
+    location: 'Central Kelly County, Port Gellhorn',
+    area: 'Kelly County',
+    price: '$4,000',
+    priceNum: 4000,
+    spaces: 1,
+    type: 'purchasable',
+    unlock: 'Chapter 2+ — Vice City Real Estate app (after Daily Driver)',
+    features: ['1 vehicle space', 'Cheapest purchasable garage', 'Kelly County coverage', 'Weapon locker'],
+    tip: 'Best first purchase. At $4k it\'s affordable early Ch. 2. Covers Port Gellhorn and Kelly County operations.',
   },
   {
-    id: 'vespucci-villa',
-    name: 'Vespucci Island Villa',
-    type: 'residential',
-    location: 'Neptune Circle, gated north end',
-    area: 'Vespucci Island',
-    price: 340000,
-    weeklyIncome: null,
-    chapterAvailable: 3,
-    perks: ['4-car garage', 'Private pool (health regen zone)', 'Helicopter landing area', 'Zero spawn aggro'],
-    notes: 'Premium residential, no income. Worth it as a Vespucci Island base — the pool is a confirmed health regen zone, fastest passive heal in the game. Near the Paul Walker Easter Egg car.',
+    id: 'persistence-road',
+    name: 'Persistence Road Garage',
+    location: 'Western Belville, Leonard County',
+    area: 'Leonard County',
+    price: '$9,500',
+    priceNum: 9500,
+    spaces: 1,
+    type: 'purchasable',
+    unlock: 'Chapter 2+ — Vice City Real Estate app',
+    features: ['1 vehicle space', 'Leonard County base', 'Near Belville mystery house'],
+    tip: 'Good mid-map coverage. Useful if you spend time in Leonard County or Ambrosia area.',
   },
   {
-    id: 'vc-penthouse',
-    name: 'Vice City Penthouse',
-    type: 'residential',
-    location: 'Malibu Tower, top floor',
-    area: 'Vice City',
-    price: 750000,
-    weeklyIncome: null,
-    chapterAvailable: 4,
-    perks: ['6-car garage', 'Rooftop helipad', 'Private elevator (police skip)', 'VIP bouncer — cops can\'t enter without escalation', 'Full weapon loadout spawn'],
-    notes: 'Most expensive residential property. The police elevator block is the unique mechanic — if you enter the building while wanted, the star level freezes while inside. Good end-game flex purchase.',
-  },
-
-  // ── Purchasable Businesses ──────────────────────────────────────────────
-  {
-    id: 'avery-pawn',
-    name: 'Avery Pawn Shop',
-    type: 'business',
-    location: 'Central Port Gellhorn',
-    area: 'Port Gellhorn',
-    price: 45000,
-    weeklyIncome: 600,
-    chapterAvailable: 2,
-    perks: ['$600/wk passive income', 'Staff fence — sell direct at 45% (better than Brian)', 'No heat on goods sold here'],
-    notes: 'Cheapest business with a fence perk attached. After buying, you can sell goods through the shop at 45% rate — better than Brian and no questions asked. ROI in 75 weeks pure, but the fence saves money on runs.',
-    requiresUnlock: 'Available for purchase after the optional Avery Pawn robbery in Ch2.',
+    id: '7th-avenue-garage',
+    name: '7th Avenue Garage',
+    location: 'Vice-Dale County (east of airport)',
+    area: 'Vice-Dale County',
+    price: '$12,000',
+    priceNum: 12000,
+    spaces: 1,
+    type: 'purchasable',
+    unlock: 'Chapter 2+ — Vice City Real Estate app',
+    features: ['1 vehicle space', 'Near airport', 'Vice-Dale County coverage'],
+    tip: 'Useful during Ch. 3 when Vice City opens up. Close to the South Vice-Dale money warehouse.',
   },
   {
-    id: 'car-wash',
-    name: 'Wash & Go Car Wash',
-    type: 'business',
-    location: 'South Vice City Boulevard',
-    area: 'Vice City',
-    price: 65000,
-    weeklyIncome: 950,
-    chapterAvailable: 3,
-    perks: ['$950/wk passive income', 'Free vehicle respray (2×/week)', 'Cleans heat off registered vehicles'],
-    notes: 'The free respray perk has real value — cleaning a hot car at the car wash doesn\'t cost you anything if you own it. Pairs well with car-flipping through Moses.',
+    id: 'store-n-bolt-ambrosia',
+    name: 'Store N\' Bolt',
+    location: 'Ambrosia, Leonard County',
+    area: 'Ambrosia',
+    price: '$16,800',
+    priceNum: 16800,
+    spaces: 1,
+    type: 'purchasable',
+    unlock: 'Chapter 2+ — Vice City Real Estate app',
+    features: ['1 vehicle space', 'Ambrosia base', 'Near NFS BMW M3 GTR garage'],
+    tip: 'Good for Ch. 3+ when you\'re running Ambrosia and Leonard County operations.',
   },
   {
-    id: 'marina-berth',
-    name: 'Vice City Marina Berth',
-    type: 'business',
-    location: 'Port Marina, slip 7',
-    area: 'Vice City',
-    price: 95000,
-    weeklyIncome: 1100,
-    chapterAvailable: 3,
-    perks: ['$1,100/wk slip rental income', 'Personal boat storage (3 vessels)', 'Fast water travel south Vice City', 'Pilot Pete contact nearby'],
-    notes: 'Best ROI business under $100k. The boat storage and Pilot Pete adjacency make this genuinely useful beyond the income. Pilot Pete\'s cargo flights pay more if you own the berth.',
+    id: 'wyatt-motors',
+    name: 'Wyatt Motors',
+    location: 'Ambrosia, Leonard County',
+    area: 'Ambrosia',
+    price: '$21,600',
+    priceNum: 21600,
+    spaces: 1,
+    type: 'purchasable',
+    unlock: 'Chapter 2+ — Vice City Real Estate app',
+    features: ['1 vehicle space', 'Second Ambrosia garage option'],
+    tip: 'Second garage in Ambrosia. If you\'re based there, having two spots nearby is useful for car rotation.',
   },
   {
-    id: 'kingpin-bowling',
-    name: 'Kingpin Bowling',
-    type: 'business',
-    location: 'Westside Port Gellhorn',
-    area: 'Port Gellhorn',
-    price: 95000,
-    weeklyIncome: 1400,
-    chapterAvailable: 2,
-    perks: ['$1,400/wk passive income', 'Dunk fence on premises after purchase', 'Back room weapon stash'],
-    notes: 'Second-best ROI in the game. Only available if you completed the Kingpin Bowling robbery optional in Ch2 — the robbery is also the only way to get the Gutterball Moreland 850 shotgun.',
-    requiresUnlock: 'Must complete the Kingpin Bowling optional robbery in Ch2 first.',
+    id: 'vela-rota-capri',
+    name: 'Vela Rota Drive Garage',
+    location: 'Capri',
+    area: 'Vice City — Capri',
+    price: '$24,000',
+    priceNum: 24000,
+    spaces: 1,
+    type: 'purchasable',
+    unlock: 'Chapter 2+ — Vice City Real Estate app',
+    features: ['1 vehicle space', 'Capri/Vice City area'],
+    tip: 'Mid-tier price, mid-map location. Good if you work the Capri and central Vice City area heavily.',
   },
   {
-    id: 'warehouse',
-    name: 'Port Gellhorn Warehouse',
-    type: 'business',
-    location: 'Industrial Dock Road',
-    area: 'Port Gellhorn',
-    price: 155000,
-    weeklyIncome: 1800,
-    chapterAvailable: 2,
-    perks: ['$1,800/wk storage rental income', '12-slot vehicle storage', 'Dunk fence bonus (+10% on vehicles sold)', 'Shipping container stash'],
-    notes: 'Best vehicle-focused business. The Dunk bonus stacks with the warehouse — if you route stolen cars through Dunk while owning the warehouse you get 70% payout instead of 60%.',
+    id: 'bonita-court',
+    name: 'Bonita Court Garage',
+    location: 'Washington Island — east Vice City',
+    area: 'Washington Island',
+    price: '$34,000',
+    priceNum: 34000,
+    spaces: 1,
+    type: 'purchasable',
+    unlock: 'Chapter 2+ — Vice City Real Estate app',
+    features: ['1 vehicle space', 'Washington Island coverage', 'Near Dexter Easter Egg apartment'],
+    tip: 'Premium location on Washington Island. Good if you work the northeast Vice City area or Vespucci Islands.',
   },
   {
-    id: 'sunrise-motel',
-    name: 'Sunrise Motel (10 units)',
-    type: 'business',
-    location: 'North Vice City strip',
-    area: 'Vice City',
-    price: 180000,
-    weeklyIncome: 2400,
-    chapterAvailable: 3,
-    perks: ['$2,400/wk rental income', 'Staff fence at 50%', '4-car lot', 'Low-profile safe house room (unit 7)'],
-    notes: 'Highest single income of any business under $200k. The staff fence at 50% is decent for quick offloads. Unit 7 functions as a hidden safe house — cops don\'t check the rooms.',
-  },
-  {
-    id: 'scooter-bros',
-    name: 'Scooter Bros Franchise',
-    type: 'business',
-    location: 'Multiple Vice City locations',
-    area: 'Vice City',
-    price: 200000,
-    weeklyIncome: 3200,
-    chapterAvailable: 2,
-    perks: ['$3,200/wk highest passive income', 'Free scooter spawn at any branch', 'Moses network discount (cars registered cheaper)', 'Delivery job income on top'],
-    notes: 'Best ROI in the game at 62.5 weeks. Requires Moses contact from Ch2. The Moses network discount reduces car registration cost by 20% — meaningful if you flip volume.',
-    requiresUnlock: 'Requires Moses contact unlocked in Chapter 2.',
+    id: 'atlantic-court',
+    name: 'Atlantic Court Garage',
+    location: 'Ocean Beach — south of Y Hotel',
+    area: 'Ocean Beach, Vice City',
+    price: '$40,000',
+    priceNum: 40000,
+    spaces: 1,
+    type: 'purchasable',
+    unlock: 'Chapter 2+ — Vice City Real Estate app',
+    features: ['1 vehicle space', 'Premium Ocean Beach location', 'Near Y Hotel + VYB Club'],
+    tip: 'Most expensive but best Vice City location. Steps from your Ch. 4 safehouse and all Vice Beach activities.',
   },
 ]
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+const FILTER_LABELS: { key: PropType | 'all'; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'story', label: 'Story' },
+  { key: 'exclusive', label: 'Edition Bonus' },
+  { key: 'purchasable', label: 'Purchasable' },
+]
 
-function roiWeeks(price: number, income: number): number {
-  return Math.ceil(price / income)
+const TYPE_COLOR: Record<string, string> = {
+  story: '#72dce8',
+  exclusive: '#d5a6ff',
+  purchasable: '#ffd27a',
 }
-
-function fmt(n: number): string {
-  return n >= 1000 ? `$${(n / 1000).toFixed(0)}k` : `$${n}`
-}
-
-function roiBadgeColor(weeks: number): string {
-  if (weeks <= 70)  return 'border-emerald-500/40 bg-emerald-900/25 text-emerald-300'
-  if (weeks <= 100) return 'border-[#ffd27a]/30 bg-[#ffd27a]/10 text-[#ffd27a]'
-  return 'border-rose-500/30 bg-rose-900/20 text-rose-300'
-}
-
-// ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function PropertyTracker() {
-  const [owned, setOwned]     = useState<Set<string>>(new Set())
-  const [filter, setFilter]   = useState<'all' | PropertyType>('all')
-  const [sort, setSort]       = useState<SortKey>('roi')
+  const [filter, setFilter] = useState<PropType | 'all'>('all')
   const [expanded, setExpanded] = useState<string | null>(null)
 
-  // localStorage persistence
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('gta6-owned-properties')
-      if (raw) setOwned(new Set(JSON.parse(raw) as string[]))
-    } catch {}
-  }, [])
-
-  const toggleOwned = (id: string) => {
-    setOwned(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      try { localStorage.setItem('gta6-owned-properties', JSON.stringify([...next])) } catch {}
-      return next
-    })
-  }
-
-  const filtered = PROPERTIES
-    .filter(p => filter === 'all' || p.type === filter)
-    .sort((a, b) => {
-      if (sort === 'price_asc') return (a.price ?? 0) - (b.price ?? 0)
-      if (sort === 'price_desc') return (b.price ?? 0) - (a.price ?? 0)
-      if (sort === 'income') return (b.weeklyIncome ?? 0) - (a.weeklyIncome ?? 0)
-      // ROI: businesses with income first, by fastest break-even
-      const roiA = a.weeklyIncome && a.price ? roiWeeks(a.price, a.weeklyIncome) : 9999
-      const roiB = b.weeklyIncome && b.price ? roiWeeks(b.price, b.weeklyIncome) : 9999
-      return roiA - roiB
-    })
-
-  const typeLabel: Record<PropertyType, string> = {
-    story: 'Story', residential: 'Residential', business: 'Business',
-  }
-  const typeColor: Record<PropertyType, string> = {
-    story:       'border-white/15 bg-white/[0.05] text-white/40',
-    residential: 'border-[#72dce8]/25 bg-[#72dce8]/[0.07] text-[#72dce8]',
-    business:    'border-emerald-500/30 bg-emerald-900/20 text-emerald-300',
-  }
-
-  const FILTERS: { key: 'all' | PropertyType; label: string }[] = [
-    { key: 'all',         label: 'All' },
-    { key: 'story',       label: 'Story' },
-    { key: 'residential', label: 'Residential' },
-    { key: 'business',    label: 'Businesses' },
-  ]
-  const SORTS: { key: SortKey; label: string }[] = [
-    { key: 'roi',        label: 'Best ROI' },
-    { key: 'income',     label: 'Income ↓' },
-    { key: 'price_asc',  label: 'Price ↑' },
-    { key: 'price_desc', label: 'Price ↓' },
-  ]
-
-  const totalWeekly = [...owned].reduce((acc, id) => {
-    const p = PROPERTIES.find(x => x.id === id)
-    return acc + (p?.weeklyIncome ?? 0)
-  }, 0)
+  const list = filter === 'all' ? PROPERTIES : PROPERTIES.filter(p => p.type === filter)
+  const totalCost = PROPERTIES.filter(p => p.type === 'purchasable').reduce((s, p) => s + p.priceNum, 0)
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-7 sm:px-6 sm:py-9">
+    <div className="mx-auto max-w-3xl px-4 py-7 sm:px-6 sm:py-10">
 
-      {/* ── Header ── */}
-      <div className="rounded-xl border border-white/[0.07] bg-[#11121d]/60 px-5 py-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-400">Property Tracker</p>
-            <p className="mt-1 text-sm text-white/50 leading-relaxed">
-              All purchasable properties and story bases. Toggle owned to track your portfolio. Income-generating businesses sorted by ROI.
-            </p>
+      {/* Header */}
+      <div className="mb-7">
+        <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.3em] text-[#ff79a8]">Real Estate</p>
+        <h2 className="font-display text-2xl font-bold uppercase tracking-wide text-white sm:text-3xl">Property Tracker</h2>
+        <p className="mt-1.5 text-xs text-white/40">
+          Every garage and safehouse in GTA VI — story unlocks, edition bonuses, and all 8 purchasable garages.
+        </p>
+      </div>
+
+      {/* Stats row */}
+      <div className="mb-5 grid grid-cols-3 gap-3">
+        {[
+          { label: 'Total Properties', value: PROPERTIES.length },
+          { label: 'Purchasable', value: PROPERTIES.filter(p => p.type === 'purchasable').length },
+          { label: 'Total Cost (all 8)', value: `$${totalCost.toLocaleString()}` },
+        ].map(s => (
+          <div key={s.label} className="rounded-xl border border-white/[0.08] bg-[#11121d]/90 px-3 py-2.5 text-center">
+            <p className="text-lg font-bold text-white">{s.value}</p>
+            <p className="text-[9px] text-white/35 uppercase tracking-[0.1em]">{s.label}</p>
           </div>
-          {totalWeekly > 0 && (
-            <div className="rounded-lg border border-emerald-500/30 bg-emerald-900/20 px-4 py-2.5 text-right">
-              <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-emerald-400/70">Weekly Income</p>
-              <p className="font-display text-lg font-bold text-emerald-300">${totalWeekly.toLocaleString()}</p>
-            </div>
-          )}
-        </div>
+        ))}
       </div>
 
-      {/* ── Filters + Sort ── */}
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex gap-1">
-          {FILTERS.map(f => (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
-              className={clsx(
-                'rounded-lg border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition',
-                filter === f.key
-                  ? 'border-[#ff79a8]/50 bg-[#ff79a8]/10 text-[#ff9bb5]'
-                  : 'border-white/10 bg-white/[0.03] text-white/35 hover:text-white/55',
-              )}
-            >{f.label}</button>
-          ))}
-        </div>
-        <div className="ml-auto flex gap-1">
-          {SORTS.map(s => (
-            <button
-              key={s.key}
-              onClick={() => setSort(s.key)}
-              className={clsx(
-                'rounded-lg border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition',
-                sort === s.key
-                  ? 'border-[#ffd27a]/40 bg-[#ffd27a]/10 text-[#ffd27a]'
-                  : 'border-white/10 bg-white/[0.03] text-white/35 hover:text-white/55',
-              )}
-            >{s.label}</button>
-          ))}
-        </div>
+      {/* How to buy */}
+      <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-[#ffd27a]/15 bg-[#ffd27a]/[0.06] px-4 py-3">
+        <Info size={13} className="mt-0.5 shrink-0 text-[#ffd27a]" />
+        <p className="text-xs leading-5 text-[#ffdc9b]/80">
+          Purchasable garages unlock after completing <strong>Daily Driver</strong> in Chapter 2. The Vice City Real Estate app is installed on your phone automatically. No passive income — garages are purely vehicle storage (1 car each).
+        </p>
       </div>
 
-      {/* ── Property Cards ── */}
+      {/* Filter */}
+      <div className="mb-5 flex flex-wrap gap-2">
+        {FILTER_LABELS.map(f => (
+          <button
+            key={f.key}
+            onClick={() => setFilter(f.key as PropType | 'all')}
+            className={clsx(
+              'rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition',
+              filter === f.key
+                ? 'border-white/30 bg-white/10 text-white'
+                : 'border-white/[0.08] text-white/35 hover:text-white/70'
+            )}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Property list */}
       <div className="flex flex-col gap-3">
-        {filtered.map(prop => {
-          const isOwned  = owned.has(prop.id)
-          const isExpand = expanded === prop.id
-          const roi      = prop.price && prop.weeklyIncome ? roiWeeks(prop.price, prop.weeklyIncome) : null
-
+        {list.map(p => {
+          const color = TYPE_COLOR[p.type] ?? '#888'
+          const isOpen = expanded === p.id
           return (
-            <article
-              key={prop.id}
-              className={clsx(
-                'overflow-hidden rounded-xl border bg-[#11121d]/90 transition duration-200',
-                isOwned
-                  ? 'border-emerald-500/35 shadow-[0_0_20px_rgba(52,211,153,.05)]'
-                  : 'border-white/[0.08] hover:border-white/[0.14]',
-              )}
-            >
-              {/* Card header */}
-              <div className="flex items-start gap-3 px-4 py-3.5 sm:px-5">
-                {/* Owned toggle */}
-                {prop.type !== 'story' && (
-                  <button
-                    onClick={() => toggleOwned(prop.id)}
-                    className="mt-0.5 shrink-0 text-white/25 transition hover:text-emerald-400"
-                    aria-label={isOwned ? 'Mark as not owned' : 'Mark as owned'}
-                  >
-                    {isOwned
-                      ? <CheckSquare size={17} className="text-emerald-400" />
-                      : <Square size={17} />
-                    }
-                  </button>
-                )}
-                {prop.type === 'story' && (
-                  <div className="mt-0.5 shrink-0">
-                    <Building2 size={17} className="text-white/20" />
-                  </div>
-                )}
-
+            <article key={p.id} className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#11121d]/90">
+              <button
+                onClick={() => setExpanded(isOpen ? null : p.id)}
+                className="flex w-full items-start gap-3 px-5 py-4 text-left"
+              >
+                <Home size={14} className="mt-0.5 shrink-0" style={{ color }} />
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-display text-sm font-bold text-white">{prop.name}</span>
-                    <span className={clsx('rounded-full border px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.14em]', typeColor[prop.type])}>
-                      {typeLabel[prop.type]}
-                    </span>
-                    {prop.chapterAvailable > 0 && (
-                      <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.12em] text-white/30">
-                        Ch{prop.chapterAvailable}+
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5">
-                    <span className="flex items-center gap-1 text-[11px] text-white/35">
-                      <MapPin size={9} className="text-white/20" />{prop.location}, {prop.area}
+                  <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                    <span className="text-sm font-semibold text-white/90">{p.name}</span>
+                    <span
+                      className="rounded-full px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em]"
+                      style={{ color, background: `${color}18`, border: `0.5px solid ${color}40` }}
+                    >
+                      {p.type === 'story' ? 'Story' : p.type === 'exclusive' ? 'Edition' : 'Buy'}
                     </span>
                   </div>
+                  <p className="text-[11px] text-white/40">{p.location}</p>
                 </div>
-
-                {/* Price / income / ROI */}
-                <div className="shrink-0 text-right">
-                  {prop.price !== null ? (
-                    <p className="font-display text-sm font-bold text-white">{fmt(prop.price)}</p>
-                  ) : (
-                    <p className="text-xs text-white/25 italic">Story</p>
-                  )}
-                  {prop.weeklyIncome && (
-                    <p className="text-[10px] text-emerald-400">+${prop.weeklyIncome.toLocaleString()}/wk</p>
-                  )}
-                  {roi && (
-                    <span className={clsx('mt-0.5 inline-block rounded border px-1.5 py-0.5 text-[9px] font-bold', roiBadgeColor(roi))}>
-                      {roi}w ROI
-                    </span>
-                  )}
+                <div className="text-right shrink-0">
+                  <p className="text-sm font-bold" style={{ color: p.priceNum === 0 ? '#4ade80' : '#ffd27a' }}>
+                    {p.price}
+                  </p>
+                  <p className="text-[9px] text-white/30">{p.spaces} car slot</p>
                 </div>
-
-                <button
-                  onClick={() => setExpanded(isExpand ? null : prop.id)}
-                  className="mt-0.5 shrink-0"
-                  aria-expanded={isExpand}
-                >
-                  <ChevronDown
-                    size={15}
-                    className={clsx('text-white/25 transition-transform duration-200', isExpand && 'rotate-180')}
-                  />
-                </button>
-              </div>
-
-              {/* Expanded detail */}
-              {isExpand && (
-                <div className="border-t border-white/[0.07] bg-black/15 px-4 py-3.5 sm:px-5">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.18em] text-[#72dce8]/60">Perks</p>
-                      <ul className="flex flex-col gap-1.5">
-                        {prop.perks.map((perk, i) => (
-                          <li key={i} className="flex items-start gap-2 text-[11px] text-white/50">
-                            <span className="mt-[3px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#72dce8]/35" />
-                            {perk}
-                          </li>
-                        ))}
-                      </ul>
+              </button>
+              {isOpen && (
+                <div className="border-t border-white/[0.07] bg-black/15 px-5 pb-4 pt-3 space-y-3">
+                  <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-2.5">
+                    <p className="mb-1 text-[8px] font-bold uppercase tracking-[0.1em] text-white/30">🔑 How to Unlock</p>
+                    <p className="text-xs text-white/70">{p.unlock}</p>
+                  </div>
+                  <div>
+                    <p className="mb-1.5 text-[8px] font-bold uppercase tracking-[0.1em] text-white/30">Features</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {p.features.map((f, i) => (
+                        <span key={i} className="rounded-full border border-white/[0.08] bg-white/[0.04] px-2.5 py-0.5 text-[10px] text-white/55">
+                          {f}
+                        </span>
+                      ))}
                     </div>
-                    <div>
-                      <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.18em] text-[#ffd27a]/60">Notes</p>
-                      <p className="text-[11px] leading-relaxed text-white/45">{prop.notes}</p>
-                      {prop.requiresUnlock && (
-                        <div className="mt-2.5 rounded-lg border border-amber-500/25 bg-amber-900/15 px-3 py-2">
-                          <p className="text-[10px] text-amber-300/80">{prop.requiresUnlock}</p>
-                        </div>
-                      )}
-                    </div>
+                  </div>
+                  <div className="flex items-start gap-2 rounded-xl border border-[#ffd27a]/15 bg-[#ffd27a]/[0.06] px-3 py-2">
+                    <span className="text-sm">💡</span>
+                    <p className="text-[11px] leading-5 text-[#ffdc9b]/80">{p.tip}</p>
                   </div>
                 </div>
               )}
@@ -490,6 +350,20 @@ export default function PropertyTracker() {
           )
         })}
       </div>
+
+      <a
+        href="https://www.powerpyx.com/gta-6-all-garage-locations/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.03] px-4 py-3 text-xs text-white/40 transition hover:bg-white/[0.06] hover:text-white/70"
+      >
+        <ExternalLink size={12} />
+        Full Garage Guide with Map (PowerPyx)
+      </a>
+
+      <p className="mt-5 text-center text-[9px] uppercase tracking-[0.18em] text-white/20">
+        No passive income in GTA VI story mode · Garages = vehicle storage only
+      </p>
     </div>
   )
 }

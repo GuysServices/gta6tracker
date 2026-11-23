@@ -1,376 +1,316 @@
 'use client'
 
 import { useState } from 'react'
-import { ShoppingBag, MapPin, Star, TrendingUp, Lock } from 'lucide-react'
+import { ExternalLink, ChevronDown, ChevronUp } from 'lucide-react'
 import clsx from 'clsx'
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-type PayoutTier = 'low' | 'mid' | 'high' | 'premium' | 'commission'
-
-interface AcceptedCategory {
-  label: string
-  rate: string
-}
+type RateLevel = 'best' | 'high' | 'medium' | 'low' | 'very-low' | 'n/a'
 
 interface Fence {
   id: string
   name: string
-  contact: string
-  area: string
+  realName: string
   location: string
-  chapterUnlock: number
-  unlockNote?: string
-  payoutTier: PayoutTier
-  accepts: AcceptedCategory[]
-  specialFeatures: string[]
+  area: string
+  unlockMission: string
+  chapter: number
+  type: 'goods' | 'vehicles'
+  gone: boolean
+  goneWhen?: string
+  narcotics: RateLevel
+  jewelry: RateLevel
+  markedBills: RateLevel
+  vehicles: RateLevel
+  saleMethod: string
   tip: string
-  hotItems: string    // what they overpay on
+  accentColor: string
 }
-
-// ─── Data ────────────────────────────────────────────────────────────────────
 
 const FENCES: Fence[] = [
   {
-    id: 'brians-lockup',
+    id: 'brian',
     name: "Brian's Lockup",
-    contact: 'Brian',
+    realName: 'Brian',
+    location: 'South Key Lento',
     area: 'Leonida Keys',
-    location: 'Stilt warehouse, south Key Lento dock road',
-    chapterUnlock: 1,
-    payoutTier: 'low',
-    accepts: [
-      { label: 'General goods', rate: '35%' },
-      { label: 'Weapons (stolen)', rate: '30%' },
-      { label: 'Drugs (small quantities)', rate: '32%' },
-      { label: 'Electronics', rate: '30%' },
-    ],
-    specialFeatures: [
-      'Always open — no appointment, no cooldown',
-      'No heat — selling here adds zero wanted level risk',
-      'First fence in the game, available Ch1 start',
-    ],
-    hotItems: 'Nothing specific — Brian buys everything at the same flat low rate.',
-    tip: 'Use Brian only when you need to offload fast and can\'t reach a better fence. His rates are the worst in the game but he\'s always available and risk-free. Good for clearing inventory before the Ch1 PONR.',
+    unlockMission: 'Lab Fees — Ch. 1 mission 2',
+    chapter: 1,
+    type: 'goods',
+    gone: true,
+    goneWhen: 'Mostly unavailable after Chapter 1 ends (Tourist Trap)',
+    narcotics: 'low',
+    jewelry: 'low',
+    markedBills: 'very-low',
+    vehicles: 'n/a',
+    saleMethod: 'Drop box — partner drives off, payment arrives later in BuckMe',
+    tip: 'First fence in the game. Very low rates but always open in Ch. 1. Sell anything you have before Tourist Trap — fencing access gets complicated in Ch. 2 until Dunk unlocks.',
+    accentColor: '#72dce8',
   },
   {
-    id: 'kenton-dives',
-    name: "Kenton's Dive Spots",
-    contact: 'Kenton',
+    id: 'donnie',
+    name: "Donnie's Trailer",
+    realName: 'Donnie',
+    location: 'North Key Lento (opposite Nifty Threads Island Wear)',
     area: 'Leonida Keys',
-    location: 'Marlin Cove, Keys coast — meets at the dock',
-    chapterUnlock: 1,
-    unlockNote: 'Talk to Kenton at Marlin Cove dock after completing Gone Fishing.',
-    payoutTier: 'mid',
-    accepts: [
-      { label: 'Underwater salvage', rate: '50%' },
-      { label: 'Recovered maritime goods', rate: '48%' },
-      { label: 'Antique/historical items', rate: '55%' },
-    ],
-    specialFeatures: [
-      'Exclusive to underwater loot — cannot sell street goods here',
-      'Antique bonus: items flagged as historical get +5% over listed rate',
-      'Gives dive spot map markers on first meeting',
-    ],
-    hotItems: 'Antique items recovered from the Keys shipwrecks — consistent 55% payout.',
-    tip: 'Niche but worth knowing. The dive spots Kenton marks have high-value unique items that can\'t be found on land. If you spend any time underwater in the Keys, do his intro first.',
+    unlockMission: 'Clean Up After Donnie — Ch. 1',
+    chapter: 1,
+    type: 'goods',
+    gone: true,
+    goneWhen: 'Gone after Don Gone mission — Donnie disappears in Ch. 1',
+    narcotics: 'low',
+    jewelry: 'low',
+    markedBills: 'very-low',
+    vehicles: 'n/a',
+    saleMethod: 'Drop box — payment delayed',
+    tip: 'Short-lived fence. Use him early Ch. 1 for the first batch of narcotics. REMEMBER: grab his H&L .38 pistol from his car boot during Don Gone before you destroy the car or it\'s gone forever.',
+    accentColor: '#ff79a8',
   },
   {
     id: 'moses',
-    name: 'Moses',
-    contact: 'Moses',
-    area: 'Port Gellhorn',
-    location: 'Slim Jim lot, Harbour Road east',
-    chapterUnlock: 2,
-    unlockNote: 'Automatically introduced during the Chapter 2 Coffee Break mission.',
-    payoutTier: 'mid',
-    accepts: [
-      { label: 'Registered vehicles', rate: '55%' },
-      { label: 'Unregistered vehicles', rate: '40%' },
-      { label: 'Vehicle parts', rate: '45%' },
-      { label: 'General goods', rate: '40%' },
-    ],
-    specialFeatures: [
-      'Vehicle registration — eliminates tracker, makes car permanently sellable',
-      'Slim Jim tool — allows silent car entry without breaking windows',
-      'Scooter Bros network access — required to buy the franchise',
-      'Owns Scooter Bros Franchise unlock prerequisite',
-    ],
-    hotItems: 'Registered vehicles — a registered car pays 55% vs 40% unregistered. Always register before selling.',
-    tip: 'The Scooter Bros franchise ($200k, $3,200/wk) requires Moses as a contact. Talk to him early in Ch2 and register everything through him — the volume discount from owning the franchise saves real money on registration fees.',
+    name: "Moses Auto Shop (Mo Watkins)",
+    realName: 'Moses',
+    location: 'Port Gellhorn (near Port Gellhorn Station Garage)',
+    area: 'Kelly County',
+    unlockMission: 'Moses — Ch. 2 (Take a Vehicle to Moses)',
+    chapter: 2,
+    type: 'vehicles',
+    gone: false,
+    narcotics: 'n/a',
+    jewelry: 'n/a',
+    markedBills: 'n/a',
+    vehicles: 'medium',
+    saleMethod: 'In-person. Bring stolen car to Moses. Must be untracked (use WAINK app to scan). First registration free, then small fee per car.',
+    tip: 'Cars without trackers only. Scan every car with the WAINK app before driving to Moses. The Slim Jim unlocks here too — open doors without breaking glass. Sell consistent daily earners for the fastest Ch. 2 income.',
+    accentColor: '#4ade80',
   },
   {
     id: 'dunk',
-    name: 'Dunk',
-    contact: 'Dunk',
+    name: "Dunk's Trailer",
+    realName: 'Dunk',
+    location: 'South Port Gellhorn, Kelly County',
     area: 'Kelly County',
-    location: 'Old barn, County Road 7, north Kelly',
-    chapterUnlock: 2,
-    unlockNote: 'Unlocks after completing the Gear Shift mission in Chapter 2.',
-    payoutTier: 'high',
-    accepts: [
-      { label: 'Hot vehicles (no questions)', rate: '60%' },
-      { label: 'Vehicle parts', rate: '55%' },
-      { label: 'Heavy vehicles', rate: '58%' },
-      { label: 'Motorcycles', rate: '62%' },
-    ],
-    specialFeatures: [
-      'Takes stolen vehicles with no registration required',
-      'No cooldown between vehicle sales',
-      'Motorcycles get +2% bonus vs other vehicle types',
-      'Warehouse bonus: owning Port Gellhorn Warehouse raises all Dunk payouts by +10%',
-    ],
-    hotItems: 'Motorcycles — 62% base, 72% with warehouse bonus. Best single-sale return in Ch2.',
-    tip: 'Dunk is the go-to for hot car sales. If you buy the Port Gellhorn Warehouse, Dunk\'s rates jump to 70% on vehicles — that combination is the best car-flipping setup in the game before Ch3 fences unlock.',
+    unlockMission: 'Slam Dunk — Ch. 2 mission 12',
+    chapter: 2,
+    type: 'goods',
+    gone: false,
+    narcotics: 'low',
+    jewelry: 'low',
+    markedBills: 'very-low',
+    vehicles: 'n/a',
+    saleMethod: 'Drop box — partner delivers, payment arrives in BuckMe account',
+    tip: 'First goods fence in Ch. 2. Low rates across the board — use him only while waiting for Ch. 3 fences to unlock. He also marks two optional robbery locations after Slam Dunk.',
+    accentColor: '#ffd27a',
   },
   {
     id: 'tyrone',
-    name: 'Tyrone',
-    contact: 'Tyrone',
-    area: 'Vice City — Bayside',
-    location: 'Loading dock behind Bayside Fish Market',
-    chapterUnlock: 3,
-    unlockNote: 'Introduced automatically at the start of Chapter 3.',
-    payoutTier: 'high',
-    accepts: [
-      { label: 'General goods', rate: '70%' },
-      { label: 'Drugs', rate: '68%' },
-      { label: 'Weapons', rate: '65%' },
-      { label: 'Electronics', rate: '65%' },
-      { label: 'Clothing/luxury', rate: '70%' },
-    ],
-    specialFeatures: [
-      'Highest general-goods rate in the game',
-      'Accepts drugs with no extra heat',
-      'No daily sell limit — can offload full inventory in one visit',
-      'Available 06:00–02:00 in-game time',
-    ],
-    hotItems: 'General goods and clothing — 70% flat across the board. Best destination for mixed hauls.',
-    tip: 'Route everything through Tyrone that isn\'t electronics or Wish List. 70% on clothing and general goods is the ceiling for non-specialist fences. Closed between 02:00–06:00 — only fence in the game with a time window.',
+    name: "Tyrone — La Perle",
+    realName: 'Tyrone',
+    location: 'La Perle, Vice City',
+    area: 'Vice City',
+    unlockMission: 'Here, Kitty Kitty — Ch. 3 mission 5',
+    chapter: 3,
+    type: 'goods',
+    gone: false,
+    narcotics: 'best',
+    jewelry: 'medium',
+    markedBills: 'medium',
+    vehicles: 'n/a',
+    saleMethod: 'In-person or through Garage drop-off (after Yasmani\'s Payday Loan jobs in Ch. 3)',
+    tip: 'BEST fence for narcotics from Ch. 3 onward. All 39 Gang Operations drop narcotics. Stack gang op runs and sell the whole bag to Tyrone for maximum payout. Leave narcotics in your garage for his pickup service.',
+    accentColor: '#ff9bb5',
   },
   {
     id: 'yasmani',
-    name: 'Yasmani',
-    contact: 'Yasmani',
-    area: 'Vice City — Ocean Drive',
-    location: 'Back of the Havana Electronics repair shop, Ocean Drive North',
-    chapterUnlock: 3,
-    unlockNote: 'Introduced during Chapter 3 — available after the second Bayside mission.',
-    payoutTier: 'premium',
-    accepts: [
-      { label: 'Electronics (phones, tablets, cameras)', rate: '75%' },
-      { label: 'Luxury goods (watches, jewellery)', rate: '72%' },
-      { label: 'High-end vehicles', rate: '65%' },
-      { label: 'General goods', rate: '55%' },
-    ],
-    specialFeatures: [
-      'Highest electronics rate in the game — 40% more than Moses',
-      'Jewellery from heists gets an additional +5% premium',
-      'Daily electronics cap: $12,000 worth — visit daily for high-volume runs',
-      'Will appraise Randy Wish List electronics items (increases commission rate)',
-    ],
-    hotItems: 'Electronics — 75% is 10–15% above every other fence. If you\'re doing phone/laptop runs, all roads lead to Yasmani.',
-    tip: 'The $12k daily electronics cap means high-volume runs need to be split across days. If you have a full haul, sell $12k to Yasmani first at 75%, then dump the rest at Tyrone at 65%. Never sell electronics to anyone else.',
+    name: "Yasmani — Little Cuba",
+    realName: 'Yasmani',
+    location: 'Little Cuba, Vice City',
+    area: 'Vice City',
+    unlockMission: 'Boobie Time — Ch. 3 mission 8',
+    chapter: 3,
+    type: 'goods',
+    gone: false,
+    narcotics: 'medium',
+    jewelry: 'best',
+    markedBills: 'best',
+    vehicles: 'n/a',
+    saleMethod: 'In-person or Garage drop-off. Also tips on armored truck routes for $10,000.',
+    tip: 'BEST fence for jewelry and marked bills. Jewelry stores open through his jobs. Bank vaults pay in marked bills — launder everything through Yasmani. His two Payday Loan jobs unlock the Garage drop-off service. The Dye Pack Jammer (Ch. 3, Credit Check) must be obtained before he\'ll accept marked bills.',
+    accentColor: '#d5a6ff',
   },
   {
     id: 'randy',
-    name: "Randy's Wish List",
-    contact: 'Randy',
-    area: 'Vice City — Midtown',
-    location: 'Randy\'s Auto Salvage, Midtown Industrial',
-    chapterUnlock: 3,
-    unlockNote: 'Randy\'s Wish List system unlocks mid-Chapter 3 after the Tools of the Trade mission.',
-    payoutTier: 'commission',
-    accepts: [
-      { label: 'Wish List commissioned items only', rate: '80–92%' },
-      { label: 'No walk-in sales accepted', rate: 'N/A' },
-    ],
-    specialFeatures: [
-      'Commission-based system — steal what Randy\'s clients want, name your price',
-      '80–92% payout depending on item rarity and condition',
-      'Wish List refreshes every 48 in-game hours with new commissions',
-      'Rare commissions pay up to $45,000 per item',
-      'Yasmani appraisal boosts electronics commissions by +3–5%',
-      'Three active commissions at a time — prioritize by payout',
-    ],
-    hotItems: 'Rare commissioned vehicles and bespoke jewellery — highest single-item payouts in the game.',
-    tip: 'Randy is the ceiling. 80–92% on commissioned items beats every flat-rate fence. Keep an active commission at all times — even a mid-tier one pays better than Tyrone. Check the Wish List every 48 hours; rare items cycle out.',
+    name: "Randy — Balsero, Vice City",
+    realName: 'Randy Kozlov',
+    location: 'Balsero district, Vice City',
+    area: 'Vice City',
+    unlockMission: 'Clonin\' Keys, Makin\' GS (Steal the Zorrusso for Randy) — Ch. 3',
+    chapter: 3,
+    type: 'vehicles',
+    gone: false,
+    narcotics: 'n/a',
+    jewelry: 'n/a',
+    markedBills: 'n/a',
+    vehicles: 'best',
+    saleMethod: 'Deliver specific cars from his 22-vehicle Wish List. Each delivery earns cash + rewards.',
+    tip: 'BEST payout for high-end tracked vehicles. The Key Cloner (Ch. 3) is required for most of his wishlist cars. Randy also takes cars that Moses won\'t touch (advanced tracker cars). Complete his Wish List for the highest vehicle income in the game.',
+    accentColor: '#f97316',
   },
 ]
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-const tierConfig: Record<PayoutTier, { label: string; color: string; barColor: string; barWidth: string }> = {
-  low:        { label: 'Low',        color: 'border-white/15 bg-white/[0.04] text-white/40',           barColor: 'bg-white/25',         barWidth: 'w-[20%]' },
-  mid:        { label: 'Mid',        color: 'border-[#72dce8]/25 bg-[#72dce8]/[0.07] text-[#72dce8]',  barColor: 'bg-[#72dce8]/60',     barWidth: 'w-[45%]' },
-  high:       { label: 'High',       color: 'border-[#ffd27a]/30 bg-[#ffd27a]/[0.08] text-[#ffd27a]',  barColor: 'bg-[#ffd27a]/70',     barWidth: 'w-[65%]' },
-  premium:    { label: 'Premium',    color: 'border-[#ff79a8]/35 bg-[#ff79a8]/[0.09] text-[#ff9bb5]',  barColor: 'bg-[#ff79a8]/70',     barWidth: 'w-[82%]' },
-  commission: { label: 'Commission', color: 'border-emerald-500/35 bg-emerald-900/20 text-emerald-300', barColor: 'bg-emerald-400/70',   barWidth: 'w-full'  },
+const RATE_META: Record<RateLevel, { label: string; color: string; bg: string }> = {
+  'best':     { label: 'BEST',     color: '#4ade80', bg: '#4ade8018' },
+  'high':     { label: 'High',     color: '#72dce8', bg: '#72dce818' },
+  'medium':   { label: 'Medium',   color: '#ffd27a', bg: '#ffd27a18' },
+  'low':      { label: 'Low',      color: '#f97316', bg: '#f9731618' },
+  'very-low': { label: 'Very Low', color: '#ff79a8', bg: '#ff79a818' },
+  'n/a':      { label: '—',        color: '#ffffff30', bg: 'transparent' },
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+function RateBadge({ rate }: { rate: RateLevel }) {
+  const m = RATE_META[rate]
+  return (
+    <span
+      className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]"
+      style={{ color: m.color, background: m.bg, border: `0.5px solid ${m.color}30` }}
+    >
+      {m.label}
+    </span>
+  )
+}
 
 export default function FenceDirectory() {
-  const [chFilter, setChFilter] = useState<'all' | 1 | 2 | 3>('all')
   const [expanded, setExpanded] = useState<string | null>(null)
 
-  const visible = FENCES.filter(f =>
-    chFilter === 'all' || f.chapterUnlock <= chFilter
-  )
-
-  const CH_FILTERS: { key: 'all' | 1 | 2 | 3; label: string }[] = [
-    { key: 'all', label: 'All Fences' },
-    { key: 1,     label: 'Available Ch1' },
-    { key: 2,     label: 'Available Ch2' },
-    { key: 3,     label: 'Available Ch3+' },
-  ]
-
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-7 sm:px-6 sm:py-9">
+    <div className="mx-auto max-w-3xl px-4 py-7 sm:px-6 sm:py-10">
 
       {/* Header */}
-      <div className="rounded-xl border border-white/[0.07] bg-[#11121d]/60 px-5 py-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#ffd27a]">Fence Directory</p>
-        <p className="mt-1 text-sm text-white/50 leading-relaxed">
-          Every fence in the game — what they buy, what they pay, and what makes them worth the detour.
-          Filter by chapter to see what's accessible at your current point.
+      <div className="mb-7">
+        <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.3em] text-[#ff79a8]">Black Market</p>
+        <h2 className="font-display text-2xl font-bold uppercase tracking-wide text-white sm:text-3xl">Fence Directory</h2>
+        <p className="mt-1.5 text-xs text-white/40">All 7 fences — who pays best for what, when they unlock, and how to sell.</p>
+      </div>
+
+      {/* Quick reference */}
+      <div className="mb-5 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#11121d]/90">
+        <div className="border-b border-white/[0.07] px-5 py-3">
+          <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/40">Quick Reference — Best Rates</p>
+        </div>
+        <div className="grid grid-cols-3 divide-x divide-white/[0.07]">
+          {[
+            { label: 'Narcotics', value: 'Tyrone', sub: 'La Perle, Ch. 3', color: '#ff9bb5' },
+            { label: 'Jewelry + Marked Bills', value: 'Yasmani', sub: 'Little Cuba, Ch. 3', color: '#d5a6ff' },
+            { label: 'Cars', value: 'Randy', sub: 'Balsero, Ch. 3', color: '#f97316' },
+          ].map(r => (
+            <div key={r.label} className="px-4 py-3 text-center">
+              <p className="mb-0.5 text-[8px] uppercase tracking-[0.1em] text-white/30">{r.label}</p>
+              <p className="text-sm font-bold" style={{ color: r.color }}>{r.value}</p>
+              <p className="text-[9px] text-white/30">{r.sub}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* How marked bills work */}
+      <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-[#ffd27a]/15 bg-[#ffd27a]/[0.06] px-4 py-3">
+        <span className="text-sm">⚠️</span>
+        <p className="text-xs leading-5 text-[#ffdc9b]/80">
+          <strong>Marked Bills:</strong> Banks and Payday Loans pay out in marked bills — but no fence accepts them until you get the <strong>Dye Pack Jammer</strong>. That unlocks in Ch. 3 mission <em>Credit Check</em>. Without it, bills trigger a dye explosion and stain your clothes.
         </p>
-      </div>
-
-      {/* Payout tier legend */}
-      <div className="flex flex-wrap gap-2">
-        {(Object.entries(tierConfig) as [PayoutTier, typeof tierConfig[PayoutTier]][]).map(([tier, cfg]) => (
-          <span key={tier} className={clsx('flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em]', cfg.color)}>
-            <span className={clsx('h-1.5 w-6 rounded-full', cfg.barColor, cfg.barWidth === 'w-full' ? 'w-6' : '')} />
-            {cfg.label}
-          </span>
-        ))}
-        <span className="text-[9px] text-white/25 self-center">— payout tier</span>
-      </div>
-
-      {/* Chapter filter */}
-      <div className="flex flex-wrap gap-1.5">
-        {CH_FILTERS.map(f => (
-          <button
-            key={String(f.key)}
-            onClick={() => setChFilter(f.key)}
-            className={clsx(
-              'rounded-lg border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition',
-              chFilter === f.key
-                ? 'border-[#ff79a8]/50 bg-[#ff79a8]/10 text-[#ff9bb5]'
-                : 'border-white/10 bg-white/[0.03] text-white/35 hover:text-white/55',
-            )}
-          >{f.label}</button>
-        ))}
       </div>
 
       {/* Fence cards */}
       <div className="flex flex-col gap-3">
-        {visible.map(fence => {
-          const cfg = tierConfig[fence.payoutTier]
-          const isExpand = expanded === fence.id
-
+        {FENCES.map(f => {
+          const isOpen = expanded === f.id
           return (
-            <article
-              key={fence.id}
-              className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#11121d]/90 transition duration-200 hover:border-white/[0.14]"
-            >
-              {/* Header row */}
+            <article key={f.id} className={clsx(
+              'overflow-hidden rounded-2xl border transition',
+              f.gone ? 'border-red-500/20 bg-red-500/[0.03]' : 'border-white/[0.08] bg-[#11121d]/90'
+            )}>
               <button
-                onClick={() => setExpanded(isExpand ? null : fence.id)}
-                aria-expanded={isExpand}
-                className="flex w-full items-start gap-3 px-4 py-3.5 text-left transition hover:bg-white/[0.02] sm:px-5"
+                onClick={() => setExpanded(isOpen ? null : f.id)}
+                className="flex w-full items-start gap-3 px-5 py-4 text-left"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04]">
-                  <ShoppingBag size={16} className="text-white/40" />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-display text-sm font-bold text-white">{fence.name}</span>
-                    <span className={clsx('rounded-full border px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.14em]', cfg.color)}>
-                      {cfg.label}
-                    </span>
-                    <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.12em] text-white/30">
-                      Ch{fence.chapterUnlock}+
-                    </span>
-                  </div>
-                  <span className="flex items-center gap-1 text-[11px] text-white/35 mt-0.5">
-                    <MapPin size={9} className="text-white/20" />{fence.location}
-                  </span>
-                </div>
-
-                {/* Payout bar visual */}
-                <div className="hidden shrink-0 flex-col items-end gap-1 sm:flex">
-                  <span className="text-[9px] text-white/25 uppercase tracking-[0.12em]">Payout</span>
-                  <div className="h-1.5 w-24 overflow-hidden rounded-full bg-white/[0.08]">
-                    <div className={clsx('h-full rounded-full', cfg.barColor, cfg.barWidth)} />
-                  </div>
-                  <span className={clsx('text-[9px] font-bold', cfg.color.split(' ').find(c => c.startsWith('text-')))}>
-                    {fence.payoutTier === 'commission' ? '80–92%' : fence.accepts[0]?.rate}
-                  </span>
-                </div>
-
-                <Star
-                  size={14}
-                  className={clsx(
-                    'mt-1 shrink-0 transition-transform duration-200',
-                    isExpand ? 'rotate-180 text-[#ff79a8]' : 'text-white/20',
-                  )}
+                <div
+                  className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: f.accentColor }}
                 />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                    <span className="text-sm font-semibold text-white/90">{f.name}</span>
+                    <span
+                      className="rounded-full px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em]"
+                      style={{ color: f.accentColor, background: `${f.accentColor}18`, border: `0.5px solid ${f.accentColor}40` }}
+                    >
+                      Ch. {f.chapter}
+                    </span>
+                    {f.gone && (
+                      <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-red-400">
+                        Limited
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-white/40">{f.location}</p>
+                </div>
+                <div className="shrink-0">
+                  <span className="text-[9px] text-white/30 uppercase tracking-[0.08em]">
+                    {f.type === 'vehicles' ? 'Cars' : 'Goods'}
+                  </span>
+                </div>
+                {isOpen ? <ChevronUp size={13} className="shrink-0 mt-1 text-white/30" /> : <ChevronDown size={13} className="shrink-0 mt-1 text-white/30" />}
               </button>
 
-              {/* Expanded detail */}
-              {isExpand && (
-                <div className="border-t border-white/[0.07] bg-black/15">
-                  {fence.unlockNote && (
-                    <div className="flex items-start gap-2 border-b border-amber-500/15 bg-amber-900/[0.1] px-4 py-2.5 sm:px-5">
-                      <Lock size={11} className="mt-0.5 shrink-0 text-amber-400/60" />
-                      <p className="text-[11px] text-amber-300/70">{fence.unlockNote}</p>
+              {isOpen && (
+                <div className="border-t border-white/[0.07] bg-black/15 px-5 pb-4 pt-3 space-y-3">
+
+                  {f.gone && f.goneWhen && (
+                    <div className="rounded-xl border border-red-500/20 bg-red-500/[0.07] px-3 py-2">
+                      <p className="text-[11px] text-red-400">⚠️ {f.goneWhen}</p>
                     </div>
                   )}
 
-                  <div className="grid gap-px bg-white/[0.055] sm:grid-cols-3">
-                    {/* Accepts + rates */}
-                    <div className="bg-[#0e0f1b] px-4 py-4 sm:px-5">
-                      <p className="mb-2.5 text-[9px] font-bold uppercase tracking-[0.18em] text-[#72dce8]/60">Accepts & Rates</p>
-                      <div className="flex flex-col gap-2">
-                        {fence.accepts.map((cat, i) => (
-                          <div key={i} className="flex items-center justify-between gap-2">
-                            <span className="text-[11px] text-white/50">{cat.label}</span>
-                            <span className={clsx(
-                              'shrink-0 rounded border px-1.5 py-0.5 text-[9px] font-bold',
-                              cat.rate === 'N/A'
-                                ? 'border-white/10 text-white/25'
-                                : 'border-emerald-500/30 bg-emerald-900/20 text-emerald-300',
-                            )}>{cat.rate}</span>
+                  {/* Unlock */}
+                  <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-2.5">
+                    <p className="mb-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-white/30">Unlocks After</p>
+                    <p className="text-xs text-white/70">{f.unlockMission}</p>
+                  </div>
+
+                  {/* Rate table */}
+                  {f.type === 'goods' && (
+                    <div>
+                      <p className="mb-2 text-[8px] font-bold uppercase tracking-[0.1em] text-white/30">Payout Rates</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { label: 'Narcotics', rate: f.narcotics },
+                          { label: 'Jewelry', rate: f.jewelry },
+                          { label: 'Marked Bills', rate: f.markedBills },
+                        ].map(r => (
+                          <div key={r.label} className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-2 py-2 text-center">
+                            <p className="mb-1 text-[8px] text-white/30">{r.label}</p>
+                            <RateBadge rate={r.rate as RateLevel} />
                           </div>
                         ))}
                       </div>
                     </div>
-
-                    {/* Special features */}
-                    <div className="bg-[#0e0f1b] px-4 py-4 sm:px-5">
-                      <p className="mb-2.5 text-[9px] font-bold uppercase tracking-[0.18em] text-[#ffd27a]/60">Special Features</p>
-                      <ul className="flex flex-col gap-1.5">
-                        {fence.specialFeatures.map((f, i) => (
-                          <li key={i} className="flex items-start gap-2 text-[11px] text-white/50">
-                            <span className="mt-[3px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#ffd27a]/35" />
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
+                  )}
+                  {f.type === 'vehicles' && (
+                    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 text-center">
+                      <p className="mb-1 text-[8px] text-white/30">Vehicles</p>
+                      <RateBadge rate={f.vehicles} />
                     </div>
+                  )}
 
-                    {/* Hot items + tip */}
-                    <div className="bg-[#0e0f1b] px-4 py-4 sm:px-5">
-                      <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.18em] text-[#ff79a8]/60">Best Items to Sell Here</p>
-                      <p className="mb-3.5 text-[11px] leading-relaxed text-white/50">{fence.hotItems}</p>
-                      <div className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-3 py-2.5">
-                        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/30 mb-1">Tip</p>
-                        <p className="text-[11px] leading-relaxed text-white/45">{fence.tip}</p>
-                      </div>
-                    </div>
+                  {/* Sale method */}
+                  <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-2.5">
+                    <p className="mb-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-white/30">How to Sell</p>
+                    <p className="text-[11px] leading-5 text-white/65">{f.saleMethod}</p>
+                  </div>
+
+                  {/* Tip */}
+                  <div className="flex items-start gap-2 rounded-xl border border-[#ffd27a]/15 bg-[#ffd27a]/[0.06] px-3 py-2.5">
+                    <span className="text-sm">💡</span>
+                    <p className="text-[11px] leading-5 text-[#ffdc9b]/80">{f.tip}</p>
                   </div>
                 </div>
               )}
@@ -378,6 +318,20 @@ export default function FenceDirectory() {
           )
         })}
       </div>
+
+      <a
+        href="https://www.keengamer.com/articles/guides/how-to-fence-stolen-goods-in-gta-6-all-fence-locations-and-marked-bills/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.03] px-4 py-3 text-xs text-white/40 transition hover:bg-white/[0.06] hover:text-white/70"
+      >
+        <ExternalLink size={12} />
+        Full Fence Guide + Marked Bills (KeenGamer)
+      </a>
+
+      <p className="mt-5 text-center text-[9px] uppercase tracking-[0.18em] text-white/20">
+        Source: KeenGamer · PowerPyx · Bloxodes · November 2026
+      </p>
     </div>
   )
 }

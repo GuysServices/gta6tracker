@@ -1,602 +1,917 @@
 'use client'
 
-import { useState } from 'react'
-import { Copy, Check, Zap, Shield, Crosshair, Car, Cloud, Trophy, AlertCircle, ChevronDown } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Copy, Check, ExternalLink, Search, X } from 'lucide-react'
 import clsx from 'clsx'
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-type Category = 'health' | 'weapons' | 'wanted' | 'vehicles' | 'world' | 'character'
+type CheatCat = 'all' | 'player' | 'combat' | 'vehicles' | 'environment' | 'filters'
+type UnlockDiff = 'easy' | 'medium' | 'hard' | 'story'
 
 interface Cheat {
   id: string
   name: string
-  category: Category
-  code: string          // phone number format
-  effect: string
-  storyFree: boolean    // usable without any story progress
-  storyNote?: string    // if not story-free, what's required
-  stackable?: string    // if it stacks (e.g. slow-mo x5)
-  disablesAchievements: boolean
-  tip?: string
+  description: string
+  code: string | null
+  category: CheatCat
+  unlock: string
+  diff: UnlockDiff
+  hasCode: boolean
+  fastestWay?: string
 }
-
-// ─── Cheat Database ───────────────────────────────────────────────────────────
-// Entered via in-game phone keypad — open phone, dial number, call.
-// Note: Codes sourced from community reporting. Verify in-game before relying on them.
 
 const CHEATS: Cheat[] = [
-  // ── HEALTH ────────────────────────────────────────────────────────────────
+  // ── PLAYER ───────────────────────────────────────────────────────────────
   {
-    id: 'restore-health',
-    name: 'Restore Health',
-    category: 'health',
-    code: '1-999-482-753',
-    effect: 'Fully restores current character health to max.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'Usable mid-combat. Doesn\'t restore armour — use Max Health + Armour if you need both.',
+    id: 'p-250k',
+    name: '$250,000',
+    description: 'Instantly gives you $250,000 cash.',
+    code: '↑ → ↓ ← ↑ ← ↓ →',
+    category: 'player',
+    unlock: 'Complete the main story',
+    diff: 'story',
+    hasCode: true,
   },
   {
-    id: 'max-health-armour',
-    name: 'Max Health + Armour',
-    category: 'health',
-    code: '1-999-887-853',
-    effect: 'Fully restores health AND armour to maximum.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'Preferred over Restore Health in any firefight. Same cooldown, twice the value.',
+    id: 'p-drunk',
+    name: 'Drunk',
+    description: 'Instantly makes you and your partner drunk.',
+    code: null,
+    category: 'player',
+    unlock: 'Spend $2,500 on alcohol',
+    diff: 'easy',
+    hasCode: false,
+    fastestWay: 'Hit any bar or liquor store repeatedly. Stack drinks at Skeeter\'s bar in Hamlet or any Vice City bar. Total $2,500 needed — takes about 10–15 visits.',
   },
   {
-    id: 'invincibility',
-    name: 'Invincibility (5 min)',
-    category: 'health',
-    code: '1-999-724-862',
-    effect: 'Grants invincibility for 5 real-world minutes. Expires automatically — re-enter to extend.',
-    storyFree: true,
-    disablesAchievements: true,
-    stackable: 'Re-entering resets the 5-minute timer, effectively extending indefinitely.',
-    tip: 'The 5-minute limit is real-time, not in-game time. Set a timer on your phone if you\'re using it for a long grind.',
+    id: 'p-raise-heat',
+    name: 'Raise Heat Level',
+    description: 'Raises your level of heat across the map.',
+    code: '← ↓ → ↓ ↑ ↓ ↑',
+    category: 'player',
+    unlock: 'Escape a 3-star wanted level 25 times',
+    diff: 'medium',
+    hasCode: true,
+    fastestWay: 'Get 3 stars, then lose the cops using Pay \'n\' Spray or the tunnel trick in Vice City. Repeat. Each clean escape counts. Aim for 3–5 per session.',
   },
   {
-    id: 'recharge-special',
-    name: 'Recharge Special Ability',
-    category: 'health',
-    code: '1-999-769-3787',
-    effect: "Fully recharges the active character's special ability.",
-    storyFree: false,
-    storyNote: 'Requires both Lucia and Jason to be unlocked (Coffee Break, Ch2). Only works once Coffee Break is active.',
-    disablesAchievements: true,
-    tip: 'More useful once you\'ve upgraded the special ability via fitness/activities. Early game it\'s a minor boost.',
-  },
-
-  // ── WEAPONS ───────────────────────────────────────────────────────────────
-  {
-    id: 'weapons-1',
-    name: 'Weapon Set 1 — Sidearms',
-    category: 'weapons',
-    code: '1-999-866-587',
-    effect: 'Grants pistol, SMG, combat shotgun, and knife with ammo.',
-    storyFree: true,
-    disablesAchievements: true,
-  },
-  {
-    id: 'weapons-2',
-    name: 'Weapon Set 2 — Rifles',
-    category: 'weapons',
-    code: '1-999-423-682',
-    effect: 'Grants assault rifle, carbine rifle, and sniper rifle with ammo.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'The sniper in this set has a fixed scope. If you\'ve already upgraded your sniper in-game, don\'t use this — it replaces attachments.',
-  },
-  {
-    id: 'weapons-3',
-    name: 'Weapon Set 3 — Heavy',
-    category: 'weapons',
-    code: '1-999-752-463',
-    effect: 'Grants RPG, minigun, grenade launcher, and flashbangs.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'The minigun in this set depletes fast. Pair with Explosive Ammo if you want sustained chaos.',
-  },
-  {
-    id: 'explosive-ammo',
-    name: 'Explosive Ammo Rounds',
-    category: 'weapons',
-    code: '1-999-444-439',
-    effect: 'All bullets fired cause small explosions on impact. Applies to all equipped weapons.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'Deactivate before interacting with friendly NPCs or story triggers — it one-shots everything including mission-critical targets.',
-  },
-  {
-    id: 'flaming-bullets',
-    name: 'Flaming Bullets',
-    category: 'weapons',
-    code: '1-999-352-648',
-    effect: 'All bullets set targets on fire. Great for vehicle destruction.',
-    storyFree: true,
-    disablesAchievements: true,
-  },
-  {
-    id: 'explosive-melee',
-    name: 'Explosive Melee',
-    category: 'weapons',
-    code: '1-999-468-842',
-    effect: 'Melee hits cause explosive force, sending enemies and objects flying.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'Pairs absurdly well with Super Jump — launch into a crowd, one punch, everything flies.',
-  },
-
-  // ── WANTED ────────────────────────────────────────────────────────────────
-  {
-    id: 'clear-wanted',
-    name: 'Clear Wanted Level',
-    category: 'wanted',
-    code: '1-999-529-448',
-    effect: 'Immediately drops wanted level to zero regardless of star count.',
-    storyFree: true,
-    disablesAchievements: false,
-    tip: 'One of two cheats that does NOT disable achievements. Usable freely without consequence.',
-  },
-  {
-    id: 'raise-wanted',
+    id: 'p-raise-wanted',
     name: 'Raise Wanted Level',
-    category: 'wanted',
-    code: '1-999-724-548',
-    effect: 'Adds one star to your current wanted level each use.',
-    storyFree: true,
-    disablesAchievements: false,
-    tip: 'Also achievement-safe. Use to farm cop-encounter events or test combat against higher wanted levels.',
+    description: 'Raises your wanted level across the map.',
+    code: null,
+    category: 'player',
+    unlock: 'Escape a 3-star wanted level 50 times',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'Same as Raise Heat but 50 escapes needed. Stack with the Raise Heat unlock — both track the same 3-star escapes. 50 escapes at 5/session = 10 sessions.',
   },
   {
-    id: 'never-wanted',
-    name: 'Never Wanted (Timed)',
-    category: 'wanted',
-    code: '1-999-625-348',
-    effect: 'Disables wanted level generation for 10 real-world minutes. Re-enter to extend.',
-    storyFree: true,
-    disablesAchievements: true,
-    stackable: 'Each re-entry resets the 10-minute window.',
-    tip: 'Different from Clear Wanted — this prevents new stars from generating. Use when doing fencing runs or collectible hunting in hot areas.',
-  },
-
-  // ── VEHICLES ──────────────────────────────────────────────────────────────
-  {
-    id: 'spawn-sports',
-    name: 'Spawn Sports Car',
-    category: 'vehicles',
-    code: '1-999-776-234',
-    effect: 'Spawns a Pegassi Zefato (sports coupe) in front of the player.',
-    storyFree: true,
-    disablesAchievements: true,
+    id: 'p-unlimited-focus',
+    name: 'Unlimited Focus',
+    description: 'Focus (slow-motion aim) never runs out.',
+    code: '↓ ↑ ↑ ↓ ↑ ↓ ↑ ↓ ↑ →',
+    category: 'player',
+    unlock: 'Complete the main story',
+    diff: 'story',
+    hasCode: true,
   },
   {
-    id: 'spawn-heli',
-    name: 'Spawn Helicopter',
-    category: 'vehicles',
-    code: '1-999-359-285',
-    effect: 'Spawns a Maverick helicopter above the player\'s position.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'Spawns above you, not at ground level. Make sure you\'re not under a roof. The Maverick is a solid all-rounder but not armoured.',
+    id: 'p-no-fall-damage',
+    name: 'No Fall Damage',
+    description: 'Immune to fall damage.',
+    code: null,
+    category: 'player',
+    unlock: 'Survive a freefall from 40 feet 20 times',
+    diff: 'easy',
+    hasCode: false,
+    fastestWay: 'Find any cliff or roof about 40 feet high. Jump, survive. The cheapest and fastest: the Starlet Motel roof in Kelly County. Repeat 20 times in one session.',
   },
   {
-    id: 'spawn-motorcycle',
-    name: 'Spawn Motorcycle',
-    category: 'vehicles',
-    code: '1-999-468-562',
-    effect: 'Spawns a Pegassi Bati 801 motorcycle.',
-    storyFree: true,
-    disablesAchievements: true,
+    id: 'p-parachute',
+    name: 'Parachute',
+    description: 'Adds a parachute to your loadout.',
+    code: null,
+    category: 'player',
+    unlock: 'Complete 50 skydives or base jumps from 300 feet or higher',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'Pilot Pete\'s cargo missions include repeated airplane runs — skydive out every time. 50 jumps takes roughly 50 plane sessions. The Mount Kalaga cliff at 300ft+ also counts.',
   },
   {
-    id: 'spawn-boat',
-    name: 'Spawn Speedboat',
-    category: 'vehicles',
-    code: '1-999-266-837',
-    effect: 'Spawns a Speeder speedboat. Only works near water — spawns at the nearest shoreline.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'Must be within ~300m of water or the code has no effect. No error message — it just silently fails.',
+    id: 'p-body-armor',
+    name: 'Body Armor',
+    description: 'Adds body armor to your loadout.',
+    code: '↓ ↑ ← ↑ ↑ ↑ ↑ ↑ ↓ ↓',
+    category: 'player',
+    unlock: 'Complete 100 workouts',
+    diff: 'medium',
+    hasCode: true,
+    fastestWay: 'Work out at any gym or outdoor equipment location. Each session counts as 1 workout — do two or three in a row at the same location. 100 workouts at 3/day = ~33 in-game days.',
   },
   {
-    id: 'spawn-military',
-    name: 'Spawn Military Truck',
-    category: 'vehicles',
-    code: '1-999-865-842',
-    effect: 'Spawns an armoured military transport truck.',
-    storyFree: false,
-    storyNote: 'Requires completing at least one VCIA-related mission in Chapter 4 for the military spawn to become available.',
-    disablesAchievements: true,
-    tip: 'Worth the story gating — the military truck tanks 5-star wanted level far better than any civilian vehicle.',
+    id: 'p-repair-vehicle',
+    name: 'Repair Vehicle',
+    description: 'Fully repairs your current vehicle.',
+    code: null,
+    category: 'player',
+    unlock: 'Get 1st place in 10 races at Gellhorn Raceway, Thrillbilly Mud Club, and Boone Speedway',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'Enter races at all three tracks. Easiest to grind: Gellhorn Raceway in Port Gellhorn — short circuit, easy to repeat. Win 10 total across all three venues.',
   },
   {
-    id: 'slidey-cars',
-    name: 'Slidey Cars',
-    category: 'vehicles',
-    code: '1-999-754-337',
-    effect: 'All vehicles have massively reduced traction — they slide on any surface.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'Deactivate with the same code. Deactivates automatically on death or mission start.',
+    id: 'p-unlimited-nitrous',
+    name: 'Unlimited Nitrous',
+    description: 'Nitrous and fuel never run out on vehicles.',
+    code: null,
+    category: 'player',
+    unlock: 'Complete 50 stunt jumps',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'Yellow stunt jump markers appear across Leonida. The highest concentration is in Vice City. Chain multiple in one drive. 50 jumps at 5–10/session = ~6 sessions.',
   },
 
-  // ── WORLD ─────────────────────────────────────────────────────────────────
+  // ── COMBAT ───────────────────────────────────────────────────────────────
   {
-    id: 'change-weather',
-    name: 'Change Weather',
-    category: 'world',
-    code: '1-999-932-273',
-    effect: 'Cycles through weather conditions: Clear → Overcast → Rain → Thunder → Fog → Clear.',
-    storyFree: true,
-    disablesAchievements: false,
-    stackable: 'Enter multiple times to cycle to the desired weather state.',
-    tip: 'Achievement-safe. Thunder weather makes high-speed driving harder but looks incredible — good for screenshots. Fog reduces cop visibility range significantly.',
+    id: 'c-max-ammo',
+    name: 'Max Ammo',
+    description: 'Fills all ammo to maximum.',
+    code: '↓ ↑ → ↓ ← ← ↑ ↑ ↓ ←',
+    category: 'combat',
+    unlock: 'Win 25 bronze medals or higher at shooting ranges',
+    diff: 'easy',
+    hasCode: true,
+    fastestWay: 'Shooting ranges are marked on the map (gun icon). Bronze is easy on beginner courses. 25 medals = ~25 visits. Fastest: Port Gellhorn range, beginner pistol challenge, repeat.',
   },
   {
-    id: 'slow-motion',
-    name: 'Slow Motion',
-    category: 'world',
-    code: '1-999-756-884',
-    effect: 'Activates slow motion (approx 50% speed). Stack up to 5× for near-freeze.',
-    storyFree: true,
-    disablesAchievements: true,
-    stackable: 'Enter up to 5 times to stack. 5th entry exits slow motion.',
-    tip: 'At 4× stack the game is nearly paused. Good for getting screenshots mid-action.',
+    id: 'c-infinite-ammo',
+    name: 'Infinite Ammo',
+    description: 'Ammo never runs out.',
+    code: '↓ ↑ → ↓ ← ← ↑ ↓ ↓ ↓',
+    category: 'combat',
+    unlock: 'Win 25 silver medals or higher at shooting ranges',
+    diff: 'medium',
+    hasCode: true,
+    fastestWay: 'Same as Max Ammo but silver required. Practice the pistol beginner course 10+ times first to build aim, then push for silver on intermediate.',
   },
   {
-    id: 'drunk-mode',
-    name: 'Drunk Mode',
-    category: 'world',
-    code: '1-999-547-861',
-    effect: 'Character stumbles, camera sways, and all vehicle handling becomes erratic.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'Deactivates on death or time skip. Funniest with Explosive Melee active.',
+    id: 'c-no-reload',
+    name: 'No Reload',
+    description: 'Ammo never runs out, no need to reload.',
+    code: '↓ ↑ → ↓ ← ← ↑ ↓ ↓ ↑',
+    category: 'combat',
+    unlock: 'Win 25 gold medals at shooting ranges',
+    diff: 'hard',
+    hasCode: true,
+    fastestWay: 'Gold is the hardest shooting range requirement. Focus on beginner course gold before moving up. Use the SMG course — faster fire rate = more targets hit in time.',
   },
   {
-    id: 'moon-gravity',
-    name: 'Moon Gravity',
-    category: 'world',
-    code: '1-999-356-842',
-    effect: 'Massively reduced gravity — vehicles and bodies float on impact or launch.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'Vehicles still accelerate normally — a car hit at speed will float into the stratosphere.',
+    id: 'c-attack-force',
+    name: 'Attack Force',
+    description: 'Bullets and melee attacks launch targets on impact.',
+    code: '↓ ↑ ← ← → ↓ ↓ ↑ ↓',
+    category: 'combat',
+    unlock: 'Complete the main story',
+    diff: 'story',
+    hasCode: true,
   },
   {
-    id: 'skyfall',
-    name: 'Skyfall',
-    category: 'world',
-    code: '1-999-759-532',
-    effect: 'Teleports the player high into the sky in freefall. No parachute equipped.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'You will die unless you dial the Parachute code immediately after. The freefall is fast — have the next code ready.',
+    id: 'c-exploding-balls',
+    name: 'Exploding Balls',
+    description: 'Sports balls explode on impact.',
+    code: '↓ ↑ ← ← → ↓ ↓ ↑ →',
+    category: 'combat',
+    unlock: 'Hit 20 enemies with explosive damage',
+    diff: 'easy',
+    hasCode: true,
+    fastestWay: 'Throw grenades at any gang operation. 20 kills with explosive damage across any session — happens naturally from Ch. 2 gang ops. Fast if you use the H-AT Launcher from the RV Park Bunker.',
   },
   {
-    id: 'parachute',
-    name: 'Give Parachute',
-    category: 'world',
-    code: '1-999-759-348',
-    effect: 'Equips a parachute regardless of current inventory.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'Enter while in freefall (from Skyfall or a helicopter jump) to prevent death. Opens normally with the parachute button.',
+    id: 'c-vehicle-force',
+    name: 'Vehicle Force',
+    description: 'Vehicle collisions launch targets.',
+    code: '↓ ↑ ← ← → ↓ ← ↑ ↓',
+    category: 'combat',
+    unlock: 'Kill 25 enemies with a vehicle',
+    diff: 'easy',
+    hasCode: true,
+    fastestWay: 'Drive into any gang operation or crowd. 25 vehicle kills happens within 2–3 gang op raids. Fastest: get a heavy vehicle, raid a Kingfisher camp. Done in one session.',
+  },
+  {
+    id: 'c-hauners-hat',
+    name: 'Hauners H-AT Launcher',
+    description: 'Adds a Hauners H-AT to your loadout.',
+    code: null,
+    category: 'combat',
+    unlock: 'Blow up 100 vehicles',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'Blow up parked cars with grenades at impound lots and parking garages. Stealing cop cars and blowing them also counts. 100 vehicles takes 3–4 extended sessions.',
+  },
+  {
+    id: 'c-incendiary-ammo',
+    name: 'Incendiary Ammo',
+    description: 'All ammo is incendiary.',
+    code: null,
+    category: 'combat',
+    unlock: 'Burn 100 enemies with fire damage',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'Molotovs from the RV Park Bunker (free early). Raid gang ops and throw Molotovs into groups. 100 burns across 10–15 gang op raids.',
+  },
+  {
+    id: 'c-explosive-shotgun',
+    name: 'Explosive Shotgun',
+    description: 'Adds a Mason & Keen Shortstraw that fires explosive shells.',
+    code: null,
+    category: 'combat',
+    unlock: 'Hit 100 enemies with explosive damage',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'Same as Exploding Balls grind. Stack: use grenades + H-AT Launcher on gang ops. 100 explosive hits across regular gang op farming.',
   },
 
-  // ── CHARACTER ─────────────────────────────────────────────────────────────
+  // ── VEHICLES ─────────────────────────────────────────────────────────────
   {
-    id: 'super-jump',
-    name: 'Super Jump',
-    category: 'character',
-    code: '1-999-468-468',
-    effect: 'Massive jump height. Hold jump button for maximum height.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'Hold the jump button the entire time — a quick tap gives maybe 3× normal height. Holding for a full second sends you to rooftop level.',
+    id: 'v-boomazoom',
+    name: 'Maibatsu Boomazoom',
+    description: 'Spawns a Maibatsu Boomazoom.',
+    code: '← ↑ → ↓ ← ← ↑ ←',
+    category: 'vehicles',
+    unlock: 'Complete 5 shopping challenges',
+    diff: 'easy',
+    hasCode: true,
+    fastestWay: 'Shopping challenges appear in the Challenges menu (Progress > Challenges > Shopping). Buy items at different store types — clothing, liquor, food, electronics. 5 challenges = roughly 5 different purchases at different store categories.',
   },
   {
-    id: 'fast-run',
-    name: 'Fast Run',
-    category: 'character',
-    code: '1-999-228-253',
-    effect: 'Sprint speed increased to approximately 2.5× normal.',
-    storyFree: true,
-    disablesAchievements: true,
+    id: 'v-mtl-pumper',
+    name: 'MTL Pumper (Fire Truck)',
+    description: 'Spawns an MTL Pumper.',
+    code: '← ↑ → ↓ ← → → ↑',
+    category: 'vehicles',
+    unlock: 'Unknown — discovered in-game',
+    diff: 'easy',
+    hasCode: true,
   },
   {
-    id: 'fast-swim',
-    name: 'Fast Swim',
-    category: 'character',
-    code: '1-999-468-253',
-    effect: 'Swim speed increased to approximately 2.5× normal.',
-    storyFree: true,
-    disablesAchievements: true,
-    tip: 'Pairs well with Kenton\'s dive spots — covers large underwater areas quickly.',
+    id: 'v-bulldozer',
+    name: 'HVY Bulldozer',
+    description: 'Spawns an HVY Bulldozer.',
+    code: '← ↑ → ↓ ← → → ↓',
+    category: 'vehicles',
+    unlock: 'Discover the HVY Bulldozer in the Progress menu',
+    diff: 'easy',
+    hasCode: true,
+    fastestWay: 'Find and interact with an HVY Bulldozer in the world (construction sites, Port Gellhorn docks, any active build site). Once it registers in the Progress menu as "Discovered," the cheat unlocks.',
+  },
+  {
+    id: 'v-sanchez',
+    name: 'Maibatsu Sanchez',
+    description: 'Spawns a Maibatsu Sanchez dirt bike.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete 5 criminal challenges',
+    diff: 'easy',
+    hasCode: false,
+    fastestWay: 'Criminal challenges: rob stores, complete gang ops, sell to fences. 5 criminal challenge completions happens naturally within the first 2 hours of open-world play in Ch. 1.',
+  },
+  {
+    id: 'v-airboat',
+    name: 'Airboat 09',
+    description: 'Spawns an Airboat 09.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete 5 survival challenges',
+    diff: 'easy',
+    hasCode: false,
+    fastestWay: 'Survival challenges: escape wanted levels, survive gang fights, complete ambushes. 5 challenges happens within normal gameplay in Ch. 1–2.',
+  },
+  {
+    id: 'v-bmx',
+    name: 'Tuff BMX',
+    description: 'Spawns a Tuff BMX.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete 5 fitness challenges',
+    diff: 'easy',
+    hasCode: false,
+    fastestWay: 'Fitness challenges: work out at gyms, go for runs, swim. 5 challenges is very quick — do 5 gym sessions in Key Lento in Ch. 1.',
+  },
+  {
+    id: 'v-lapwing',
+    name: 'Lapwing Mallard',
+    description: 'Spawns a Lapwing Mallard plane.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete 5 vehicle challenges',
+    diff: 'easy',
+    hasCode: false,
+    fastestWay: 'Vehicle challenges: win races, complete stunt jumps, drive long distances. 5 vehicle challenges completes within the first few Ch. 2 racing activities.',
+  },
+  {
+    id: 'v-sea-sparrow',
+    name: 'Nagasaki Sea Sparrow',
+    description: 'Spawns a Nagasaki Sea Sparrow helicopter.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete 5 exploration challenges',
+    diff: 'easy',
+    hasCode: false,
+    fastestWay: 'Exploration challenges: discover new areas, scan landmarks with WAINK, find POIs. Travel the map broadly in Ch. 1 and 5 challenges unlock naturally.',
+  },
+  {
+    id: 'v-speeder',
+    name: 'Speeder 700 GT',
+    description: 'Spawns a Speeder 700 GT boat.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete 5 combat challenges',
+    diff: 'easy',
+    hasCode: false,
+    fastestWay: 'Combat challenges: kill enemies, survive shootouts, land headshots. 5 combat challenges completes within normal Ch. 1 gang op farming.',
+  },
+  {
+    id: 'v-taxi',
+    name: 'Vapid Stanier G2 Taxi',
+    description: 'Spawns a Vapid Stanier G2 Taxi.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete 5 sports challenges',
+    diff: 'easy',
+    hasCode: false,
+    fastestWay: 'Sports challenges: play golf, tennis, go to the shooting range, swim races. 5 sports challenges — hit Gellhorn Raceway and a golf course in the same session.',
+  },
+  {
+    id: 'v-carbon-rs',
+    name: 'Nagasaki Carbon RS',
+    description: 'Spawns a Nagasaki Carbon RS bike.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete all exploration challenges',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'All exploration challenges: discover every region, scan all WAINK landmarks and curiosities, find all POIs. Use the WAINK app constantly during open-world travel. This takes the full playthrough to complete.',
+  },
+  {
+    id: 'v-dominator-65',
+    name: '\'65 Vapid Dominator',
+    description: 'Spawns a \'65 Vapid Dominator classic muscle car.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete all fitness challenges',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'All fitness challenges: max out workout stat, swim long distances, run long distances, complete all gym challenges. Grind workout sessions daily across both characters for fastest completion.',
+  },
+  {
+    id: 'v-progen-emerus',
+    name: 'Progen Emerus',
+    description: 'Spawns a Progen Emerus supercar.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete all vehicle challenges',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'All vehicle challenges: win all races, complete all stunt jumps, all knife flights, all base jumps. This is a major grind requiring nearly all of the vehicle-based side content.',
+  },
+  {
+    id: 'v-thrax',
+    name: 'Truffade Thrax',
+    description: 'Spawns a Truffade Thrax (Bugatti).',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete all shopping challenges',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'All shopping challenges: buy from every store type, spend set amounts at different categories. Track in Progress > Challenges > Shopping. Can be done naturally over Ch. 3–4 if you shop consistently.',
+  },
+  {
+    id: 'v-zombie-bobber',
+    name: 'Western Zombie Bobber',
+    description: 'Spawns a Western Zombie Bobber motorcycle.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete all criminal challenges',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'All criminal challenges: rob all store types, complete all gang ops, all bank jobs, reach selling milestones. The longest criminal grind in the game — plan across all chapters.',
+  },
+  {
+    id: 'v-bravado-banshee',
+    name: 'Bravado Banshee',
+    description: 'Spawns a Bravado Banshee sports car.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete all combat challenges',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'All combat challenges: get gold medals at all shooting ranges, all headshot/kill milestones, survive max wanted levels. Stack with the No Reload shooting range grind.',
+  },
+  {
+    id: 'v-golfer',
+    name: 'Brimstone Golfer',
+    description: 'Spawns a Brimstone Golfer golf cart.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete all sports challenges',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'All sports challenges: win at every sport (golf, tennis, pool, races, bowling, shooting range gold medals). The golf completion is the hardest — practice on easy courses first.',
+  },
+  {
+    id: 'v-rhino-tank',
+    name: 'Hauners Rhino Tank',
+    description: 'Spawns a Hauners Rhino Tank.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete all survival challenges',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'All survival challenges: survive high wanted levels, complete all gang ops, all ambush events. The 6-star wanted level survival challenge is the hardest — tank or helicopter recommended.',
+  },
+  {
+    id: 'v-ambulance',
+    name: 'Interstate Ambulance',
+    description: 'Spawns an Interstate Ambulance.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Discover the Interstate Ambulance in the Progress menu',
+    diff: 'easy',
+    hasCode: false,
+    fastestWay: 'Steal any ambulance. Hospitals always have one parked. Hospitals: Vice City General, Port Gellhorn Memorial, Key Lento Clinic. Drive it briefly and it registers as discovered.',
+  },
+  {
+    id: 'v-lazer',
+    name: 'Hauners P-996 Lazer',
+    description: 'Spawns a Hauners P-996 Lazer fighter jet.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Complete ALL challenges',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'Every single challenge in the game must be completed. This is the final vehicle cheat — obtainable only after 100% challenge completion. The ultimate long-term goal.',
+  },
+  {
+    id: 'v-flamingo',
+    name: 'Inflatable Flamingo',
+    description: 'Spawns an Inflatable Flamingo pool toy.',
+    code: null,
+    category: 'vehicles',
+    unlock: 'Destroy 50 cocaine flamingos',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'Cocaine flamingos are small pink collectibles scattered across Leonida (100 total). Shoot or run them over. 50 destroyed = this cheat. Use the PowerPyx flamingo map for fastest route.',
+  },
+
+  // ── ENVIRONMENT ──────────────────────────────────────────────────────────
+  {
+    id: 'e-move-time',
+    name: 'Move Time Forward',
+    description: 'Moves the time of day forward.',
+    code: null,
+    category: 'environment',
+    unlock: 'Find 10 collectible watches',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'Collectible watches are found on bodies, in safes, and in gang operations. 10 watches is achievable within the first 15 gang op raids.',
+  },
+  {
+    id: 'e-pause-time',
+    name: 'Pause Time of Day',
+    description: 'Pauses the time of day.',
+    code: null,
+    category: 'environment',
+    unlock: 'Find 20 collectible watches',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'Same as Move Time Forward — find 20 total watches. Doubles as the full watch collectible set for 100% completion.',
+  },
+  {
+    id: 'e-cycle-weather',
+    name: 'Cycle Weather',
+    description: 'Adjusts the weather conditions.',
+    code: '↓ → ↑ ↓ → ↑ →',
+    category: 'environment',
+    unlock: 'Complete the main story',
+    diff: 'story',
+    hasCode: true,
+  },
+
+  // ── SCREEN FILTERS ───────────────────────────────────────────────────────
+  {
+    id: 'f-cataclysm',
+    name: 'Cataclysm',
+    description: 'Fills the world with murky smoke.',
+    code: '↓ ↓ ↑ → → ↑ ← ← → →',
+    category: 'filters',
+    unlock: 'Discover Martha\'s Vamos in the Progress menu',
+    diff: 'easy',
+    hasCode: true,
+    fastestWay: 'Find Martha\'s Vamos — a unique vehicle. It appears as a random street encounter in rural Kelly County and Mariana County. Drive it briefly for it to register.',
+  },
+  {
+    id: 'f-dollhouse',
+    name: 'Dollhouse',
+    description: 'Vivid filter with a narrow aspect ratio.',
+    code: '↓ ↓ ↑ → → ↑ ← ← ↓ →',
+    category: 'filters',
+    unlock: 'Spend 8 hours with your partner',
+    diff: 'easy',
+    hasCode: true,
+    fastestWay: 'Activities with your partner count: eat together, watch TV, work out, go to bars. 8 in-game hours = roughly 16 real minutes at normal speed. Stack couple activities in Ch. 3+ when both are always available.',
+  },
+  {
+    id: 'f-faded-glory',
+    name: 'Faded Glory',
+    description: 'Color CRT TV filter.',
+    code: '↓ ↓ ↑ → → ↑ ← ← ← →',
+    category: 'filters',
+    unlock: 'Rob 50 stores with your partner',
+    diff: 'medium',
+    hasCode: true,
+    fastestWay: 'Stores to rob: convenience stores, liquor stores, clothing stores. Switch to partner before entering. 50 store robberies across Ch. 2–4. Fastest: chain convenience store robberies in Vice City, 5–6 per session.',
+  },
+  {
+    id: 'f-fast-forward',
+    name: 'Fast Forward',
+    description: 'Motion blur + accelerated cloud movement.',
+    code: null,
+    category: 'filters',
+    unlock: 'Complete 50 meditations',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'Meditation spots are marked on the map (lotus icon). 18 total spots in Leonida. Rotate through all 18 spots, then repeat. 50 meditations = roughly 3 full rotations of all spots.',
+  },
+  {
+    id: 'f-fisheye',
+    name: 'Fisheye',
+    description: 'Applies a fisheye filter.',
+    code: null,
+    category: 'filters',
+    unlock: 'Catch 100 fish',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'Fish at any body of water (rod from Ammu-Nation or tackle shops). Cal\'s fishing quest in Ch. 1 gives early practice. 100 fish across all sessions — aim for 10 per fishing session.',
+  },
+  {
+    id: 'f-videotape',
+    name: 'Videotape',
+    description: 'Videotape-style filter.',
+    code: null,
+    category: 'filters',
+    unlock: 'Complete 50 activities with your partner',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'Activities: eat, work out, go to bars, watch movies, play pool. Each activity = 1 count. 50 activities across Ch. 3–4 when partner is always available.',
+  },
+  {
+    id: 'f-bubblegum',
+    name: 'Bubblegum',
+    description: 'Turns world purple and yellow with sparkles.',
+    code: null,
+    category: 'filters',
+    unlock: 'Find all 24 collectible cards for the Vice City Flamingos',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: '24 specific collectible cards from the Vice City Flamingos set. Cards found in safes, gang ops, and pawn shops. Use PowerPyx Flamingos card location guide.',
+  },
+  {
+    id: 'f-migraine',
+    name: 'Migraine',
+    description: 'Blurred, distorted filter.',
+    code: null,
+    category: 'filters',
+    unlock: 'Survive 6 minutes with a 6-star wanted level',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'Needs max 6-star wanted level. Get in a tank or military vehicle. Find a defensible position (tunnel entrance, narrow alley). 6 real minutes is a long time under full military assault.',
+  },
+  {
+    id: 'f-dark-mirror',
+    name: 'Dark Mirror',
+    description: 'Flips the world upside down and turns it black.',
+    code: null,
+    category: 'filters',
+    unlock: 'Make $500,000 selling vehicles',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'Sell cars to Moses and Randy consistently from Ch. 2 onwards. At $5,000–$15,000 per car, need 35–100 sales. Fully doable by mid-Ch. 3 with consistent car stealing.',
+  },
+  {
+    id: 'f-hellscape',
+    name: 'Hellscape',
+    description: 'Turns the world red and orange with heat haze.',
+    code: null,
+    category: 'filters',
+    unlock: 'Steal 100 cop vehicles',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'Steal police cars during 1-2 star wanted levels. The easiest: get 1 star, let a cop get out, steal the car, drive to Pay \'n\' Spray, repeat. 100 cop cars at 10/session = 10 sessions.',
+  },
+  {
+    id: 'f-pixel-art',
+    name: 'Pixel Art',
+    description: 'Applies a pixelated filter.',
+    code: null,
+    category: 'filters',
+    unlock: 'Make $250,000 selling collectibles',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'Sell collectible cards, watches, and unique items to pawn shops and fences. Stack with the Dime on the Dollar trophy grind. Collectible cards sell for $500–$6,000 each.',
+  },
+  {
+    id: 'f-neon-jungle',
+    name: 'Neon Jungle',
+    description: 'Applies neon highlights to the world.',
+    code: null,
+    category: 'filters',
+    unlock: 'Discover all 16 Girlypop Vehicles',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'Girlypop Vehicles are uniquely patterned cars found across Leonida. Find and interact with all 16 — they appear in the Progress > Discoveries menu once found.',
+  },
+  {
+    id: 'f-yesteryear',
+    name: 'Yesteryear',
+    description: 'Black & white CRT TV filter.',
+    code: null,
+    category: 'filters',
+    unlock: 'Discover the Ridgeway in the Progress menu',
+    diff: 'easy',
+    hasCode: false,
+    fastestWay: 'Find the Ridgeway — a specific location in Leonida. Drive the rural northern roads (Lummox County or Mariana County) until it registers in Progress > Discoveries.',
+  },
+  {
+    id: 'f-pinhole',
+    name: 'Pinhole',
+    description: 'Pinhole camera filter.',
+    code: null,
+    category: 'filters',
+    unlock: 'Clear 25 gang operations with your partner',
+    diff: 'medium',
+    hasCode: false,
+    fastestWay: 'Gang ops: yellow icons on the map. Switch to partner before clearing. 25 gang ops with partner present = roughly 25 raids. Stack with the Tyrone narcotics grind.',
+  },
+  {
+    id: 'f-powdered-sugar',
+    name: 'Powdered Sugar',
+    description: 'Turns the world white with sparkling highlights.',
+    code: null,
+    category: 'filters',
+    unlock: 'Scan all space debris with WAINK',
+    diff: 'hard',
+    hasCode: false,
+    fastestWay: 'Space debris are specific items scattered across Leonida, scanned with the WAINK app. Use PowerPyx WAINK Curiosities guide for all locations.',
+  },
+  {
+    id: 'f-golden-hour',
+    name: 'Golden Hour',
+    description: 'Golden filter with widescreen aspect ratio.',
+    code: null,
+    category: 'filters',
+    unlock: 'Spend 4 hours holding hands with your partner',
+    diff: 'easy',
+    hasCode: false,
+    fastestWay: 'Walk anywhere holding your partner\'s hand (hold the partner interact button while walking). 4 in-game hours = ~8 real minutes. Easy to stack during story walks in Ch. 3.',
   },
 ]
 
-// ─── Fastest Unlock Guide ─────────────────────────────────────────────────────
-
-const UNLOCK_GUIDE = [
-  {
-    cheat: 'Recharge Special Ability',
-    minimum: 'Chapter 2 — Coffee Break mission',
-    path: [
-      'Start a new save and complete Ch1 as fast as possible — do ONLY the main missions, skip everything optional.',
-      'At the Ch1 end, make sure you\'ve stashed $5k in Family Savings before Tourist Trap.',
-      'In Ch2, ignore side content until Coffee Break triggers after the third main mission.',
-      'Coffee Break unlocks character switching — the Recharge Special cheat activates immediately after.',
-    ],
-    estimatedTime: '2–3 hours of focused play',
-  },
-  {
-    cheat: 'Spawn Military Truck',
-    minimum: 'Chapter 4 — first VCIA mission',
-    path: [
-      'Rush Ch1–Ch3 on main missions only. Ch3 has 26 missions — accept all pacing tips from the game\'s markers.',
-      'The Ch3 payout ($120k) funds the Ch4 lawyer fee (Abe). Do NOT waste money in Ch3.',
-      'Enter Ch4 and complete the first VCIA-flagged mission — it appears approximately 4–5 missions into the chapter.',
-      'Once that mission resolves, the military truck spawn code is live.',
-    ],
-    estimatedTime: '8–12 hours of focused play',
-  },
+const CAT_LABELS: { key: CheatCat; label: string; color: string }[] = [
+  { key: 'all',         label: 'All',         color: '#888' },
+  { key: 'player',     label: 'Player',       color: '#72dce8' },
+  { key: 'combat',     label: 'Combat',       color: '#ff79a8' },
+  { key: 'vehicles',   label: 'Vehicles',     color: '#ffd27a' },
+  { key: 'environment',label: 'Environment',  color: '#4ade80' },
+  { key: 'filters',    label: 'Filters',      color: '#d5a6ff' },
 ]
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-type CategoryMeta = { label: string; icon: React.ElementType; color: string }
-
-const CAT_META: Record<Category, CategoryMeta> = {
-  health:    { label: 'Health',    icon: Shield,    color: 'text-rose-400' },
-  weapons:   { label: 'Weapons',   icon: Crosshair, color: 'text-[#ff79a8]' },
-  wanted:    { label: 'Wanted',    icon: AlertCircle, color: 'text-amber-400' },
-  vehicles:  { label: 'Vehicles',  icon: Car,       color: 'text-[#72dce8]' },
-  world:     { label: 'World',     icon: Cloud,     color: 'text-[#ffd27a]' },
-  character: { label: 'Character', icon: Zap,       color: 'text-emerald-400' },
+const DIFF_META: Record<UnlockDiff, { label: string; color: string }> = {
+  easy:   { label: 'Easy',    color: '#4ade80' },
+  medium: { label: 'Medium',  color: '#ffd27a' },
+  hard:   { label: 'Hard',    color: '#ff79a8' },
+  story:  { label: 'Story',   color: '#72dce8' },
 }
-
-function CopyButton({ code }: { code: string }) {
-  const [copied, setCopied] = useState(false)
-  const handle = () => {
-    navigator.clipboard.writeText(code).catch(() => {})
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-  return (
-    <button
-      onClick={handle}
-      className={clsx(
-        'flex items-center gap-1 rounded border px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] transition',
-        copied
-          ? 'border-emerald-500/40 bg-emerald-900/25 text-emerald-300'
-          : 'border-white/15 bg-white/[0.04] text-white/40 hover:border-white/30 hover:text-white/70',
-      )}
-    >
-      {copied ? <Check size={9} /> : <Copy size={9} />}
-      {copied ? 'Copied' : 'Copy'}
-    </button>
-  )
-}
-
-// ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function CheatCodes() {
-  const [catFilter, setCatFilter] = useState<'all' | Category>('all')
-  const [storyFreeOnly, setStoryFreeOnly] = useState(false)
-  const [showGuide, setShowGuide] = useState(false)
+  const [cat, setCat]           = useState<CheatCat>('all')
+  const [query, setQuery]       = useState('')
+  const [diffFilter, setDiff]   = useState<UnlockDiff | 'all'>('all')
+  const [expanded, setExpanded] = useState<string | null>(null)
+  const [copied, setCopied]     = useState<string | null>(null)
 
-  const filtered = CHEATS.filter(c => {
-    if (catFilter !== 'all' && c.category !== catFilter) return false
-    if (storyFreeOnly && !c.storyFree) return false
-    return true
-  })
+  const list = useMemo(() => {
+    return CHEATS.filter(c => {
+      const matchCat  = cat === 'all' || c.category === cat
+      const matchDiff = diffFilter === 'all' || c.diff === diffFilter
+      const q = query.toLowerCase()
+      const matchQ = !q || c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q) || c.unlock.toLowerCase().includes(q)
+      return matchCat && matchDiff && matchQ
+    })
+  }, [cat, query, diffFilter])
 
-  const achievementSafe = filtered.filter(c => !c.disablesAchievements)
+  const copyCode = (id: string, code: string) => {
+    navigator.clipboard.writeText(code).catch(() => {})
+    setCopied(id)
+    setTimeout(() => setCopied(null), 2000)
+  }
+
+  const confirmed = CHEATS.filter(c => c.hasCode).length
+  const total = CHEATS.length
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-7 sm:px-6 sm:py-9">
+    <div className="mx-auto max-w-3xl px-4 py-7 sm:px-6 sm:py-10">
 
       {/* Header */}
-      <div className="rounded-xl border border-white/[0.07] bg-[#11121d]/60 px-5 py-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#72dce8]">Cheat Codes</p>
-        <p className="mt-1 text-sm text-white/50 leading-relaxed">
-          All known codes entered via the in-game phone keypad — open phone, dial, call.
-          Community-sourced: verify each code in-game before relying on it in a session.
+      <div className="mb-7">
+        <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.3em] text-[#ff79a8]">Cheats</p>
+        <h2 className="font-display text-2xl font-bold uppercase tracking-wide text-white sm:text-3xl">Cheat Codes</h2>
+        <p className="mt-1.5 text-xs text-white/40">
+          All 61 cheats — {confirmed} confirmed D-pad codes, {total - confirmed} unlock requirements pending community discovery.
         </p>
       </div>
 
-      {/* Achievement warning */}
-      <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-900/[0.12] px-4 py-3">
-        <Trophy size={14} className="mt-0.5 shrink-0 text-amber-400/70" />
-        <div>
-          <p className="text-xs font-semibold text-amber-300">Most cheats disable achievements for the session</p>
-          <p className="mt-0.5 text-[11px] text-amber-200/55">
-            Once a cheat is entered, achievements/trophies are locked until you reload a save made BEFORE using cheats.
-            Clear Wanted Level and Raise Wanted Level are the only two codes that are achievement-safe.
-            If you care about trophies, complete them first.
-          </p>
+      {/* How cheats work */}
+      <div className="mb-5 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#11121d]/90">
+        <div className="border-b border-white/[0.07] px-5 py-3">
+          <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/40">How Cheats Work in GTA VI</p>
+        </div>
+        <div className="space-y-2 px-5 py-4">
+          {[
+            '⚠️ Cheats DISABLE trophies/achievements and saving. Only use in separate save files.',
+            '📋 All 61 cheats must be unlocked FIRST by meeting their requirement. Inputting the code without unlocking it does nothing.',
+            '📱 To input: press ↑ (D-pad up) to open phone → hold L1/LB → press R1/RB → enter the D-pad sequence.',
+            '📋 All cheats appear in Progress Menu → Cheats once unlocked.',
+            '💰 No money cheat exists in GTA VI. The $250k cheat only unlocks after finishing the story.',
+          ].map((tip, i) => (
+            <p key={i} className="text-[11px] leading-5 text-white/60">{tip}</p>
+          ))}
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Category filters */}
-        <div className="flex flex-wrap gap-1">
+      {/* Stats */}
+      <div className="mb-5 grid grid-cols-4 gap-2">
+        {[
+          { label: 'Total', value: total },
+          { label: 'Codes Found', value: confirmed },
+          { label: 'Pending', value: total - confirmed },
+          { label: 'Story Locked', value: CHEATS.filter(c => c.diff === 'story').length },
+        ].map(s => (
+          <div key={s.label} className="rounded-xl border border-white/[0.08] bg-[#11121d]/90 px-2 py-2.5 text-center">
+            <p className="text-base font-bold text-white">{s.value}</p>
+            <p className="text-[8px] text-white/30 uppercase tracking-[0.08em]">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="mb-4 flex flex-wrap gap-2">
+        {CAT_LABELS.map(c => (
           <button
-            onClick={() => setCatFilter('all')}
+            key={c.key}
+            onClick={() => setCat(c.key)}
             className={clsx(
-              'rounded-lg border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition',
-              catFilter === 'all'
-                ? 'border-[#ff79a8]/50 bg-[#ff79a8]/10 text-[#ff9bb5]'
-                : 'border-white/10 bg-white/[0.03] text-white/35 hover:text-white/55',
+              'rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] transition',
+              cat === c.key ? 'border-white/25 bg-white/[0.08] text-white' : 'border-white/[0.07] text-white/30 hover:text-white/60'
             )}
-          >All</button>
-          {(Object.entries(CAT_META) as [Category, CategoryMeta][]).map(([cat, meta]) => {
-            const Icon = meta.icon
-            return (
-              <button
-                key={cat}
-                onClick={() => setCatFilter(cat)}
-                className={clsx(
-                  'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition',
-                  catFilter === cat
-                    ? 'border-[#ff79a8]/50 bg-[#ff79a8]/10 text-[#ff9bb5]'
-                    : 'border-white/10 bg-white/[0.03] text-white/35 hover:text-white/55',
-                )}
-              >
-                <Icon size={10} className={catFilter === cat ? '' : meta.color} />
-                {meta.label}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Story-free toggle */}
-        <button
-          onClick={() => setStoryFreeOnly(v => !v)}
-          className={clsx(
-            'ml-auto flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition',
-            storyFreeOnly
-              ? 'border-emerald-500/40 bg-emerald-900/20 text-emerald-300'
-              : 'border-white/10 bg-white/[0.03] text-white/35 hover:text-white/55',
-          )}
-        >
-          <Zap size={10} />
-          No Story Required
-        </button>
+          >
+            {c.label}
+          </button>
+        ))}
       </div>
 
-      {/* Count line */}
-      <p className="text-[10px] text-white/25">
-        Showing {filtered.length} of {CHEATS.length} codes
-        {achievementSafe.length > 0 && filtered.some(c => !c.disablesAchievements) &&
-          ` · ${filtered.filter(c => !c.disablesAchievements).length} achievement-safe`
-        }
-      </p>
+      <div className="mb-5 flex gap-2">
+        {/* Search */}
+        <div className="relative flex-1">
+          <Search size={12} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search cheats…"
+            className="w-full rounded-xl border border-white/[0.1] bg-white/[0.04] py-2 pl-9 pr-4 text-sm text-white placeholder-white/25 outline-none focus:border-[#ff79a8]/50"
+          />
+          {query && <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70"><X size={11}/></button>}
+        </div>
+        {/* Difficulty */}
+        <select
+          value={diffFilter}
+          onChange={e => setDiff(e.target.value as UnlockDiff | 'all')}
+          className="rounded-xl border border-white/[0.1] bg-[#11121d] px-3 py-2 text-xs text-white/60 outline-none"
+        >
+          <option value="all">All Difficulty</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+          <option value="story">Story</option>
+        </select>
+      </div>
 
-      {/* Cheat cards */}
-      <div className="grid gap-2 sm:grid-cols-2">
-        {filtered.map(cheat => {
-          const meta = CAT_META[cheat.category]
-          const Icon = meta.icon
+      <p className="mb-3 text-[10px] text-white/30">{list.length} cheats shown</p>
+
+      {/* Cheat list */}
+      <div className="flex flex-col gap-2">
+        {list.map(c => {
+          const dm = DIFF_META[c.diff]
+          const isOpen = expanded === c.id
           return (
-            <div
-              key={cheat.id}
-              className={clsx(
-                'rounded-xl border bg-[#11121d]/90 p-4 transition duration-200',
-                !cheat.storyFree
-                  ? 'border-amber-500/20'
-                  : cheat.disablesAchievements
-                    ? 'border-white/[0.08]'
-                    : 'border-emerald-500/25',
-              )}
-            >
-              {/* Top row */}
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <Icon size={12} className={meta.color} />
-                  <span className="text-xs font-semibold text-white">{cheat.name}</span>
-                </div>
-                <div className="flex shrink-0 items-center gap-1.5">
-                  {!cheat.storyFree && (
-                    <span className="rounded border border-amber-500/30 bg-amber-900/20 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-amber-400">
-                      Story
+            <article key={c.id} className="overflow-hidden rounded-2xl border border-white/[0.07] bg-[#11121d]/90">
+              <button
+                onClick={() => setExpanded(isOpen ? null : c.id)}
+                className="flex w-full items-center gap-3 px-4 py-3 text-left"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-semibold text-white/90">{c.name}</span>
+                    <span
+                      className="rounded-full px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em]"
+                      style={{ color: dm.color, background: `${dm.color}18`, border: `0.5px solid ${dm.color}30` }}
+                    >
+                      {dm.label}
                     </span>
+                    {!c.hasCode && (
+                      <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[8px] text-white/30">
+                        Code TBC
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-[11px] text-white/40">{c.description}</p>
+                </div>
+                {/* Code badge or TBC */}
+                {c.hasCode && c.code ? (
+                  <div
+                    className="hidden sm:flex items-center gap-1.5 cursor-pointer rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 font-mono text-[10px] text-white/60 hover:bg-white/[0.07]"
+                    onClick={e => { e.stopPropagation(); copyCode(c.id, c.code!) }}
+                  >
+                    {copied === c.id ? <Check size={10} className="text-green-400" /> : <Copy size={10} />}
+                    <span>{c.code}</span>
+                  </div>
+                ) : null}
+              </button>
+
+              {isOpen && (
+                <div className="border-t border-white/[0.07] bg-black/15 px-4 pb-4 pt-3 space-y-3">
+
+                  {/* Code */}
+                  {c.hasCode && c.code ? (
+                    <div className="flex items-center justify-between gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5">
+                      <div>
+                        <p className="mb-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-white/30">D-Pad Code</p>
+                        <p className="font-mono text-sm text-white">{c.code}</p>
+                      </div>
+                      <button
+                        onClick={() => copyCode(c.id, c.code!)}
+                        className="flex items-center gap-1.5 rounded-lg border border-white/[0.1] bg-white/[0.04] px-3 py-1.5 text-xs text-white/60 transition hover:bg-white/[0.08]"
+                      >
+                        {copied === c.id ? <><Check size={11} className="text-green-400" /> Copied</> : <><Copy size={11} /> Copy</>}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] px-3 py-2.5">
+                      <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-white/25">D-Pad Code</p>
+                      <p className="mt-0.5 text-xs text-white/35">Not yet discovered by community</p>
+                    </div>
                   )}
-                  {!cheat.disablesAchievements && (
-                    <span className="rounded border border-emerald-500/30 bg-emerald-900/20 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-emerald-300">
-                      ✓ Trophies
-                    </span>
+
+                  {/* Unlock */}
+                  <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-2.5">
+                    <p className="mb-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-white/30">🔑 Unlock Requirement</p>
+                    <p className="text-xs text-white/70">{c.unlock}</p>
+                  </div>
+
+                  {/* Fastest way */}
+                  {c.fastestWay && (
+                    <div className="flex items-start gap-2 rounded-xl border border-[#4ade80]/15 bg-[#4ade80]/[0.05] px-3 py-2.5">
+                      <span className="text-sm">⚡</span>
+                      <div>
+                        <p className="mb-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-[#4ade80]/70">Fastest Way to Unlock</p>
+                        <p className="text-[11px] leading-5 text-white/65">{c.fastestWay}</p>
+                      </div>
+                    </div>
+                  )}
+                  {c.diff === 'story' && (
+                    <div className="flex items-start gap-2 rounded-xl border border-[#72dce8]/15 bg-[#72dce8]/[0.05] px-3 py-2.5">
+                      <span className="text-sm">📖</span>
+                      <p className="text-[11px] leading-5 text-white/55">Unlocks automatically after completing the main story. No other requirement.</p>
+                    </div>
                   )}
                 </div>
-              </div>
-
-              {/* Phone code */}
-              <div className="mb-2 flex items-center gap-2">
-                <code className="flex-1 rounded-lg border border-white/10 bg-black/30 px-3 py-2 font-mono text-sm font-bold tracking-widest text-[#72dce8]">
-                  {cheat.code}
-                </code>
-                <CopyButton code={cheat.code} />
-              </div>
-
-              {/* Effect */}
-              <p className="text-[11px] leading-relaxed text-white/45">{cheat.effect}</p>
-
-              {/* Stackable note */}
-              {cheat.stackable && (
-                <p className="mt-1.5 text-[10px] text-[#ffd27a]/60">↺ {cheat.stackable}</p>
               )}
-
-              {/* Story requirement */}
-              {!cheat.storyFree && cheat.storyNote && (
-                <div className="mt-2 rounded-lg border border-amber-500/20 bg-amber-900/[0.1] px-2.5 py-1.5">
-                  <p className="text-[10px] text-amber-300/70">{cheat.storyNote}</p>
-                </div>
-              )}
-
-              {/* Tip */}
-              {cheat.tip && (
-                <p className="mt-2 border-t border-white/[0.06] pt-2 text-[10px] leading-relaxed text-white/35">
-                  {cheat.tip}
-                </p>
-              )}
-            </div>
+            </article>
           )
         })}
       </div>
 
-      {/* ── Fastest Unlock Guide ── */}
-      <div className="mt-2 overflow-hidden rounded-xl border border-[#ff79a8]/20 bg-[#11121d]/80">
-        <button
-          onClick={() => setShowGuide(v => !v)}
-          className="flex w-full items-center gap-3 px-5 py-4 text-left transition hover:bg-white/[0.02]"
-        >
-          <Zap size={14} className="text-[#ff79a8]" />
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-white">Fastest Unlock Guide</p>
-            <p className="text-[11px] text-white/35">Minimum story path to unlock the story-gated cheat codes</p>
-          </div>
-          <ChevronDown size={15} className={clsx('text-white/25 transition-transform duration-200', showGuide && 'rotate-180')} />
-        </button>
+      <a
+        href="https://www.powerpyx.com/gta-6-all-cheats/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.03] px-4 py-3 text-xs text-white/40 transition hover:bg-white/[0.06] hover:text-white/70"
+      >
+        <ExternalLink size={12} />
+        Full Cheat Code List with Unlock Requirements (PowerPyx)
+      </a>
 
-        {showGuide && (
-          <div className="border-t border-white/[0.07] bg-black/15 px-5 py-4">
-            <p className="mb-4 text-[11px] leading-relaxed text-white/40">
-              All codes except the two below are available from the moment you load into the game — no story progress needed.
-              For the story-gated codes, here is the minimum path.
-            </p>
-            <div className="flex flex-col gap-5">
-              {UNLOCK_GUIDE.map((guide, i) => (
-                <div key={i}>
-                  <div className="mb-3 flex flex-wrap items-center gap-2">
-                    <span className="font-display text-sm font-bold text-white">{guide.cheat}</span>
-                    <span className="rounded border border-amber-500/30 bg-amber-900/20 px-2 py-0.5 text-[9px] font-semibold text-amber-400">
-                      {guide.minimum}
-                    </span>
-                    <span className="text-[9px] text-white/25">{guide.estimatedTime}</span>
-                  </div>
-                  <ol className="flex flex-col gap-2">
-                    {guide.path.map((step, j) => (
-                      <li key={j} className="flex items-start gap-3">
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/[0.05] font-display text-[10px] font-bold text-white/40">
-                          {j + 1}
-                        </span>
-                        <p className="text-[11px] leading-relaxed text-white/50">{step}</p>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
+      <p className="mt-5 text-center text-[9px] uppercase tracking-[0.18em] text-white/20">
+        Source: PowerPyx · TheClick.gg · Mobalytics · November 2026 · 61 total cheats
+      </p>
     </div>
   )
 }
