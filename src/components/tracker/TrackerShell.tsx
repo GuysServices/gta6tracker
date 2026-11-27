@@ -13,10 +13,11 @@ import ChapterGuide from './ChapterGuide'
 import PropertyTracker from './PropertyTracker'
 import FenceDirectory from './FenceDirectory'
 import CheatCodes from './CheatCodes'
-import { Map, ListChecks, BookOpen, Home, Users, Zap } from 'lucide-react'
+import MapTab from './MapTab'
+import { Map, ListChecks, BookOpen, Home, Users, Zap, Globe } from 'lucide-react'
 import clsx from 'clsx'
 
-type Tab = 'missions' | 'world' | 'chapters' | 'properties' | 'fences' | 'cheats'
+type Tab = 'missions' | 'world' | 'chapters' | 'properties' | 'fences' | 'cheats' | 'leonida'
 
 interface Props {
   user: User
@@ -186,12 +187,13 @@ export default function TrackerShell({
       <div className="relative z-10 border-b border-white/[0.08] bg-[#0a0b14]">
         <div className="mx-auto flex max-w-5xl px-4 sm:px-6">
           {([
-            { id: 'missions' as Tab, label: 'Missions', icon: ListChecks },
-            { id: 'world'    as Tab, label: 'Car Finder',    icon: Map },
-            { id: 'chapters' as Tab, label: 'Chapter Guide', icon: BookOpen },
+            { id: 'missions' as Tab, label: 'Missions',     icon: ListChecks },
+            { id: 'world'    as Tab, label: 'Car Finder',   icon: Map },
+            { id: 'leonida'  as Tab, label: 'Leonida Map',  icon: Globe },
+            { id: 'chapters' as Tab, label: 'Chapter Guide',icon: BookOpen },
             { id: 'properties' as Tab, label: 'Properties', icon: Home },
-            { id: 'fences'     as Tab, label: 'Fences',     icon: Users },
-            { id: 'cheats'    as Tab, label: 'Cheats',     icon: Zap },
+            { id: 'fences'   as Tab, label: 'Fences',       icon: Users },
+            { id: 'cheats'   as Tab, label: 'Cheats',       icon: Zap },
           ] as const).map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -230,6 +232,10 @@ export default function TrackerShell({
       ) : activeTab === 'world' ? (
         <div className="relative z-10 w-full">
           <WorldTab />
+        </div>
+      ) : activeTab === 'leonida' ? (
+        <div className="relative z-10 w-full">
+          <MapTab />
         </div>
       ) : activeTab === 'chapters' ? (
         <div className="relative z-10 w-full">
