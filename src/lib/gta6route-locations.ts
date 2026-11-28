@@ -1,4 +1,5 @@
 // GTA VI — Leonida location data
+import { GTADB_LOCATION_COORDS } from './gtadb-location-coordinates'
 // Source: gta6route.com (upstream open data: gtadb.org, CC BY 4.0)
 // Attribution: "GTA VI Landmarks Data (CC BY 4.0) — https://map.gtadb.org"
 // Map positions are percentage-based (0–100) on the Leonida poster image.
@@ -20,7 +21,8 @@ export interface GTA6Location {
   categoryLabel: string
   name: string
   area: string
-  mapPos: { x: number; y: number }  // % on poster
+  mapPos: { x: number; y: number }  // legacy poster position for the list/legacy view
+  mapCoords?: { x: number; y: number } // GTADB in-game world coordinates
 }
 
 // ─── Category meta ────────────────────────────────────────────────────────────
@@ -777,6 +779,7 @@ export const GTA6_LOCATIONS: GTA6Location[] = RAW.map(([catLabel, name, area], i
     name,
     area,
     mapPos: getPos(area, id),
+    mapCoords: GTADB_LOCATION_COORDS[id] ? { x: GTADB_LOCATION_COORDS[id][0], y: GTADB_LOCATION_COORDS[id][1] } : undefined,
   }
 })
 
