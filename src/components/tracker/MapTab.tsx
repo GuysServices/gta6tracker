@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import { Search, X, Map, List, ChevronDown } from 'lucide-react'
 import clsx from 'clsx'
 import GTADBMapCanvas from './GTADBMapCanvas'
+import CommunitySubmissionForm from './CommunitySubmissionForm'
 import {
   GTA6_LOCATIONS,
   CATEGORY_META,
@@ -392,6 +393,9 @@ export default function MapTab() {
           </div>
         </div>
       </div>
+
+      {/* ── Community submissions ── */}
+      <CommunitySubmissionForm />
 
       {/* ── Controls ── */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
