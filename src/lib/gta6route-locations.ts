@@ -773,7 +773,7 @@ const RAW: [string, string, string][] = [
 
   // Limited / hidden vehicles gathered from community discovery guides.
   // These remain list-only until a reliable GTADB pin coordinate is available.
-  ['Rare cars','Gold Rush Tempesta [Community reported]','Ocean Beach, Vice Beach — Cirque de Cuisine / Shore Drive'],
+  ['Rare cars','Gold Rush Tempesta [Community reported]','Ocean Beach — Cirque de Cuisine / Shore Drive (alternate Crimson Palms report also exists)'],
   ['Rare cars','Royal Ruby Emerus [Community reported]','Rialto Islands — guarded mansion on Neptune Circle'],
   ['Rare cars','Purple Drank Emerus [Community reported]','Waxman Island — Chatfield Storage & Logistics, Bowsprit Street'],
   ['Rare cars','Charred Toros [Community reported]','La Perle — San4San house off NW 10th Avenue'],
