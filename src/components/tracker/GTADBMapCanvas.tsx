@@ -11,16 +11,16 @@ const WORLD_MIN = -16384
 const WORLD_MAX = 16384
 const TILE_SIZE = 256
 const MAX_TILE_Z = 6
-const TILE_URL = 'https://pub-fe51e3bc78fe40d9a0a6084b212759e3.r2.dev'
+const TILE_URL = 'https://raw.githubusercontent.com/rolux/gtadb.org/main/maps/tiles/6/day'
 
 const TILE_RANGES: Record<number, [[number, number], [number, number]]> = {
   0: [[0, 0], [2, 3]],
   1: [[1, 1], [5, 6]],
   2: [[2, 2], [10, 12]],
-  3: [[5, 5], [20, 25]],
-  4: [[11, 11], [40, 50]],
-  5: [[22, 22], [80, 100]],
-  6: [[44, 44], [160, 200]],
+  3: [[4, 4], [20, 25]],
+  4: [[8, 8], [41, 51]],
+  5: [[17, 17], [83, 103]],
+  6: [[34, 34], [167, 206]],
 }
 
 type TileEntry = { image: HTMLImageElement; loaded: boolean; failed: boolean }
