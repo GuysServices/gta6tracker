@@ -37,7 +37,8 @@ export default function GTADBMapCanvas({ locations }: Props) {
   const [selected, setSelected] = useState<GTA6Location | null>(null)
 
   const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
-  const metersPerPixel = WORLD_SIZE / (1024 * Math.pow(2, zoom))
+  // Keep DOM pins on the exact same world-to-screen scale as the GTADB tile renderer.
+  const mapScale = (1024 * Math.pow(2, zoom)) / WORLD_SIZE
 
   useEffect(() => {
     const element = wrapperRef.current
@@ -123,17 +124,15 @@ export default function GTADBMapCanvas({ locations }: Props) {
 
   useEffect(() => { redrawRef.current = draw; draw() }, [draw])
 
-  const pinPositions = useMemo(() => locations.map(loc => {
-    // Existing tracker locations are area-derived percentages. Project those positions
-    // into GTADB's world coordinate plane so pins move with the native tile layer.
+  const pinPositions = locations.map(loc => {
+    // mapPos is stored as a percentage on the original Leonida poster. Convert it
+    // to the GTADB world plane, then project with the same mapScale as the tiles.
     const worldX = WORLD_MIN + (loc.mapPos.x / 100) * WORLD_SIZE
     const worldY = WORLD_MAX - (loc.mapPos.y / 100) * WORLD_SIZE
-    return {
-      loc,
-      left: size.width / 2 + (worldX - center.x) / metersPerPixel,
-      top: size.height / 2 - (worldY - center.y) / metersPerPixel,
-    }
-  }), [center.x, center.y, locations, metersPerPixel, size.height, size.width])
+    const left = size.width / 2 + (worldX - center.x) * mapScale
+    const top = size.height / 2 - (worldY - center.y) * mapScale
+    return { loc, left, top }
+  })
 
   const zoomAt = (nextZoom: number, anchorX = size.width / 2, anchorY = size.height / 2) => {
     const clampedZoom = clamp(nextZoom, 0, 7)
@@ -175,8 +174,8 @@ export default function GTADBMapCanvas({ locations }: Props) {
     if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true
     if (!drag.moved) return
     setCenter({
-      x: clamp(drag.centerX - dx * metersPerPixel, WORLD_MIN, WORLD_MAX),
-      y: clamp(drag.centerY + dy * metersPerPixel, WORLD_MIN, WORLD_MAX),
+      x: clamp(drag.centerX - dx / mapScale, WORLD_MIN, WORLD_MAX),
+      y: clamp(drag.centerY + dy / mapScale, WORLD_MIN, WORLD_MAX),
     })
   }
 
