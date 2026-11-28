@@ -94,7 +94,6 @@ export default function GTADBMapCanvas({ locations }: Props) {
         let tile = tilesRef.current.get(key)
         if (!tile) {
           const image = new Image()
-          image.crossOrigin = 'anonymous'
           tile = { image, loaded: false, failed: false }
           tilesRef.current.set(key, tile)
           image.onload = () => {
