@@ -11,7 +11,7 @@ export type GTA6Category =
   | 'gas-stations' | 'mod-shops' | 'pay-n-spray' | 'car-wash'
   | 'airports' | 'train' | 'metro' | 'bus' | 'marinas'
   | 'sports' | 'racetracks' | 'entertainment'
-  | 'safehouses' | 'military' | 'police' | 'hospitals' | 'hotels'
+  | 'safehouses' | 'unique-weapons' | 'military' | 'police' | 'hospitals' | 'hotels'
   | 'landmarks' | 'curiosities' | 'nature' | 'public' | 'industry'
   | 'bridges' | 'homes' | 'other'
 
@@ -24,6 +24,8 @@ export interface GTA6Location {
   mapPos: { x: number; y: number }  // legacy poster position for the list/legacy view
   mapCoords?: { x: number; y: number } // GTADB in-game world coordinates
   isCommunity?: boolean // community-reported entry; not a verified GTADB location
+  sourceUrl?: string
+  sourceLabel?: string
 }
 
 // ─── Category meta ────────────────────────────────────────────────────────────
@@ -255,6 +257,7 @@ const CAT_MAP: Record<string, GTA6Category> = {
   'Racetracks':               'racetracks',
   'Entertainment and venues': 'entertainment',
   'Safehouses':               'safehouses',
+  'Unique weapons':           'unique-weapons',
   'Military and armed forces':'military',
   'Police and prisons':       'police',
   'Hospitals':                'hospitals',
@@ -769,31 +772,53 @@ const RAW: [string, string, string][] = [
 
   // Limited / hidden vehicles gathered from community discovery guides.
   // These remain list-only until a reliable GTADB pin coordinate is available.
-  ['Rare cars','Gold Rush Tempesta [Community reported]','Washington Beach, Vice Beach'],
-  ['Rare cars','Royal Ruby Emerus [Community reported]','Vice City — reported mansion / garage discovery'],
-  ['Rare cars','Purple Drank Emerus [Community reported]','Vice City — reported custom vehicle location'],
-  ['Rare cars','Charred Toros [Community reported]','Vice City — reported special variant'],
-  ['Rare cars','Lustrous Toros [Community reported]','La Perle, Vice City — reported luxury vehicle'],
-  ['Rare cars','Gold Toros [Community reported]','La Perle, Vice City'],
-  ['Rare cars','Class Act Comet [Community reported]','Vice City — exact spawn not confirmed'],
-  ['Rare cars','Drifter Elegy [Community reported]','Vice City — exact spawn not confirmed'],
-  ['Rare cars','Big Cat Furia [Community reported]','Vice City — exact spawn not confirmed'],
-  ['Rare cars','Leopard-print Furia [Community reported]','Vice City — exact spawn not confirmed'],
-  ['Rare cars','Golden VF-G1 [Community reported]','Leonida — exact spawn not confirmed'],
-  ['Rare cars','Black Moth Kamacho [Community reported]','Leonida — exact spawn not confirmed'],
-  ['Rare cars','Pink Gin Tulip [Community reported]','Leonida — exact spawn not confirmed'],
-  ['Rare cars','San4San KZ-59 [Community reported]','Leonida — exact spawn not confirmed'],
-  ['Rare cars','Akane anime coupe [Community reported]','Leonida — exact spawn not confirmed'],
-  ['Rare cars','Ghosts Exposed vehicle [Community reported]','Leonida — event / discovery route not confirmed'],
-  ['Rare cars','NFS M3 GTR tribute [Community reported]','Leonida — exact spawn not confirmed'],
-  ['Rare cars','Lime-green tuner [Community reported]','Vice City — exact spawn not confirmed'],
-  ['Rare cars','Vapid Sandking special variant [Community reported]','Leonida — exact spawn not confirmed'],
-  ['Rare cars','Grotti Itali RSX [Community reported]','Vice City — exact spawn not confirmed'],
-  ['Rare cars','Pfister Growler special find [Community reported]','Ocean Beach, Vice Beach — variant details not confirmed'],
-  ['Rare cars','Pegassi Tempesta repo encounter [Community reported]','Lake Tallaloko — encounter details not confirmed'],
-  ['Rare cars','Pegassi Infernus ’96 [Community reported]','Vice City — exact spawn not confirmed'],
-  ['Rare cars','Bravado Gauntlet Hellfire special find [Community reported]','Hamlet — special spawn details not confirmed'],
+  ['Rare cars','Gold Rush Tempesta [Community reported]','Ocean Beach, Vice Beach — Cirque de Cuisine / Shore Drive'],
+  ['Rare cars','Royal Ruby Emerus [Community reported]','Rialto Islands — guarded mansion on Neptune Circle'],
+  ['Rare cars','Purple Drank Emerus [Community reported]','Waxman Island — Chatfield Storage & Logistics, Bowsprit Street'],
+  ['Rare cars','Charred Toros [Community reported]','La Perle — San4San house off NW 10th Avenue'],
+  ['Rare cars','Lustrous Toros [Community reported]','Casanova Island — mansion garage on the south road'],
+  ['Rare cars','Gold Toros [Community reported]','Alias of Lustrous Toros; same Casanova Island discovery (duplicate entry)'],
+  ['Rare cars','Class Act Comet [Community reported]','Starfish Island — gated mansion on Sabal Circle'],
+  ['Rare cars','Drifter Elegy [Community reported]','Port Gellhorn — garage behind the drag strip at Gellhorn International Raceway'],
+  ['Rare cars','Big Cat Furia [Community reported]','Starfish Island — northeastern waterfront mansion forecourt'],
+  ['Rare cars','Leopard-print Furia [Community reported]','Alias of Big Cat Furia; same Starfish Island discovery (duplicate entry)'],
+  ['Unique weapons','La Polilla Negra VF-G1 [Community reported]','Watson Bay — guarded La Polilla Negra safehouse'],
+  ['Rare cars','Black Moth Kamacho [Community reported]','Watson Bay — guarded house off Baypoint Road'],
+  ['Rare cars','Pink Gin Tulip [Community reported]','La Perle — Janjak’s Garage, north of Del Rio Boulevard'],
+  ['Unique weapons','San4San KZ-59 [Community reported]','La Perle — loot at Janjak’s Garage illegal operation'],
+  ['Rare cars','Declasse Akane (Anime Wrap) [Community reported]','Key Lento — house garage on Dolphin Drive'],
+  ['Rare cars','Declasse Ghosts Exposed Parkland [Community reported]','Capri — Halloween house driveway at Fortuna Street and Viola Street'],
+  ['Rare cars','NFS M3 GTR tribute [Community reported]','Peacock Estates — community garage report; exact pin not independently verified'],
+  ['Rare cars','Lime-green tuner [Community reported]','Vice City — vague community report; no reliable landmark yet'],
+  ['Rare cars','Vapid Sandking special variant [Community reported]','Leonida — no reliable named spawn located yet'],
+  ['Rare cars','Grotti Itali RSX [Community reported]','Rialto Islands / Capri — multiple reported spawns; no single fixed pin'],
+  ['Rare cars','Pfister Growler special find [Community reported]','Ocean Beach — reports conflict between Fig Street garage and Shore Drive'],
+  ['Rare cars','Pegassi Tempesta repo encounter [Community reported]','Lake Tallaloko — reported encounter; exact vehicle position not confirmed'],
+  ['Rare cars','Pegassi Infernus ’96 [Community reported]','Crosstown — Vice-Dale Police Department parking garage, level 7'],
+  ['Rare cars','Bravado Gauntlet Hellfire [Community reported]','Hamlet — M7 / Nova Auto Junkyard, off Galerina Street'],
 ]
+
+// Community discoveries researched against player guides and community map datasets.
+// Coordinates use the same GTADB world-coordinate frame as GTADBMapCanvas; positions are
+// community-sourced/approximate, not Rockstar-confirmed. Entries without a defensible pin stay list-only.
+const COMMUNITY_MAP_DETAILS: Record<string, { coords: [number, number]; sourceUrl: string; sourceLabel: string }> = {
+  'Gold Rush Tempesta [Community reported]': { coords: [2030, 821], sourceUrl: 'https://gtatown.com/locations/blinged-up-gold-rush-tempesta-ocean-beach', sourceLabel: 'GTA Town' },
+  'Royal Ruby Emerus [Community reported]': { coords: [530, 1198], sourceUrl: 'https://gtatown.com/locations/ultra-luxe-royal-ruby-emerus-rialto-islands', sourceLabel: 'GTA Town' },
+  'Purple Drank Emerus [Community reported]': { coords: [162, 358], sourceUrl: 'https://gtatown.com/locations/ultra-luxe-purple-drank-emerus-chatfield-docks', sourceLabel: 'GTA Town' },
+  'Charred Toros [Community reported]': { coords: [-756.4, 1707.9], sourceUrl: 'https://www.gtalab.gg/en/map?landmark=entity-place%3A510562414b5b9aed', sourceLabel: 'GTA Lab / GTADB' },
+  'Lustrous Toros [Community reported]': { coords: [886, 1283], sourceUrl: 'https://www.gtabites.com/maps?place=M-standout-vehicle-140', sourceLabel: 'GTA Bites' },
+  'Class Act Comet [Community reported]': { coords: [655, 335], sourceUrl: 'https://gtatown.com/locations/retro-class-act-comet-starfish-island', sourceLabel: 'GTA Town' },
+  'Drifter Elegy [Community reported]': { coords: [-6719, 2556], sourceUrl: 'https://gta6carte.com/en/m/19-drifter-elegy', sourceLabel: 'GTA 6 Carte' },
+  'Big Cat Furia [Community reported]': { coords: [891, 641], sourceUrl: 'https://gta6gps.com/map/places/piccia-big-cat-furia', sourceLabel: 'GTA6 GPS' },
+  'La Polilla Negra VF-G1 [Community reported]': { coords: [-4580, -2934], sourceUrl: 'https://gta6gps.com/map/places/la-polilla-negra-vf-g1', sourceLabel: 'GTA6 GPS' },
+  'Black Moth Kamacho [Community reported]': { coords: [-4584, -2928], sourceUrl: 'https://gtatown.com/locations/all-terrain-black-moth-kamacho-watson-bay', sourceLabel: 'GTA Town' },
+  'Pink Gin Tulip [Community reported]': { coords: [-1272, 1209], sourceUrl: 'https://www.gta6tracker.org/l/declasse-pink-gin-tulip', sourceLabel: 'GTA VI Tracker' },
+  'San4San KZ-59 [Community reported]': { coords: [-1240, 1227], sourceUrl: 'https://gtatown.com/locations/unique-weapon-la-perle-ouniqueweapon034', sourceLabel: 'GTA Town' },
+  'Declasse Akane (Anime Wrap) [Community reported]': { coords: [-5446, -1936], sourceUrl: 'https://leonidahub.net/map/declasse-akane-anime-wrap', sourceLabel: 'Leonida Hub' },
+  'Declasse Ghosts Exposed Parkland [Community reported]': { coords: [-6657, 42], sourceUrl: 'https://gta6gps.com/map/places/declasse-ghosts-exposed-parkland', sourceLabel: 'GTA6 GPS' },
+  'Pegassi Infernus ’96 [Community reported]': { coords: [-861, 776], sourceUrl: 'https://gta6gps.com/map/places/pegassi-96-infernus', sourceLabel: 'GTA6 GPS' },
+  'Bravado Gauntlet Hellfire [Community reported]': { coords: [-2499, -3423], sourceUrl: 'https://gta6gps.com/map/places/bravado-gauntlet-hellfire', sourceLabel: 'GTA6 GPS' },
+}
 
 // ─── Build the exported array ─────────────────────────────────────────────────
 
@@ -807,7 +832,9 @@ export const GTA6_LOCATIONS: GTA6Location[] = RAW.map(([catLabel, name, area], i
     name,
     area,
     mapPos: getPos(area, id),
-    mapCoords: GTADB_LOCATION_COORDS[id] ? { x: GTADB_LOCATION_COORDS[id][0], y: GTADB_LOCATION_COORDS[id][1] } : undefined,
+    mapCoords: COMMUNITY_MAP_DETAILS[name] ? { x: COMMUNITY_MAP_DETAILS[name].coords[0], y: COMMUNITY_MAP_DETAILS[name].coords[1] } : GTADB_LOCATION_COORDS[id] ? { x: GTADB_LOCATION_COORDS[id][0], y: GTADB_LOCATION_COORDS[id][1] } : undefined,
+    sourceUrl: COMMUNITY_MAP_DETAILS[name]?.sourceUrl,
+    sourceLabel: COMMUNITY_MAP_DETAILS[name]?.sourceLabel,
     isCommunity: name.includes('[Community reported]'),
   }
 })
