@@ -11,7 +11,7 @@ const WORLD_MIN = -16384
 const WORLD_MAX = 16384
 const TILE_SIZE = 256
 const MAX_TILE_Z = 6
-const TILE_URL = '/api/gtadb-tiles'
+const TILE_URL = 'https://pub-fe51e3bc78fe40d9a0a6084b212759e3.r2.dev/maps/tiles/6/gtadb,1'
 
 const TILE_RANGES: Record<number, [[number, number], [number, number]]> = {
   0: [[0, 0], [2, 3]],
