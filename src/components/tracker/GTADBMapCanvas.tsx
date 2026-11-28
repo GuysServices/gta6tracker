@@ -69,12 +69,14 @@ export default function GTADBMapCanvas({ locations }: Props) {
     ctx.fillStyle = '#24313a'
     ctx.fillRect(0, 0, width, height)
 
-    const tileZ = Math.min(Math.ceil(zoom), MAX_TILE_Z)
+    // Render from the integer GTADB tile zoom, then apply the fractional
+    // zoom once. Pins and pointer movement use the equivalent full mapScale.
+    const tileZ = Math.min(Math.floor(zoom), MAX_TILE_Z)
     const tileScale = Math.pow(2, zoom - tileZ)
     const tileScreenSize = TILE_SIZE * tileScale
-    const mapScale = (1024 * Math.pow(2, zoom)) / WORLD_SIZE
-    const centerPixelX = (center.x - WORLD_MIN) * mapScale
-    const centerPixelY = (WORLD_MAX - center.y) * mapScale
+    const tileBaseScale = (1024 * Math.pow(2, tileZ)) / WORLD_SIZE
+    const centerPixelX = (center.x - WORLD_MIN) * tileBaseScale
+    const centerPixelY = (WORLD_MAX - center.y) * tileBaseScale
     const offsetX = width / 2 - centerPixelX * tileScale
     const offsetY = height / 2 - centerPixelY * tileScale
     const minTileX = Math.floor(-offsetX / tileScreenSize)
