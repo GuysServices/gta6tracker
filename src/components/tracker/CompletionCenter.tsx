@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { CheckCircle2, Heart, Search, Trophy } from 'lucide-react'
-import { createClient } from '@/lib/supabase'
 import { GTA6_LOCATIONS, ALL_CATEGORIES, CATEGORY_META, GTA6Category } from '@/lib/gta6route-locations'
 
 type Saved = { location_id: number; is_completed: boolean; is_favorite: boolean; note: string | null }
@@ -14,7 +13,6 @@ export default function CompletionCenter() {
   const [mode, setMode] = useState<'all' | 'favorites' | 'remaining'>('all')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const supabase = createClient()
 
   useEffect(() => {
     let alive = true
