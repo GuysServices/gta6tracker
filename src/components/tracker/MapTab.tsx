@@ -193,7 +193,7 @@ function LocationRow({ loc }: { loc: GTA6Location }) {
   const meta = CATEGORY_META[loc.category]
   return (
     <div className="flex items-start gap-3 rounded-xl border border-white/[0.07] bg-white/[0.025] px-3.5 py-3 transition hover:bg-white/[0.045]">
-      <span className="mt-0.5 text-base">{meta.icon}</span>
+      <span className="mt-0.5 text-base">{loc.isCommunity ? '🌐' : meta.icon}</span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-white/90">{loc.name}</p>
         <p className="mt-0.5 truncate text-[11px] text-white/40">{loc.area}</p>
@@ -202,7 +202,7 @@ function LocationRow({ loc }: { loc: GTA6Location }) {
         className="mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[9px] font-semibold"
         style={{ backgroundColor: meta.color + '22', color: meta.color }}
       >
-        {meta.label}
+        {loc.isCommunity ? 'COMMUNITY' : meta.label}
       </span>
     </div>
   )
@@ -296,7 +296,7 @@ function CategoryDropdown({
 
       {open && (
         <div className="absolute right-0 top-full z-50 mt-2 max-h-80 w-56 overflow-y-auto rounded-xl border border-white/[0.12] bg-[#0d0e1c] p-2 shadow-2xl">
-          {active.size > 0 && (
+          {(active.size > 0 || communityOnly) && (
             <button
               onClick={() => { onClear(); setOpen(false) }}
               className="mb-1.5 w-full rounded-lg bg-white/5 px-2 py-1.5 text-left text-[10px] text-white/50 hover:text-white/80 transition"
