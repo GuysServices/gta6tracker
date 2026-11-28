@@ -219,7 +219,7 @@ export default function GTADBMapCanvas({ locations }: Props) {
       })}
 
       <div className="absolute left-3 top-3 z-20 rounded-lg border border-white/10 bg-[#080910]/75 px-2.5 py-1.5 text-[10px] text-white/75 backdrop-blur">
-        {locations.length} pins · GTADB GTA VI layer
+        {pinPositions.length} pins · GTADB GTA VI layer
       </div>
 
       <div className="absolute right-3 top-3 z-20 flex flex-col overflow-hidden rounded-lg border border-white/10 bg-[#080910]/80 shadow-xl backdrop-blur">
