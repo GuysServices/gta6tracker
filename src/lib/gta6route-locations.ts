@@ -58,6 +58,7 @@ export const CATEGORY_META: Record<GTA6Category, { label: string; color: string;
   'racetracks':   { label: 'Racetracks',         color: '#f97316', icon: '🏁' },
   'entertainment':{ label: 'Entertainment',      color: '#ffd27a', icon: '🎭' },
   'safehouses':   { label: 'Safehouses',         color: '#86efac', icon: '🏠' },
+  'unique-weapons': { label: 'Unique Weapons', color: '#f87171', icon: '🔫' },
   'military':     { label: 'Military',           color: '#84cc16', icon: '🪖' },
   'police':       { label: 'Police & Prisons',   color: '#3b82f6', icon: '🚔' },
   'hospitals':    { label: 'Hospitals',          color: '#f9a8d4', icon: '🏥' },
