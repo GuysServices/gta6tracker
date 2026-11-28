@@ -23,6 +23,7 @@ export interface GTA6Location {
   area: string
   mapPos: { x: number; y: number }  // legacy poster position for the list/legacy view
   mapCoords?: { x: number; y: number } // GTADB in-game world coordinates
+  isCommunity?: boolean // community-reported entry; not a verified GTADB location
 }
 
 // ─── Category meta ────────────────────────────────────────────────────────────
@@ -807,6 +808,7 @@ export const GTA6_LOCATIONS: GTA6Location[] = RAW.map(([catLabel, name, area], i
     area,
     mapPos: getPos(area, id),
     mapCoords: GTADB_LOCATION_COORDS[id] ? { x: GTADB_LOCATION_COORDS[id][0], y: GTADB_LOCATION_COORDS[id][1] } : undefined,
+    isCommunity: name.includes('[Community reported]'),
   }
 })
 
