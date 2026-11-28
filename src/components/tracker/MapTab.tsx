@@ -211,24 +211,27 @@ function ListView({
   locations,
   activeCategories,
   query,
+  communityOnly,
 }: {
   locations: GTA6Location[]
   activeCategories: Set<GTA6Category>
   query: string
+  communityOnly: boolean
 }) {
   const q = query.toLowerCase()
   const filtered = useMemo(
     () =>
       locations.filter(l => {
         const catOk = activeCategories.size === 0 || activeCategories.has(l.category)
+        const communityOk = !communityOnly || Boolean(l.isCommunity)
         const qOk =
           !q ||
           l.name.toLowerCase().includes(q) ||
           l.area.toLowerCase().includes(q) ||
           l.categoryLabel.toLowerCase().includes(q)
-        return catOk && qOk
+        return catOk && communityOk && qOk
       }),
-    [locations, activeCategories, q],
+    [locations, activeCategories, q, communityOnly],
   )
 
   return (
@@ -250,10 +253,14 @@ function CategoryDropdown({
   active,
   onToggle,
   onClear,
+  communityOnly,
+  onToggleCommunity,
 }: {
   active: Set<GTA6Category>
   onToggle: (c: GTA6Category) => void
   onClear: () => void
+  communityOnly: boolean
+  onToggleCommunity: () => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -272,15 +279,15 @@ function CategoryDropdown({
         onClick={() => setOpen(o => !o)}
         className={clsx(
           'flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition',
-          active.size > 0
+          active.size > 0 || communityOnly
             ? 'border-[#ff79a8]/50 bg-[#ff79a8]/10 text-[#ff79a8]'
             : 'border-white/10 text-white/40 hover:text-white/70',
         )}
       >
         Categories
-        {active.size > 0 && (
+        {(active.size > 0 || communityOnly) && (
           <span className="rounded-full bg-[#ff79a8] px-1.5 py-0.5 text-[9px] font-bold text-[#080910]">
-            {active.size}
+            {active.size + (communityOnly ? 1 : 0)}
           </span>
         )}
         <ChevronDown size={11} className={clsx('transition', open && 'rotate-180')} />
@@ -290,12 +297,19 @@ function CategoryDropdown({
         <div className="absolute right-0 top-full z-50 mt-2 max-h-80 w-56 overflow-y-auto rounded-xl border border-white/[0.12] bg-[#0d0e1c] p-2 shadow-2xl">
           {active.size > 0 && (
             <button
-              onClick={() => { onClear(); setOpen(false) }}
+              onClick={() => { onClear(); onToggleCommunity(); if (!communityOnly) onToggleCommunity(); setOpen(false) }}
               className="mb-1.5 w-full rounded-lg bg-white/5 px-2 py-1.5 text-left text-[10px] text-white/50 hover:text-white/80 transition"
             >
               Clear all filters
             </button>
           )}
+          <div className="mb-1.5 border-b border-white/[.07] pb-2">
+            <button onClick={onToggleCommunity} className={clsx('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[11px] font-bold tracking-[.12em] transition', communityOnly ? 'bg-[#ff79a8]/15 text-[#ff9bb5]' : 'text-white/55 hover:bg-white/[.05] hover:text-white')}>
+              <span className={clsx('flex h-4 w-4 items-center justify-center rounded border text-[9px]', communityOnly ? 'border-[#ff79a8] bg-[#ff79a8] text-[#080910]' : 'border-white/20 text-transparent')}>✓</span>
+              <span>🌐 COMMUNITY</span><span className="ml-auto text-[9px] text-white/30">Reported</span>
+            </button>
+            <p className="px-2.5 pt-1 text-[9px] leading-4 text-white/30">Community-reported discoveries, kept separate from verified GTADB entries.</p>
+          </div>
           <div className="flex flex-col gap-0.5">
             {ALL_CATEGORIES.map(cat => {
               const meta = CATEGORY_META[cat]
@@ -330,6 +344,7 @@ export default function MapTab() {
   const [view, setView] = useState<ViewMode>('map')
   const [query, setQuery] = useState('')
   const [activeCategories, setActiveCategories] = useState<Set<GTA6Category>>(new Set())
+  const [communityOnly, setCommunityOnly] = useState(false)
 
   const toggleCategory = useCallback((cat: GTA6Category) => {
     setActiveCategories(prev => {
@@ -407,6 +422,8 @@ export default function MapTab() {
           active={activeCategories}
           onToggle={toggleCategory}
           onClear={clearCategories}
+          communityOnly={communityOnly}
+          onToggleCommunity={() => setCommunityOnly(value => !value)}
         />
 
         {/* Quick-pick pills (top 8 most useful) */}
@@ -422,12 +439,16 @@ export default function MapTab() {
 
       {/* ── View ── */}
       {view === 'map' ? (
-        <GTADBMapCanvas locations={GTA6_LOCATIONS.filter(l => activeCategories.size === 0 || activeCategories.has(l.category))} />
+        <>
+          {communityOnly && <p className="mb-2 rounded-lg border border-[#ff79a8]/20 bg-[#ff79a8]/[.05] px-3 py-2 text-[10px] leading-4 text-[#ffb4ca]/80">COMMUNITY filter is on. Only entries with verified GTADB coordinates can appear as pins; unconfirmed community discoveries are listed in List view.</p>}
+          <GTADBMapCanvas locations={GTA6_LOCATIONS.filter(l => (!communityOnly || l.isCommunity) && (activeCategories.size === 0 || activeCategories.has(l.category)))} />
+        </>
       ) : (
         <ListView
           locations={GTA6_LOCATIONS}
           activeCategories={activeCategories}
           query={query}
+          communityOnly={communityOnly}
         />
       )}
     </div>
