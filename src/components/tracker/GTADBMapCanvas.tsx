@@ -9,6 +9,12 @@ type Props = { locations: GTA6Location[] }
 const WORLD_SIZE = 32768
 const WORLD_MIN = -16384
 const WORLD_MAX = 16384
+// Geographic bounds covered by GTADB's GTA VI "day" tile pyramid (zoom 6).
+// Poster percentages must map to this footprint, not the unused full world square.
+const MAP_WEST = -12032
+const MAP_EAST = 4864
+const MAP_NORTH = 12032
+const MAP_SOUTH = -10112
 const TILE_SIZE = 256
 const MAX_TILE_Z = 6
 const TILE_URL = 'https://raw.githubusercontent.com/rolux/gtadb.org/main/maps/tiles/6/day'
@@ -127,8 +133,8 @@ export default function GTADBMapCanvas({ locations }: Props) {
   const pinPositions = locations.map(loc => {
     // mapPos is stored as a percentage on the original Leonida poster. Convert it
     // to the GTADB world plane, then project with the same mapScale as the tiles.
-    const worldX = WORLD_MIN + (loc.mapPos.x / 100) * WORLD_SIZE
-    const worldY = WORLD_MAX - (loc.mapPos.y / 100) * WORLD_SIZE
+    const worldX = MAP_WEST + (loc.mapPos.x / 100) * (MAP_EAST - MAP_WEST)
+    const worldY = MAP_NORTH - (loc.mapPos.y / 100) * (MAP_NORTH - MAP_SOUTH)
     const left = size.width / 2 + (worldX - center.x) * mapScale
     const top = size.height / 2 - (worldY - center.y) * mapScale
     return { loc, left, top }
