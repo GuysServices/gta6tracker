@@ -18,7 +18,7 @@ import AdminDashboard from './AdminDashboard'
 import CompletionCenter from './CompletionCenter'
 import CommunityHub from './CommunityHub'
 import CommunitySubmissionForm from './CommunitySubmissionForm'
-import { Map, ListChecks, BookOpen, Home, Users, Zap, Globe, ShieldCheck, CheckCircle2, Trophy, MapPinPlus } from 'lucide-react'
+import { Map, ListChecks, BookOpen, Home, Users, Zap, Globe, ShieldCheck, CheckCircle2, Trophy, MapPin } from 'lucide-react'
 import clsx from 'clsx'
 
 type Tab = 'missions' | 'world' | 'chapters' | 'properties' | 'fences' | 'cheats' | 'leonida' | 'completion' | 'community' | 'submit' | 'admin'
@@ -204,7 +204,7 @@ export default function TrackerShell({
             { id: 'leonida'  as Tab, label: 'Leonida Map',  icon: Globe },
             { id: 'completion' as Tab, label: '100% Completion', icon: CheckCircle2 },
             { id: 'community' as Tab, label: 'Community', icon: Trophy },
-            { id: 'submit' as Tab, label: 'Submit Discovery', icon: MapPinPlus },
+            { id: 'submit' as Tab, label: 'Submit Discovery', icon: MapPin },
             { id: 'chapters' as Tab, label: 'Chapter Guide',icon: BookOpen },
             { id: 'properties' as Tab, label: 'Properties', icon: Home },
             { id: 'fences'   as Tab, label: 'Fences',       icon: Users },
