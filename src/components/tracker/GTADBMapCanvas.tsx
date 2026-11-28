@@ -124,11 +124,10 @@ export default function GTADBMapCanvas({ locations }: Props) {
 
   useEffect(() => { redrawRef.current = draw; draw() }, [draw])
 
-  const pinPositions = locations.map(loc => {
-    // mapPos is stored as a percentage on the original Leonida poster. Convert it
-    // to the GTADB world plane, then project with the same mapScale as the tiles.
-    const worldX = WORLD_MIN + (loc.mapPos.x / 100) * WORLD_SIZE
-    const worldY = WORLD_MAX - (loc.mapPos.y / 100) * WORLD_SIZE
+  const pinPositions = locations.filter(loc => loc.mapCoords).map(loc => {
+    // Pins use the same native GTADB in-game coordinates as the tile map.
+    const worldX = loc.mapCoords!.x
+    const worldY = loc.mapCoords!.y
     const left = size.width / 2 + (worldX - center.x) * mapScale
     const top = size.height / 2 - (worldY - center.y) * mapScale
     return { loc, left, top }
