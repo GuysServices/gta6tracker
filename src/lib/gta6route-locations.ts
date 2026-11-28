@@ -29,7 +29,7 @@ export interface GTA6Location {
 
 export const CATEGORY_META: Record<GTA6Category, { label: string; color: string; icon: string }> = {
   'easter-eggs':  { label: 'Easter Eggs',       color: '#d5a6ff', icon: '🥚' },
-  'rare-cars':    { label: 'Rare Cars',          color: '#8ce7ee', icon: '🚗' },
+  'rare-cars':    { label: 'Limited & Hidden Cars',          color: '#8ce7ee', icon: '🚗' },
   'gun-stores':   { label: 'Gun Stores',         color: '#ff6b6b', icon: '🔫' },
   'pawn-shops':   { label: 'Pawn Shops',         color: '#ffa07a', icon: '💍' },
   'clothing':     { label: 'Clothing',           color: '#ff9bb5', icon: '👕' },
@@ -765,6 +765,33 @@ const RAW: [string, string, string][] = [
   ['Homes and offices','Home / office','Ambrosia'],
   ['Homes and offices','Home / office','Key Lento'],
   ['Homes and offices','Home / office','Lummox County'],
+
+  // Limited / hidden vehicles gathered from community discovery guides.
+  // These remain list-only until a reliable GTADB pin coordinate is available.
+  ['Rare cars','Gold Rush Tempesta [Community reported]','Washington Beach, Vice Beach'],
+  ['Rare cars','Royal Ruby Emerus [Community reported]','Vice City — reported mansion / garage discovery'],
+  ['Rare cars','Purple Drank Emerus [Community reported]','Vice City — reported custom vehicle location'],
+  ['Rare cars','Charred Toros [Community reported]','Vice City — reported special variant'],
+  ['Rare cars','Lustrous Toros [Community reported]','La Perle, Vice City — reported luxury vehicle'],
+  ['Rare cars','Gold Toros [Community reported]','La Perle, Vice City'],
+  ['Rare cars','Class Act Comet [Community reported]','Vice City — exact spawn not confirmed'],
+  ['Rare cars','Drifter Elegy [Community reported]','Vice City — exact spawn not confirmed'],
+  ['Rare cars','Big Cat Furia [Community reported]','Vice City — exact spawn not confirmed'],
+  ['Rare cars','Leopard-print Furia [Community reported]','Vice City — exact spawn not confirmed'],
+  ['Rare cars','Golden VF-G1 [Community reported]','Leonida — exact spawn not confirmed'],
+  ['Rare cars','Black Moth Kamacho [Community reported]','Leonida — exact spawn not confirmed'],
+  ['Rare cars','Pink Gin Tulip [Community reported]','Leonida — exact spawn not confirmed'],
+  ['Rare cars','San4San KZ-59 [Community reported]','Leonida — exact spawn not confirmed'],
+  ['Rare cars','Akane anime coupe [Community reported]','Leonida — exact spawn not confirmed'],
+  ['Rare cars','Ghosts Exposed vehicle [Community reported]','Leonida — event / discovery route not confirmed'],
+  ['Rare cars','NFS M3 GTR tribute [Community reported]','Leonida — exact spawn not confirmed'],
+  ['Rare cars','Lime-green tuner [Community reported]','Vice City — exact spawn not confirmed'],
+  ['Rare cars','Vapid Sandking special variant [Community reported]','Leonida — exact spawn not confirmed'],
+  ['Rare cars','Grotti Itali RSX [Community reported]','Vice City — exact spawn not confirmed'],
+  ['Rare cars','Pfister Growler special find [Community reported]','Ocean Beach, Vice Beach — variant details not confirmed'],
+  ['Rare cars','Pegassi Tempesta repo encounter [Community reported]','Lake Tallaloko — encounter details not confirmed'],
+  ['Rare cars','Pegassi Infernus ’96 [Community reported]','Vice City — exact spawn not confirmed'],
+  ['Rare cars','Bravado Gauntlet Hellfire special find [Community reported]','Hamlet — special spawn details not confirmed'],
 ]
 
 // ─── Build the exported array ─────────────────────────────────────────────────
