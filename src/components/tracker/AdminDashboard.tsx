@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Activity, Car, CheckCircle2, ClipboardList, MapPin, Search, ShieldCheck, Users } from 'lucide-react'
+import { Activity, CheckCircle2, ClipboardList, MapPin, Search, ShieldCheck, Users } from 'lucide-react'
 import type { Chapter } from '@/lib/missions'
 
 type AdminUser = {
