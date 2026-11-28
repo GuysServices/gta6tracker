@@ -90,7 +90,7 @@ export default function GTADBMapCanvas({ locations }: Props) {
         if (x < range[0][0] || x > range[1][0] || y < range[0][1] || y > range[1][1]) {
           continue
         }
-        const key = \`\${tileZ}/\${y}/\${x}\`
+        const key = `${tileZ}/${y}/${x}`
         let tile = tilesRef.current.get(key)
         if (!tile) {
           const image = new Image()
@@ -106,7 +106,7 @@ export default function GTADBMapCanvas({ locations }: Props) {
             const entry = tilesRef.current.get(key)
             if (entry) entry.failed = true
           }
-          image.src = \`\${TILE_URL}/\${tileZ}/\${tileZ},\${y},\${x}.jpg\`
+          image.src = `${TILE_URL}/${tileZ}/${tileZ},${y},${x}.jpg`
         }
         if (tile.loaded && tile.image.naturalWidth > 0) {
           ctx.drawImage(tile.image, screenX, screenY, tileScreenSize, tileScreenSize)
@@ -215,7 +215,7 @@ export default function GTADBMapCanvas({ locations }: Props) {
               width: isSelected ? 19 : 13,
               height: isSelected ? 19 : 13,
               backgroundColor: meta.color,
-              boxShadow: isSelected ? \`0 0 0 4px \${meta.color}55, 0 0 16px \${meta.color}\` : undefined,
+              boxShadow: isSelected ? `0 0 0 4px ${meta.color}55, 0 0 16px ${meta.color}` : undefined,
             }}
           />
         )
