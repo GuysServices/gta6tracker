@@ -15,10 +15,11 @@ import FenceDirectory from './FenceDirectory'
 import CheatCodes from './CheatCodes'
 import MapTab from './MapTab'
 import AdminDashboard from './AdminDashboard'
-import { Map, ListChecks, BookOpen, Home, Users, Zap, Globe, ShieldCheck } from 'lucide-react'
+import CompletionCenter from './CompletionCenter'
+import { Map, ListChecks, BookOpen, Home, Users, Zap, Globe, ShieldCheck, CheckCircle2 } from 'lucide-react'
 import clsx from 'clsx'
 
-type Tab = 'missions' | 'world' | 'chapters' | 'properties' | 'fences' | 'cheats' | 'leonida' | 'admin'
+type Tab = 'missions' | 'world' | 'chapters' | 'properties' | 'fences' | 'cheats' | 'leonida' | 'completion' | 'admin'
 
 interface Props {
   user: User
@@ -197,6 +198,7 @@ export default function TrackerShell({
             { id: 'missions' as Tab, label: 'Missions',     icon: ListChecks },
             { id: 'world'    as Tab, label: 'Car Finder',   icon: Map },
             { id: 'leonida'  as Tab, label: 'Leonida Map',  icon: Globe },
+            { id: 'completion' as Tab, label: '100% Completion', icon: CheckCircle2 },
             { id: 'chapters' as Tab, label: 'Chapter Guide',icon: BookOpen },
             { id: 'properties' as Tab, label: 'Properties', icon: Home },
             { id: 'fences'   as Tab, label: 'Fences',       icon: Users },
@@ -252,6 +254,8 @@ export default function TrackerShell({
         <div className="relative z-10 w-full">
           <MapTab />
         </div>
+      ) : activeTab === 'completion' ? (
+        <CompletionCenter />
       ) : activeTab === 'chapters' ? (
         <div className="relative z-10 w-full">
           <ChapterGuide />
