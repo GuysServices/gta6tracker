@@ -309,7 +309,7 @@ function CategoryDropdown({
               <span className={clsx('flex h-4 w-4 items-center justify-center rounded border text-[9px]', communityOnly ? 'border-[#ff79a8] bg-[#ff79a8] text-[#080910]' : 'border-white/20 text-transparent')}>✓</span>
               <span>🌐 COMMUNITY</span><span className="ml-auto text-[9px] text-white/30">Reported</span>
             </button>
-            <p className="px-2.5 pt-1 text-[9px] leading-4 text-white/30">Community-reported discoveries, kept separate from verified GTADB entries.</p>
+            <p className="px-2.5 pt-1 text-[9px] leading-4 text-white/30">Community discoveries with researched coordinates get map pins; leads without reliable coordinates stay list-only.</p>
           </div>
           <div className="flex flex-col gap-0.5">
             {ALL_CATEGORIES.map(cat => {
@@ -444,7 +444,7 @@ export default function MapTab() {
       {/* ── View ── */}
       {view === 'map' ? (
         <>
-          {communityOnly && <p className="mb-2 rounded-lg border border-[#ff79a8]/20 bg-[#ff79a8]/[.05] px-3 py-2 text-[10px] leading-4 text-[#ffb4ca]/80">COMMUNITY filter is on. Only entries with verified GTADB coordinates can appear as pins; unconfirmed community discoveries are listed in List view.</p>}
+          {communityOnly && <p className="mb-2 rounded-lg border border-[#ff79a8]/20 bg-[#ff79a8]/[.05] px-3 py-2 text-[10px] leading-4 text-[#ffb4ca]/80">COMMUNITY filter is on. Researched community pins are shown on the map with their source links. Unplaced leads remain in List view; all community positions are unofficial and may be approximate.</p>}
           <GTADBMapCanvas locations={GTA6_LOCATIONS.filter(l => (!communityOnly || l.isCommunity) && (activeCategories.size === 0 || activeCategories.has(l.category)))} />
         </>
       ) : (
