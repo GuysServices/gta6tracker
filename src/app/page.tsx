@@ -56,7 +56,7 @@ export default async function Home() {
     }
     adminUsers = (profiles ?? []).map(profile => ({
       ...profile,
-      ...byUser.get(profile.id) ?? { completed: 0, totalProgress: 0, lastActive: null },
+      ...(byUser.get(profile.id) ?? { completed: 0, totalProgress: 0, lastActive: null }),
     }))
   }
 
