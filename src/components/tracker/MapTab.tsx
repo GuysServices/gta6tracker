@@ -427,7 +427,7 @@ export default function MapTab() {
           onToggle={toggleCategory}
           onClear={() => { clearCategories(); setCommunityOnly(false) }}
           communityOnly={communityOnly}
-          onToggleCommunity={() => setCommunityOnly(value => !value)}
+          onToggleCommunity={() => { setCommunityOnly(value => !value); setView('list') }}
         />
 
         {/* Quick-pick pills (top 8 most useful) */}
