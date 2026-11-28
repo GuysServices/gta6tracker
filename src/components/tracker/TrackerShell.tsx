@@ -16,10 +16,11 @@ import CheatCodes from './CheatCodes'
 import MapTab from './MapTab'
 import AdminDashboard from './AdminDashboard'
 import CompletionCenter from './CompletionCenter'
-import { Map, ListChecks, BookOpen, Home, Users, Zap, Globe, ShieldCheck, CheckCircle2 } from 'lucide-react'
+import CommunityHub from './CommunityHub'
+import { Map, ListChecks, BookOpen, Home, Users, Zap, Globe, ShieldCheck, CheckCircle2, Trophy } from 'lucide-react'
 import clsx from 'clsx'
 
-type Tab = 'missions' | 'world' | 'chapters' | 'properties' | 'fences' | 'cheats' | 'leonida' | 'completion' | 'admin'
+type Tab = 'missions' | 'world' | 'chapters' | 'properties' | 'fences' | 'cheats' | 'leonida' | 'completion' | 'community' | 'admin'
 
 interface Props {
   user: User
@@ -30,6 +31,7 @@ interface Props {
   completedCount: number
   totalMissions: number
   adminUsers: { id: string; username: string; avatar_url: string | null; created_at: string; completed: number; totalProgress: number; lastActive: string | null }[]
+  communityPlayers: { id: string; username: string; avatar_url: string | null; completed: number; lastActive: string | null }[]
   adminLocations: { id: number; name: string; area: string; categoryLabel: string }[]
 }
 
@@ -42,6 +44,7 @@ export default function TrackerShell({
   completedCount: initialCompleted,
   totalMissions,
   adminUsers,
+  communityPlayers,
   adminLocations,
 }: Props) {
   const [progress, setProgress] = useState<Record<string, UserProgress>>(() => {
@@ -199,6 +202,7 @@ export default function TrackerShell({
             { id: 'world'    as Tab, label: 'Car Finder',   icon: Map },
             { id: 'leonida'  as Tab, label: 'Leonida Map',  icon: Globe },
             { id: 'completion' as Tab, label: '100% Completion', icon: CheckCircle2 },
+            { id: 'community' as Tab, label: 'Community', icon: Trophy },
             { id: 'chapters' as Tab, label: 'Chapter Guide',icon: BookOpen },
             { id: 'properties' as Tab, label: 'Properties', icon: Home },
             { id: 'fences'   as Tab, label: 'Fences',       icon: Users },
@@ -256,6 +260,8 @@ export default function TrackerShell({
         </div>
       ) : activeTab === 'completion' ? (
         <CompletionCenter />
+      ) : activeTab === 'community' ? (
+        <CommunityHub players={communityPlayers} chapters={chapters} globalStats={globalStats} />
       ) : activeTab === 'chapters' ? (
         <div className="relative z-10 w-full">
           <ChapterGuide />
