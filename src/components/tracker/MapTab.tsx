@@ -297,7 +297,7 @@ function CategoryDropdown({
         <div className="absolute right-0 top-full z-50 mt-2 max-h-80 w-56 overflow-y-auto rounded-xl border border-white/[0.12] bg-[#0d0e1c] p-2 shadow-2xl">
           {active.size > 0 && (
             <button
-              onClick={() => { onClear(); onToggleCommunity(); if (!communityOnly) onToggleCommunity(); setOpen(false) }}
+              onClick={() => { onClear(); setOpen(false) }}
               className="mb-1.5 w-full rounded-lg bg-white/5 px-2 py-1.5 text-left text-[10px] text-white/50 hover:text-white/80 transition"
             >
               Clear all filters
@@ -421,7 +421,7 @@ export default function MapTab() {
         <CategoryDropdown
           active={activeCategories}
           onToggle={toggleCategory}
-          onClear={clearCategories}
+          onClear={() => { clearCategories(); setCommunityOnly(false) }}
           communityOnly={communityOnly}
           onToggleCommunity={() => setCommunityOnly(value => !value)}
         />
