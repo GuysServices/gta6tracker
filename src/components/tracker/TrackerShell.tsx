@@ -14,13 +14,14 @@ import PropertyTracker from './PropertyTracker'
 import FenceDirectory from './FenceDirectory'
 import CheatCodes from './CheatCodes'
 import MapTab from './MapTab'
-import { Map, ListChecks, BookOpen, Home, Users, Zap, Globe } from 'lucide-react'
+import { Map, ListChecks, BookOpen, Home, Users, Zap, Globe, ShieldCheck } from 'lucide-react'
 import clsx from 'clsx'
 
-type Tab = 'missions' | 'world' | 'chapters' | 'properties' | 'fences' | 'cheats' | 'leonida'
+type Tab = 'missions' | 'world' | 'chapters' | 'properties' | 'fences' | 'cheats' | 'leonida' | 'admin'
 
 interface Props {
   user: User
+  isAdmin: boolean
   chapters: Chapter[]
   initialProgress: UserProgress[]
   globalStats: { mission_id: string; completed_count: number }[]
@@ -30,6 +31,7 @@ interface Props {
 
 export default function TrackerShell({
   user,
+  isAdmin,
   chapters,
   initialProgress,
   globalStats,
@@ -194,6 +196,7 @@ export default function TrackerShell({
             { id: 'properties' as Tab, label: 'Properties', icon: Home },
             { id: 'fences'   as Tab, label: 'Fences',       icon: Users },
             { id: 'cheats'   as Tab, label: 'Cheats',       icon: Zap },
+            ...(isAdmin ? [{ id: 'admin' as Tab, label: 'Admin', icon: ShieldCheck }] : []),
           ] as const).map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -212,7 +215,23 @@ export default function TrackerShell({
       </div>
 
       {/* ── Tab content ───────────────────────────────────────────── */}
-      {activeTab === 'missions' ? (
+      {activeTab === 'admin' && isAdmin ? (
+        <section className="relative z-10 mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
+          <div className="overflow-hidden rounded-2xl border border-[#ff79a8]/20 bg-[#11121d]/90 shadow-[0_20px_70px_rgba(0,0,0,.25)]">
+            <div className="border-b border-white/[0.08] bg-gradient-to-r from-[#ff79a8]/10 to-transparent px-6 py-6">
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#ff79a8]/25 bg-[#ff79a8]/10 text-[#ff9bb5]"><ShieldCheck size={21} /></span>
+                <div><p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#ff9bb5]">Owner controls</p><h1 className="mt-1 font-display text-2xl font-bold text-white">Admin Dashboard</h1></div>
+              </div>
+            </div>
+            <div className="grid gap-4 p-6 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.035] p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-white/40">Tracked missions</p><p className="mt-2 font-display text-3xl font-bold text-white">{totalMissions.toLocaleString()}</p></div>
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.035] p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-white/40">Community completions</p><p className="mt-2 font-display text-3xl font-bold text-[#ff9bb5]">{globalStats.reduce((sum, item) => sum + item.completed_count, 0).toLocaleString()}</p></div>
+            </div>
+            <div className="mx-6 mb-6 rounded-xl border border-emerald-400/15 bg-emerald-400/[0.05] p-4 text-sm leading-6 text-white/65"><span className="font-semibold text-emerald-300">Owner access verified.</span> This tab is available only to the account matching the server-side ADMIN_EMAIL setting.</div>
+          </div>
+        </section>
+      ) : activeTab === 'missions' ? (
         <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-7 sm:px-6 sm:py-9">
           {chapters.map(chapter => (
             <ChapterCard
