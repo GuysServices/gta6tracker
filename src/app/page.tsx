@@ -15,6 +15,7 @@ export default async function Home() {
   let progress: UserProgress[] = []
   let adminUsers: { id: string; username: string; avatar_url: string | null; created_at: string; completed: number; totalProgress: number; lastActive: string | null }[] = []
   let globalStats: { mission_id: string; completed_count: number }[] = []
+  let communityPlayers: { id: string; username: string; avatar_url: string | null; completed: number; lastActive: string | null }[] = []
 
   if (user) {
     const { data } = await supabase
@@ -40,6 +41,23 @@ export default async function Home() {
       completed_count,
     }))
   }
+
+  // Public leaderboard: only profile display fields and aggregate completion counts.
+  const [{ data: publicProfiles }, { data: communityProgress }] = await Promise.all([
+    supabase.from('profiles').select('id, username, avatar_url'),
+    supabase.from('user_progress').select('user_id, status, updated_at').eq('status', 'completed'),
+  ])
+  const communityTotals = new Map<string, { completed: number; lastActive: string | null }>()
+  for (const row of communityProgress ?? []) {
+    const current = communityTotals.get(row.user_id) ?? { completed: 0, lastActive: null }
+    current.completed += 1
+    if (!current.lastActive || row.updated_at > current.lastActive) current.lastActive = row.updated_at
+    communityTotals.set(row.user_id, current)
+  }
+  communityPlayers = (publicProfiles ?? []).map(profile => ({
+    ...profile,
+    ...(communityTotals.get(profile.id) ?? { completed: 0, lastActive: null }),
+  }))
 
   if (isAdmin) {
     const [{ data: profiles }, { data: allProgress }] = await Promise.all([
@@ -72,6 +90,7 @@ export default async function Home() {
           user={user}
           isAdmin={isAdmin}
           adminUsers={adminUsers}
+          communityPlayers={communityPlayers}
           adminLocations={GTA6_LOCATIONS.map(({ id, name, area, categoryLabel }) => ({ id, name, area, categoryLabel }))}
           chapters={CHAPTERS}
           initialProgress={progress}
