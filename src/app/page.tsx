@@ -37,6 +37,9 @@ export default async function Home() {
   }
 
   const totalMissions = getTotalMissions()
+  // Server-only owner allowlist; this email is never sent to the browser.
+  const configuredAdminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase()
+  const isAdmin = Boolean(user?.email && configuredAdminEmail && user.email.toLowerCase() === configuredAdminEmail)
   const completedCount = progress.filter(p => p.status === 'completed').length
 
   return (
@@ -46,6 +49,7 @@ export default async function Home() {
       ) : (
         <TrackerShell
           user={user}
+          isAdmin={isAdmin}
           chapters={CHAPTERS}
           initialProgress={progress}
           globalStats={globalStats}
