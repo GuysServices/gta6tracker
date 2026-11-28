@@ -243,6 +243,7 @@ export default function GTADBMapCanvas({ locations }: Props) {
           </div>
           <p className="mt-1.5 text-sm font-semibold leading-snug text-white">{selected.name}</p>
           <p className="mt-1 text-xs text-white/45">{selected.area}</p>
+          {selected.sourceUrl && <a href={selected.sourceUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex text-[10px] font-semibold text-[#ff9bb5] hover:text-white">Research source · {selected.sourceLabel || 'Open source'} ↗</a>}
         </div>
       )}
 
