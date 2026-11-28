@@ -43,7 +43,7 @@ export default function CompletionCenter() {
 
   async function update(locationId: number, patch: Partial<Pick<Saved, 'is_completed' | 'is_favorite'>>) {
     const previous = saved[locationId]
-    const next: Saved = { location_id: locationId, is_completed: false, is_favorite: false, note: null, ...previous, ...patch }
+    const next: Saved = { ...(previous ?? { location_id: locationId, is_completed: false, is_favorite: false, note: null }), ...patch }
     setSaved(current => ({ ...current, [locationId]: next }))
     setError('')
     try {
