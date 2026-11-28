@@ -17,10 +17,11 @@ import MapTab from './MapTab'
 import AdminDashboard from './AdminDashboard'
 import CompletionCenter from './CompletionCenter'
 import CommunityHub from './CommunityHub'
-import { Map, ListChecks, BookOpen, Home, Users, Zap, Globe, ShieldCheck, CheckCircle2, Trophy } from 'lucide-react'
+import CommunitySubmissionForm from './CommunitySubmissionForm'
+import { Map, ListChecks, BookOpen, Home, Users, Zap, Globe, ShieldCheck, CheckCircle2, Trophy, MapPinPlus } from 'lucide-react'
 import clsx from 'clsx'
 
-type Tab = 'missions' | 'world' | 'chapters' | 'properties' | 'fences' | 'cheats' | 'leonida' | 'completion' | 'community' | 'admin'
+type Tab = 'missions' | 'world' | 'chapters' | 'properties' | 'fences' | 'cheats' | 'leonida' | 'completion' | 'community' | 'submit' | 'admin'
 
 interface Props {
   user: User
@@ -196,13 +197,14 @@ export default function TrackerShell({
 
       {/* ── Tab switcher ──────────────────────────────────────────── */}
       <div className="relative z-10 border-b border-white/[0.08] bg-[#0a0b14]">
-        <div className="mx-auto flex max-w-5xl px-4 sm:px-6">
+        <div className="mx-auto flex w-full max-w-5xl overflow-x-auto px-4 sm:px-6">
           {([
             { id: 'missions' as Tab, label: 'Missions',     icon: ListChecks },
             { id: 'world'    as Tab, label: 'Car Finder',   icon: Map },
             { id: 'leonida'  as Tab, label: 'Leonida Map',  icon: Globe },
             { id: 'completion' as Tab, label: '100% Completion', icon: CheckCircle2 },
             { id: 'community' as Tab, label: 'Community', icon: Trophy },
+            { id: 'submit' as Tab, label: 'Submit Discovery', icon: MapPinPlus },
             { id: 'chapters' as Tab, label: 'Chapter Guide',icon: BookOpen },
             { id: 'properties' as Tab, label: 'Properties', icon: Home },
             { id: 'fences'   as Tab, label: 'Fences',       icon: Users },
@@ -213,7 +215,7 @@ export default function TrackerShell({
               key={id}
               onClick={() => setActiveTab(id)}
               className={clsx(
-                'flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-semibold uppercase tracking-[0.16em] transition',
+                'flex shrink-0 items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-semibold uppercase tracking-[0.16em] transition',
                 activeTab === id
                   ? 'border-[#ff79a8] text-white'
                   : 'border-transparent text-white/35 hover:text-white/60',
@@ -262,6 +264,11 @@ export default function TrackerShell({
         <CompletionCenter />
       ) : activeTab === 'community' ? (
         <CommunityHub players={communityPlayers} chapters={chapters} globalStats={globalStats} />
+      ) : activeTab === 'submit' ? (
+        <div className="relative z-10 mx-auto w-full max-w-5xl px-4 py-7 sm:px-6">
+          <div className="mb-5"><p className="mb-1 text-[10px] font-bold uppercase tracking-[.22em] text-[#ff9bb5]">Help expand the map</p><h2 className="text-2xl font-bold">Submit a Community Discovery</h2><p className="mt-1 text-sm text-white/45">Share a location, vehicle, collectible, or other discovery. Submissions are reviewed before being added to the map.</p></div>
+          <CommunitySubmissionForm />
+        </div>
       ) : activeTab === 'chapters' ? (
         <div className="relative z-10 w-full">
           <ChapterGuide />
