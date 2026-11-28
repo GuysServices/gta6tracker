@@ -207,16 +207,21 @@ export default function GTADBMapCanvas({ locations }: Props) {
             title={loc.name}
             onPointerDown={event => event.stopPropagation()}
             onClick={event => { event.stopPropagation(); setSelected(current => current?.id === loc.id ? null : loc) }}
-            className="absolute z-10 -translate-x-1/2 -translate-y-full rounded-full border-2 border-[#080910] shadow-lg transition-transform hover:scale-125"
+            className="absolute z-10 -translate-x-1/2 -translate-y-full flex items-center justify-center rounded-full border-2 border-[#080910] shadow-lg transition-transform hover:scale-125"
             style={{
               left,
               top,
-              width: isSelected ? 19 : 13,
-              height: isSelected ? 19 : 13,
-              backgroundColor: meta.color,
-              boxShadow: isSelected ? `0 0 0 4px ${meta.color}55, 0 0 16px ${meta.color}` : undefined,
+              width: isSelected ? 30 : 25,
+              height: isSelected ? 30 : 25,
+              backgroundColor: '#10131d',
+              borderColor: meta.color,
+              boxShadow: isSelected ? `0 0 0 4px ${meta.color}55, 0 0 16px ${meta.color}` : `0 1px 7px rgba(0,0,0,.7), 0 0 0 1px ${meta.color}55`,
+              fontSize: isSelected ? 16 : 13,
+              lineHeight: 1,
             }}
-          />
+          >
+            <span aria-hidden="true">{meta.icon}</span>
+          </button>
         )
       })}
 
