@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import { Search, X, Map, List, ChevronDown } from 'lucide-react'
 import clsx from 'clsx'
+import GTADBMapCanvas from './GTADBMapCanvas'
 import {
   GTA6_LOCATIONS,
   CATEGORY_META,
@@ -421,7 +422,7 @@ export default function MapTab() {
 
       {/* ── View ── */}
       {view === 'map' ? (
-        <MapView locations={GTA6_LOCATIONS} activeCategories={activeCategories} />
+        <GTADBMapCanvas locations={GTA6_LOCATIONS.filter(l => activeCategories.size === 0 || activeCategories.has(l.category))} />
       ) : (
         <ListView
           locations={GTA6_LOCATIONS}
